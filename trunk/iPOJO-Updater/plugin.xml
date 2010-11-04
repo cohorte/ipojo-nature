@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+<extension point="org.eclipse.ui.popupMenus"> 
+	<objectContribution
+       id="org.psem2m.eclipse.ipojo.popup.manifest"
+       nameFilter="MANIFEST.MF"
+       objectClass="org.eclipse.core.resources.IFile">
+		<action
+        class="org.psem2m.eclipse.ipojo.actions.UpdateMF"
+        icon="icons/sample.gif"
+        id="org.psem2m.eclipse.ipojo.manifest.update"
+        label="Update Manifest"
+        menubarPath="additions"> 
+		</action> 
+	</objectContribution>
+	
+ <objectContribution
+       adaptable="true"
+       id="org.psem2m.eclipse.ipojo.nature"
+       nameFilter="*"
+       objectClass="org.eclipse.core.resources.IProject">
+    <action
+          class="org.psem2m.eclipse.ipojo.builder.ToggleNatureAction"
+          enablesFor="+"
+          icon="icons/sample.gif"
+          id="org.psem2m.eclipse.ipojo.nature.addRemoveNatureAction"
+          label="Add/Remove iPOJO Nature"
+          menubarPath="additions">
+    </action>
+ </objectContribution>
+</extension>
+
+<extension
+      id="org.psem2m.eclipse.ipojo.ipojoBuilder"
+      name="iPOJO Builder"
+      point="org.eclipse.core.resources.builders">
+   <builder
+         hasNature="true">
+      <run
+            class="org.psem2m.eclipse.ipojo.builder.IPojoBuilder">
+      </run>
+   </builder>
+</extension>
+<extension
+      id="org.psem2m.eclipse.ipojo.iPojoNature"
+      name="iPOJO Nature"
+      point="org.eclipse.core.resources.natures">
+   <runtime>
+      <run
+            class="org.psem2m.eclipse.ipojo.builder.IPojoNature">
+      </run>
+   </runtime>
+   <builder
+         id="org.psem2m.eclipse.ipojo.ipojoBuilder">
+   </builder>
+</extension>
+<extension 
+         point="org.eclipse.ui.ide.projectNatureImages"> 
+      <image 
+            icon="icons/sample.gif" 
+            id="org.psem2m.eclipse.ipojo.IPojoNature.img" 
+            natureId="org.psem2m.eclipse.ipojo.iPojoNature"> 
+      </image> 
+</extension>
+
+</plugin>
