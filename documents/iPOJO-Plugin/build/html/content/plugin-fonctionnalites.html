@@ -1,0 +1,149 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Fonctionnalités du plugin &mdash; iPOJO Builder Eclipse Plugin valpha documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="iPOJO Builder Eclipse Plugin valpha documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Index général"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">iPOJO Builder Eclipse Plugin valpha documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fonctionnalites-du-plugin">
+<h1>Fonctionnalités du plugin<a class="headerlink" href="#fonctionnalites-du-plugin" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="section" id="fonctionnalites-attendues">
+<h2>Fonctionnalités attendues<a class="headerlink" href="#fonctionnalites-attendues" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="pojoization-automatique-des-fichiers-class">
+<h3>Pojoization automatique des fichiers .class<a class="headerlink" href="#pojoization-automatique-des-fichiers-class" title="Lien permanent vers ce titre">¶</a></h3>
+<ul class="simple">
+<li>Les fichiers class doivent être <em>pojoizés</em> avant l&#8217;export de fichier JAR
+ou l&#8217;exécution d&#8217;une <em>Run Configuration</em>.</li>
+<li>Le meilleur moyen d&#8217;assurer cette fonctionnalité est d&#8217;effectuer le
+traitement sur les fichiers class fraîchement compilés par JDT.</li>
+</ul>
+<div class="section" id="builder-eclipse-pour-la-pojoization">
+<h4>Builder Eclipse pour la Pojoization<a class="headerlink" href="#builder-eclipse-pour-la-pojoization" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Le plugin doit fournir un &#8220;builder&#8221; s&#8217;insérant dans la chaîne de compilation
+d&#8217;un projet Java utilisant ou non Maven.</p>
+<p>Ce builder doit modifier les fichier class et le fichier Manifest.mf du projet
+dès qu&#8217;un de ces fichiers a été modifié par un autre compilateur ou par
+l&#8217;utilisateur.</p>
+<p>Le builder peut être soit un plugin Eclipse pur, soit un plugin JDT.</p>
+</div>
+<div class="section" id="compatibilite-avec-le-plugin-maven">
+<h4>Compatibilité avec le plugin Maven<a class="headerlink" href="#compatibilite-avec-le-plugin-maven" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Le plugin iPOJO doit être capable d&#8217;interagir avec le plugin Maven pour Eclipse.
+Ces deux plugins effectuent des opérations sur les fichiers class dès qu&#8217;une
+modification a eu lieu dans un fichier du projet, ce qui pourrait entraîner une
+boucle sans fin.</p>
+</div>
+</div>
+</div>
+<div class="section" id="fonctionnalites-optionnelles">
+<h2>Fonctionnalités optionnelles<a class="headerlink" href="#fonctionnalites-optionnelles" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="editeur-de-fichier-metadata-xml">
+<h3>Éditeur de fichier metadata.xml<a class="headerlink" href="#editeur-de-fichier-metadata-xml" title="Lien permanent vers ce titre">¶</a></h3>
+<ul class="simple">
+<li>Au moins fournir un template pour l&#8217;éditeur XML, avec les XML schemas
+renseignés dans le prototype.</li>
+<li>Ajouter la completion des noms java, des noms de composant et de propriétés
+connus</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table des matières</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Fonctionnalités du plugin</a><ul>
+<li><a class="reference internal" href="#fonctionnalites-attendues">Fonctionnalités attendues</a><ul>
+<li><a class="reference internal" href="#pojoization-automatique-des-fichiers-class">Pojoization automatique des fichiers .class</a><ul>
+<li><a class="reference internal" href="#builder-eclipse-pour-la-pojoization">Builder Eclipse pour la Pojoization</a></li>
+<li><a class="reference internal" href="#compatibilite-avec-le-plugin-maven">Compatibilité avec le plugin Maven</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fonctionnalites-optionnelles">Fonctionnalités optionnelles</a><ul>
+<li><a class="reference internal" href="#editeur-de-fichier-metadata-xml">Éditeur de fichier metadata.xml</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>Cette page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/content/plugin-fonctionnalites.txt"
+           rel="nofollow">Montrer la source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Recherche rapide</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Index général"
+             >index</a></li>
+        <li><a href="../index.html">iPOJO Builder Eclipse Plugin valpha documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Thomas Calmant, Olivier Gattaz.
+      Créé avec <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
