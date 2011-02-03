@@ -6,12 +6,20 @@
    <feature url="features/org.psem2m.eclipse.ipojo.dependencies_1.0.0.qualifier.jar" id="org.psem2m.eclipse.ipojo.dependencies" version="1.0.0.qualifier">
       <category name="ipojo"/>
    </feature>
-   <feature url="features/org.psem2m.eclipse.ipojo.manifest.updater_1.0.0.qualifier.jar" id="org.psem2m.eclipse.ipojo.manifest.updater" version="1.0.0.qualifier">
+   <feature url="features/org.psem2m.eclipse.ipojo.manifest.updater_1.0.0.201102030940.jar" id="org.psem2m.eclipse.ipojo.manifest.updater" version="1.0.0.201102030940">
       <category name="ipojo"/>
+   </feature>
+   <feature url="features/org.psem2m.eclipse.rest.editor_1.0.0.201102030940.jar" id="org.psem2m.eclipse.rest.editor" version="1.0.0.201102030940">
+      <category name="rest"/>
    </feature>
    <category-def name="ipojo" label="iPOJO Updater Plugin">
       <description>
          iPOJO Updater plugin
+      </description>
+   </category-def>
+   <category-def name="rest" label="ReST Editor Plugin">
+      <description>
+         A reStructuredText editor for Eclipse
       </description>
    </category-def>
 </site>
