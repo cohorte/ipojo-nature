@@ -104,7 +104,7 @@ public class CompositeFile extends File {
 			CoreException {
 
 		if (pEclipseResource == null) {
-			throw new IOException("Resource not found");
+			throw new IOException("Invalid resource");
 		}
 
 		if (pEclipseResource.getType() != IResource.FILE) {

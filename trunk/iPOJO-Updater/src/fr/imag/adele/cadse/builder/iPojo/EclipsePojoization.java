@@ -69,11 +69,20 @@ public class EclipsePojoization extends Pojoization {
 	/** Handled files */
 	private List<IResource> pResources;
 
+	/**
+	 * Prepares the builder, without specified handled resources
+	 */
 	public EclipsePojoization() {
 		super();
 		pResources = null;
 	}
 
+	/**
+	 * Prepares the builder with the specified resource handling list
+	 * 
+	 * @param aResourceList
+	 *            Handled resources list
+	 */
 	public EclipsePojoization(final List<IResource> aResourceList) {
 		super();
 		pResources = aResourceList;
@@ -89,24 +98,30 @@ public class EclipsePojoization extends Pojoization {
 	 *            Metadata.xml file (can be null)
 	 * @param aManifestFile
 	 *            Manifest.mf file (can't be null, created if inexistent)
-	 * @return True if the pojoization was done without error
-	 * @throws CoreException
-	 *             an error occurred retrieving project informations
+	 * @return True if the pojoization was done without error, False on error
 	 */
 	public boolean directoryPojoization(final IProject aProject,
-			final CompositeFile aMetadataFile, final CompositeFile aManifestFile)
-			throws CoreException {
+			final CompositeFile aMetadataFile, final CompositeFile aManifestFile) {
 
 		pErrorCaught = false;
 		pProject = aProject;
 		pManifestFile = aManifestFile;
 
-		// Can throw an exception
-		pJavaProject = (IJavaProject) aProject.getNature(JavaCore.NATURE_ID);
+		IPath outputLocation;
+		try {
+			pJavaProject = (IJavaProject) aProject
+					.getNature(JavaCore.NATURE_ID);
+			outputLocation = pJavaProject.getOutputLocation();
+		} catch (CoreException ex) {
+			error("Error retrieving java project nature : " + ex);
+
+			pJavaProject = null;
+			return false;
+		}
 
 		// Get output path, in an Eclipse behavior
 		final CompositeFile classesOutputFolder = new CompositeFile(aProject
-				.getWorkspace().getRoot(), pJavaProject.getOutputLocation());
+				.getWorkspace().getRoot(), outputLocation);
 
 		// Do the "pojoization"
 		super.directoryPojoization(classesOutputFolder, aMetadataFile,
@@ -115,10 +130,38 @@ public class EclipsePojoization extends Pojoization {
 		return !pErrorCaught;
 	}
 
+	/**
+	 * Prints out an error message
+	 * 
+	 * @param aErrorMessage
+	 *            The error message
+	 * 
+	 * @see org.apache.felix.ipojo.manipulator.Pojoization#error(java.lang.String)
+	 */
 	@Override
-	protected void error(final String mes) {
-		super.error(mes);
-		Activator.logError("iPOJO Manipulator error : " + mes, null);
+	protected void error(final String aErrorMessage) {
+		super.error(aErrorMessage);
+		Activator.logError("iPOJO Manipulator error : " + aErrorMessage, null);
+		pErrorCaught = true;
+	}
+
+	/**
+	 * Prints out an error message
+	 * 
+	 * @param aErrorMessage
+	 *            The error message
+	 * 
+	 * @param aException
+	 *            The associated exception
+	 * 
+	 * @see org.apache.felix.ipojo.manipulator.Pojoization#error(java.lang.String)
+	 */
+	protected void error(final String aErrorMessage, final Exception aException) {
+		super.error(aErrorMessage);
+
+		Activator.logError("iPOJO Manipulator error : " + aErrorMessage,
+				aException);
+		aException.printStackTrace();
 		pErrorCaught = true;
 	}
 
@@ -129,7 +172,7 @@ public class EclipsePojoization extends Pojoization {
 	 *            name of a class to be read
 	 * @return a byte array
 	 * @throws IOException
-	 *             if the class file cannot be read
+	 *             if the class file can't be read
 	 */
 	@Override
 	protected byte[] getBytecode(String aClassName) throws IOException {
@@ -139,8 +182,7 @@ public class EclipsePojoization extends Pojoization {
 				aClassName = pJavaProject.getOutputLocation()
 						.append(aClassName).toPortableString();
 			} catch (JavaModelException e) {
-				Activator.logError("Can't get Java ouput folder", e);
-				e.printStackTrace();
+				error("Can't get Java ouput folder", e);
 				throw new IOException("Can't find folder", e);
 			}
 		}
@@ -166,74 +208,101 @@ public class EclipsePojoization extends Pojoization {
 			inputStream = origF.getContents();
 			byte[] bytes = new byte[inputStream.available()];
 
-			if (bytes.length == 0)
+			if (bytes.length == 0) {
+				error("Empty class !");
 				throw new IOException("Empty class");
+			}
 
 			inputStream.read(bytes);
 			return bytes;
+
 		} catch (IOException e) {
-			Activator.logError("Error reading class file", e);
+			error("Error reading class file", e);
 			throw e;
+
 		} catch (CoreException e) {
-			Activator.logError("Error reading class file", e);
+			error("Error reading class file", e);
 			throw new IOException(e.getMessage(), e);
 
 		} finally {
 			try {
-				if (inputStream != null)
+				if (inputStream != null) {
 					inputStream.close();
+				}
 			} catch (Exception e) {
 				// Do nothing
 			}
 		}
 	}
 
+	/**
+	 * Retrieves the Manifest file of the project
+	 * 
+	 * @return The manifest file input stream, null on opening error
+	 * @throws IOException
+	 *             Error while reading the file
+	 * @see org.apache.felix.ipojo.manipulator.Pojoization#getManifestInputStream()
+	 */
 	@Override
 	protected InputStream getManifestInputStream() throws IOException {
 		try {
 			return pManifestFile.getInputStream();
+
 		} catch (CoreException ex) {
-			Activator.logError("Error reading Manifest", ex);
+			error("Error reading Manifest", ex);
 			return null;
 		}
 	}
 
+	/**
+	 * Searches for .class files in the given directory (recursive). If no
+	 * directory is given, then tries to use the Java project output folder.
+	 * 
+	 * @param aDirectory
+	 *            Directory to read (can be null)
+	 * @param aClassNameList
+	 *            A list that will contain all class files names
+	 * 
+	 * @see org.apache.felix.ipojo.manipulator.Pojoization#searchClassFiles(File,List)
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void searchClassFiles(final File aDirectory,
 			final List aClassNameList) {
 
 		if (aClassNameList == null) {
-			Activator.logError("[searchClassFiles] Null output class list",
-					null);
+			error("[searchClassFiles] Null output class list");
 			return;
 		}
 
 		if (pResources != null) {
-
 			// Only manipulate indicated files
 			for (IResource resource : pResources) {
 
-				// Only handle files
-				if (resource.getType() == IResource.FILE) {
+				// Only handle accessible files
+				if (resource.getType() == IResource.FILE
+						&& resource.isAccessible()) {
+
 					aClassNameList.add(resource.getFullPath()
 							.toPortableString());
 				}
 			}
-		} else {
 
+		} else {
+			// Work on any class file
 			IContainer directory;
 
 			if (aDirectory == null) {
+				// No specified directory : try the output one
 				try {
 					directory = (IContainer) pProject.getWorkspace().getRoot()
 							.findMember(pJavaProject.getOutputLocation());
+
 				} catch (JavaModelException e) {
-					Activator.logError(
-							"Can't retrieve Java project output location", e);
-					e.printStackTrace();
+					error("Can't retrieve Java project output location", e);
 					return;
 				}
+
 			} else {
 
 				// Find all .class files
@@ -242,8 +311,7 @@ public class EclipsePojoization extends Pojoization {
 			}
 
 			if (directory == null) {
-				Activator.logError("No Java project output location found...",
-						null);
+				error("No Java project output location found...");
 				return;
 			}
 
@@ -251,6 +319,17 @@ public class EclipsePojoization extends Pojoization {
 		}
 	}
 
+	/**
+	 * Eclipse version of
+	 * {@link EclipsePojoization#searchClassFiles(File, List)}
+	 * 
+	 * @param aContainer
+	 *            The resource container (directory)
+	 * @param aClassNameList
+	 *            The list to be filled with found class files names
+	 * 
+	 * @see EclipsePojoization#searchClassFiles(File, List)
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void searchClassFiles(final IContainer aContainer,
 			final List aClassNameList) {
@@ -259,31 +338,41 @@ public class EclipsePojoization extends Pojoization {
 
 		try {
 			members = aContainer.members();
+
 		} catch (CoreException e) {
-			Activator.logError("Error listing members in : "
+			error("Error listing members in : "
 					+ aContainer.getFullPath().toOSString(), e);
-			e.printStackTrace();
 			return;
 		}
 
 		for (IResource member : members) {
 
-			if (member.getType() == IResource.FILE
+			if (member.getType() == IResource.FILE && member.isAccessible()
 					&& member.getName().endsWith(".class")) {
+
 				aClassNameList.add(member.getFullPath().toPortableString());
 
 			} else if (member instanceof IContainer) {
+
 				searchClassFiles((IContainer) member, aClassNameList);
 			}
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Writes the .class raw data to the given file.
 	 * 
-	 * @see
-	 * org.apache.felix.ipojo.manipulator.Pojoization#setBytecode(java.io.File,
-	 * byte[])
+	 * @param classFile
+	 *            Output .class file
+	 * @param rawClass
+	 *            Raw class representation
+	 * 
+	 * @throws An
+	 *             error occurred while using a temporary
+	 *             {@link ByteArrayInputStream}
+	 * 
+	 * @see org.apache.felix.ipojo.manipulator.Pojoization#setBytecode(java.io.File,
+	 *      byte[])
 	 */
 	@Override
 	protected void setBytecode(final File classFile, final byte[] rawClass)
@@ -297,26 +386,53 @@ public class EclipsePojoization extends Pojoization {
 		try {
 			if (pojoizedFile.exists()) {
 				pojoizedFile.setContents(rawClassStream, true, false, null);
+
 			} else {
 				pojoizedFile.create(rawClassStream, true, null);
+
+				// Set the pojoized file as derived resource if we created it
+				pojoizedFile.setDerived(true, null);
 			}
 
 		} catch (CoreException ex) {
-			Activator.logError("Error writing new .class file", ex);
+			error("Error writing new .class file", ex);
 		}
+
+		rawClassStream.close();
 	}
 
+	/**
+	 * Writes the manifest file content.
+	 * 
+	 * @param mf
+	 *            Manifest file representation
+	 * 
+	 * @throws IOException
+	 *             An error occurred while writing the Manifest file
+	 * 
+	 * @see org.apache.felix.ipojo.manipulator.Pojoization#writeManifest(java.util.jar.Manifest)
+	 */
 	@Override
 	protected void writeManifest(final Manifest mf) throws IOException {
+
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		mf.write(outStream);
 
 		try {
-			pManifestFile.setContent(new ByteArrayInputStream(outStream
-					.toByteArray()));
+			if (pManifestFile.exists()) {
+				pManifestFile.setContent(new ByteArrayInputStream(outStream
+						.toByteArray()));
+
+			} else {
+				// Don't set the derived flag : this file should have been there
+				// before
+				pManifestFile.createNewFile();
+			}
+
 		} catch (CoreException ex) {
-			Activator.logError("Error writing Manifest file", ex);
-			ex.printStackTrace();
+			error("Error writing Manifest file", ex);
 		}
+
+		outStream.close();
 	}
 }

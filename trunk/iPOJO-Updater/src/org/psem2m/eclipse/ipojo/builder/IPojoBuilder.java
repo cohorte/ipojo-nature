@@ -45,6 +45,7 @@ import org.psem2m.eclipse.ipojo.core.ManifestUpdater;
  */
 public class IPojoBuilder extends IncrementalProjectBuilder {
 
+	/** Plugin Builder ID */
 	public static final String BUILDER_ID = "org.psem2m.eclipse.ipojo.ipojoBuilder";
 
 	/** iPOJO Manifest updater */
@@ -74,20 +75,26 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			ArrayList<IResource> classes = new ArrayList<IResource>();
 			List<IResource> deltas = new ArrayList<IResource>();
 
-			if (loadResourceDelta(getDelta(getProject()), resources, classes)) {
-				// Metadata file modified : list all .class files
+			IResourceDelta resourceDelta = getDelta(getProject());
+
+			if (resourceDelta == null
+					|| loadResourceDelta(resourceDelta, resources, classes)) {
+				// Full build or metadata file modified : list all .class files
 				getAllClassFiles(getProjectOutputContainer(), deltas);
+
 			} else {
 				// Filter lists to get only needed binaries
 				deltas = filterLists(resources, classes);
 			}
 
+			// Do the work if needed
 			if (deltas.size() > 0) {
 				updateManifest(deltas);
 			}
 			break;
 		}
 
+		// Null, IProject, keep a list of handled projects ???
 		return new IProject[0];
 	}
 

@@ -55,6 +55,10 @@ public class ManifestUpdater {
 	 */
 	private IFile findFile(final IContainer aRoot, final String aFileName) {
 
+		if (aRoot == null || aFileName == null || aFileName.isEmpty()) {
+			return null;
+		}
+
 		IResource[] members;
 		try {
 			members = aRoot.members();

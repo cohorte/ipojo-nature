@@ -44,19 +44,13 @@ import org.psem2m.eclipse.ipojo.core.ManifestUpdater;
  */
 public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 
-	/**
-	 * iPOJO Manifest updater
-	 */
+	/** iPOJO Manifest updater */
 	private ManifestUpdater pManifestUpdater;
 
-	/**
-	 * Current file selection
-	 */
+	/** Current file selection */
 	private TreeSelection pSelection;
 
-	/**
-	 * Parent pShell (for dialogs)
-	 */
+	/** Parent pShell (for dialogs) */
 	private Shell pShell;
 
 	/**
@@ -72,6 +66,7 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 	 */
 	@Override
 	public void run(final IAction action) {
+
 		if (pSelection.size() == 0
 				|| !(pSelection.getFirstElement() instanceof IFile)) {
 			Activator.logInfo("No file selected");
@@ -84,10 +79,12 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 
 		try {
 			pManifestUpdater.updateManifest(project);
+
 		} catch (FileNotFoundException ex) {
 			MessageDialog.openError(pShell, "iPOJO Updater Error",
 					"Error while updating the Manifest : " + ex);
-			Activator.logError("iPOJO update action error", ex);
+
+			Activator.logError("iPOJO update Manifest action error", ex);
 		}
 	}
 

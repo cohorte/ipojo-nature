@@ -32,64 +32,80 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin {
 
-	// The plug-in ID
+	/** The plug-in ID */
 	public static final String PLUGIN_ID = "org.psem2m.eclipse.ipojo.manifest.updater"; //$NON-NLS-1$
 
-	// The shared instance
-	private static Activator plugin;
+	/** The shared instance */
+	private static Activator pPluginInstance;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	/**
+	 * Returns an image descriptor for the image file at the given plug-in
+	 * relative path
+	 * 
+	 * @param path
+	 *            the path
+	 * @return the image descriptor
 	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
+	public static ImageDescriptor getImageDescriptor(final String path) {
+		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
-		return plugin;
+	public static Activator getUIPluginInstance() {
+		return pPluginInstance;
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
-	 *
-	 * @param path the path
-	 * @return the image descriptor
+	 * Logs an exception
+	 * 
+	 * @param msg
+	 *            Context description
+	 * @param ex
+	 *            Exception caught
 	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	public static void logError(final String msg, final Exception ex) {
+		getUIPluginInstance().getLog().log(
+				new Status(Status.ERROR, PLUGIN_ID, msg, ex));
 	}
-	
+
 	/**
 	 * Logs an information
-	 * @param msg Message to log
+	 * 
+	 * @param msg
+	 *            Message to log
 	 */
-	public static void logInfo(String msg) {
-		getDefault().getLog().log(new Status(Status.INFO, PLUGIN_ID, msg));
+	public static void logInfo(final String msg) {
+		getUIPluginInstance().getLog().log(
+				new Status(Status.INFO, PLUGIN_ID, msg));
 	}
-	
-	/**
-	 * Logs an exception
-	 * @param msg Context description
-	 * @param ex Exception caught
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+	 * )
 	 */
-	public static void logError(String msg, Exception ex) {
-		getDefault().getLog().log(new Status(Status.ERROR, PLUGIN_ID, msg, ex));
+	@Override
+	public void start(final BundleContext context) throws Exception {
+		super.start(context);
+		pPluginInstance = this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
+	 * )
+	 */
+	@Override
+	public void stop(final BundleContext context) throws Exception {
+		pPluginInstance = null;
+		super.stop(context);
 	}
 }

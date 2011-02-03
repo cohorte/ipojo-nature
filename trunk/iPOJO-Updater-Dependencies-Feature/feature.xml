@@ -2,7 +2,7 @@
 <feature
       id="org.psem2m.eclipse.ipojo.dependencies"
       label="iPOJO Manifest Updater Dependencies"
-      version="1.0.0.qualifier"
+      version="1.8.0.qualifier"
       provider-name="isandlaTech">
 
    <description url="http://www.isandlatech.com">
