@@ -9,7 +9,7 @@
    <feature url="features/org.psem2m.eclipse.ipojo.manifest.updater_1.0.0.201102030940.jar" id="org.psem2m.eclipse.ipojo.manifest.updater" version="1.0.0.201102030940">
       <category name="ipojo"/>
    </feature>
-   <feature url="features/org.psem2m.eclipse.rest.editor_1.0.0.201102030940.jar" id="org.psem2m.eclipse.rest.editor" version="1.0.0.201102030940">
+   <feature url="features/org.psem2m.eclipse.rest.editor_1.0.0.201102031208.jar" id="org.psem2m.eclipse.rest.editor" version="1.0.0.201102031208">
       <category name="rest"/>
    </feature>
    <category-def name="ipojo" label="iPOJO Updater Plugin">
