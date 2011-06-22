@@ -40,26 +40,34 @@ import org.psem2m.eclipse.ipojo.Activator;
  */
 public class ToggleNatureAction implements IObjectActionDelegate {
 
-	private ISelection selection;
+	/** Current selection */
+	private ISelection pSelection;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
+	@Override
 	@SuppressWarnings("rawtypes")
-	public void run(IAction action) {
-		if (selection instanceof IStructuredSelection) {
-			for (Iterator it = ((IStructuredSelection) selection).iterator(); it
+	public void run(final IAction aAction) {
+
+		if (pSelection instanceof IStructuredSelection) {
+
+			for (Iterator it = ((IStructuredSelection) pSelection).iterator(); it
 					.hasNext();) {
+
 				Object element = it.next();
 				IProject project = null;
+
 				if (element instanceof IProject) {
 					project = (IProject) element;
+
 				} else if (element instanceof IAdaptable) {
 					project = (IProject) ((IAdaptable) element)
 							.getAdapter(IProject.class);
 				}
+
 				if (project != null) {
 					toggleNature(project);
 				}
@@ -74,8 +82,11 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action
 	 * .IAction, org.eclipse.jface.viewers.ISelection)
 	 */
-	public void selectionChanged(IAction action, ISelection selection) {
-		this.selection = selection;
+	@Override
+	public void selectionChanged(final IAction aAction,
+			final ISelection aSelection) {
+
+		pSelection = aSelection;
 	}
 
 	/*
@@ -85,21 +96,26 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * org.eclipse.ui.IObjectActionDelegate#setActivePart(org.eclipse.jface.
 	 * action.IAction, org.eclipse.ui.IWorkbenchPart)
 	 */
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	@Override
+	public void setActivePart(final IAction aAction,
+			final IWorkbenchPart aTargetPart) {
+		// Do nothing
 	}
 
 	/**
 	 * Toggles sample nature on a project
 	 * 
-	 * @param project
-	 *            to have sample nature added or removed
+	 * @param aProject
+	 *            The project where to add or remove the iPOJO nature
 	 */
-	private void toggleNature(IProject project) {
+	private void toggleNature(final IProject aProject) {
+
 		try {
-			IProjectDescription description = project.getDescription();
+			IProjectDescription description = aProject.getDescription();
 			String[] natures = description.getNatureIds();
 
 			for (int i = 0; i < natures.length; ++i) {
+
 				if (IPojoNature.NATURE_ID.equals(natures[i])) {
 					// Remove the nature
 					String[] newNatures = new String[natures.length - 1];
@@ -107,7 +123,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 					System.arraycopy(natures, i + 1, newNatures, i,
 							natures.length - i - 1);
 					description.setNatureIds(newNatures);
-					project.setDescription(description, null);
+					aProject.setDescription(description, null);
 					return;
 				}
 			}
@@ -117,7 +133,8 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			System.arraycopy(natures, 0, newNatures, 0, natures.length);
 			newNatures[natures.length] = IPojoNature.NATURE_ID;
 			description.setNatureIds(newNatures);
-			project.setDescription(description, null);
+			aProject.setDescription(description, null);
+
 		} catch (CoreException e) {
 			Activator.logError("Error setting iPOJO nature", e);
 		}

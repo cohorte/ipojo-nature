@@ -212,10 +212,20 @@ public class EclipsePojoization extends Pojoization {
 			throw new IOException(message);
 		}
 
+		try {
+			// Seems necessary to avoid retrieving an empty file content
+			origF.refreshLocal(IResource.DEPTH_ZERO, null);
+
+		} catch (CoreException e1) {
+			Activator.logError("Can't refresh file '" + origF.getName() + "'",
+					e1);
+		}
+
 		// Read the file
 		InputStream inputStream = null;
 		try {
 			inputStream = origF.getContents();
+
 			byte[] bytes = new byte[inputStream.available()];
 
 			if (bytes.length == 0) {

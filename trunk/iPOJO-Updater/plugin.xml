@@ -9,7 +9,6 @@
        objectClass="org.eclipse.core.resources.IFile">
 		<action
         class="org.psem2m.eclipse.ipojo.actions.UpdateMF"
-        icon="icons/sample.gif"
         id="org.psem2m.eclipse.ipojo.manifest.update"
         label="Update Manifest"
         menubarPath="additions"> 
@@ -18,16 +17,16 @@
 	
  <objectContribution
        adaptable="true"
-       id="org.psem2m.eclipse.ipojo.nature"
+       id="org.psem2m.eclipse.ipojo.nature.toggle"
        nameFilter="*"
        objectClass="org.eclipse.core.resources.IProject">
     <action
           class="org.psem2m.eclipse.ipojo.builder.ToggleNatureAction"
           enablesFor="+"
-          icon="icons/sample.gif"
           id="org.psem2m.eclipse.ipojo.nature.addRemoveNatureAction"
           label="Add/Remove iPOJO Nature"
-          menubarPath="additions">
+          menubarPath="additions"
+          tooltip="Change the iPOJO Nature state">
     </action>
  </objectContribution>
 </extension>
@@ -55,14 +54,6 @@
    <builder
          id="org.psem2m.eclipse.ipojo.ipojoBuilder">
    </builder>
-</extension>
-<extension 
-         point="org.eclipse.ui.ide.projectNatureImages"> 
-      <image 
-            icon="icons/sample.gif" 
-            id="org.psem2m.eclipse.ipojo.IPojoNature.img" 
-            natureId="org.psem2m.eclipse.ipojo.iPojoNature"> 
-      </image> 
 </extension>
 
 </plugin>
