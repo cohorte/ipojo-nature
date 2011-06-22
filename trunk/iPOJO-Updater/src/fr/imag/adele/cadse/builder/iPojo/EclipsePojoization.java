@@ -26,7 +26,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.apache.felix.ipojo.manipulator.Pojoization;
@@ -42,6 +45,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.psem2m.eclipse.ipojo.Activator;
 import org.psem2m.eclipse.ipojo.core.CompositeFile;
+import org.psem2m.eclipse.ipojo.core.SortedAttributes;
 
 /**
  * Source from the CADSE project, modified to remove some CADSE internal
@@ -53,6 +57,12 @@ import org.psem2m.eclipse.ipojo.core.CompositeFile;
  * @author Thomas Calmant - Transformation with a patched Pojoization class
  */
 public class EclipsePojoization extends Pojoization {
+
+	/** Manifest.map field */
+	private static Field sEntriesField;
+
+	/** Manifest.attr field */
+	private static Field sAttrField;
 
 	/** True if an error occurred */
 	private boolean pErrorCaught;
@@ -255,6 +265,56 @@ public class EclipsePojoization extends Pojoization {
 	}
 
 	/**
+	 * Modifies the given Manifest object to use sorted entries and attributes.
+	 * Uses reflection to do it, so it may not work in some cases (security
+	 * accesses, ...)
+	 * 
+	 * @param aManifest
+	 *            The manifest object to be modified
+	 */
+	protected void makeSortedManifest(final Manifest aManifest) {
+
+		synchronized (aManifest) {
+
+			// Prepare the sorted attributes object
+			SortedAttributes sortedAttributes = new SortedAttributes(
+					aManifest.getMainAttributes());
+
+			// Prepare the sorted entry
+			TreeMap<String, Attributes> sortedEntries = new TreeMap<String, Attributes>(
+					aManifest.getEntries());
+
+			try {
+				// Get the map field
+				if (sEntriesField == null) {
+					sEntriesField = Manifest.class.getDeclaredField("entries");
+					sEntriesField.setAccessible(true);
+				}
+
+				// Get the attr field
+				if (sAttrField == null) {
+					sAttrField = Manifest.class.getDeclaredField("attr");
+					sAttrField.setAccessible(true);
+				}
+			} catch (NoSuchFieldException ex) {
+				Activator.logError("Can't find the Manifest attribute", ex);
+				return;
+			}
+
+			// Change fields
+			try {
+				sEntriesField.set(aManifest, sortedEntries);
+				sAttrField.set(aManifest, sortedAttributes);
+
+			} catch (IllegalArgumentException e) {
+				Activator.logError("Bad type of Manifest attribute", e);
+			} catch (IllegalAccessException e) {
+				Activator.logError("Bad access to Manifest attribute", e);
+			}
+		}
+	}
+
+	/**
 	 * Searches for .class files in the given directory (recursive). If no
 	 * directory is given, then tries to use the Java project output folder.
 	 * 
@@ -404,7 +464,7 @@ public class EclipsePojoization extends Pojoization {
 	/**
 	 * Writes the manifest file content.
 	 * 
-	 * @param mf
+	 * @param aManifest
 	 *            Manifest file representation
 	 * 
 	 * @throws IOException
@@ -413,21 +473,24 @@ public class EclipsePojoization extends Pojoization {
 	 * @see org.apache.felix.ipojo.manipulator.Pojoization#writeManifest(java.util.jar.Manifest)
 	 */
 	@Override
-	protected void writeManifest(final Manifest mf) throws IOException {
+	protected void writeManifest(final Manifest aManifest) throws IOException {
 
+		// Sort the manifest
+		makeSortedManifest(aManifest);
+
+		// Transform it into a byte array
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		mf.write(outStream);
+		aManifest.write(outStream);
 
 		try {
-			if (pManifestFile.exists()) {
-				pManifestFile.setContent(new ByteArrayInputStream(outStream
-						.toByteArray()));
-
-			} else {
+			if (!pManifestFile.exists()) {
 				// Don't set the derived flag : this file should have been there
 				// before
 				pManifestFile.createNewFile();
 			}
+
+			pManifestFile.setContent(new ByteArrayInputStream(outStream
+					.toByteArray()));
 
 		} catch (CoreException ex) {
 			error("Error writing Manifest file", ex);
