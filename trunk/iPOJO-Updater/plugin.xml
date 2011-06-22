@@ -55,5 +55,12 @@
          id="org.psem2m.eclipse.ipojo.ipojoBuilder">
    </builder>
 </extension>
+<extension
+      point="org.eclipse.help.toc">
+   <toc
+         file="help_toc.xml"
+         primary="true">
+   </toc>
+</extension>
 
 </plugin>
