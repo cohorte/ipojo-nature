@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description name="isandlaTech Eclipse plugins update site">
-      This update regroups all Eclipse plugins created by isandlaTech
+   <description name="iPOJO Builder for Eclipse update site">
+      This update site provides the iPOJO Builder for Eclipse.
    </description>
    <feature url="features/org.psem2m.eclipse.ipojo.dependencies_1.8.0.qualifier.jar" id="org.psem2m.eclipse.ipojo.dependencies" version="1.8.0.qualifier">
       <category name="ipojo"/>
@@ -11,7 +11,7 @@
    </feature>
    <category-def name="ipojo" label="iPOJO Updater Plugin">
       <description>
-         iPOJO Updater plugin
+         iPOJO Updater plugin. An OW2 Chameleon project initiated by isandlaTech.
       </description>
    </category-def>
 </site>
