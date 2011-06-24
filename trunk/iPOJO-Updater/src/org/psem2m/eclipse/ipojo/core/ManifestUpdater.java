@@ -148,7 +148,7 @@ public class ManifestUpdater {
 
 		// Conversion to iPOJO understandable file
 		CompositeFile manifestFile = new CompositeFile(workspaceRoot,
-				manifestIFile.getFullPath());
+				manifestIFile);
 
 		// Search for Metadata.xml file
 		CompositeFile metadataFile = null;
@@ -159,8 +159,7 @@ public class ManifestUpdater {
 		} else {
 
 			// Convert the IFile to an iPOJO understandable File
-			metadataFile = new CompositeFile(workspaceRoot,
-					metadataIFile.getFullPath());
+			metadataFile = new CompositeFile(workspaceRoot, metadataIFile);
 		}
 
 		// iPOJO application

@@ -52,6 +52,21 @@ public class CompositeFile extends File {
 	 * 
 	 * @param aWorkspaceRoot
 	 *            Eclipse Workspace root
+	 * @param aFile
+	 *            File of the workspace
+	 */
+	public CompositeFile(final IWorkspaceRoot aWorkspaceRoot, final IFile aFile) {
+		super(aFile.getLocation().toOSString());
+
+		pWorkspaceRoot = aWorkspaceRoot;
+		pEclipseResource = pWorkspaceRoot.findMember(aFile.getFullPath());
+	}
+
+	/**
+	 * Constructs a File compatible object from an Eclipse path
+	 * 
+	 * @param aWorkspaceRoot
+	 *            Eclipse Workspace root
 	 * @param aPath
 	 *            Full path of a workspace member
 	 */
@@ -59,7 +74,7 @@ public class CompositeFile extends File {
 		super(aPath.toFile().getPath());
 
 		pWorkspaceRoot = aWorkspaceRoot;
-		pEclipseResource = pWorkspaceRoot.findMember(aPath);
+		pEclipseResource = pWorkspaceRoot.findMember(aPath.toOSString());
 	}
 
 	@Override
@@ -77,8 +92,7 @@ public class CompositeFile extends File {
 			return "";
 		}
 
-		return pWorkspaceRoot.getLocation()
-				.append(pEclipseResource.getFullPath()).toOSString();
+		return pEclipseResource.getLocation().toOSString();
 	}
 
 	/**
