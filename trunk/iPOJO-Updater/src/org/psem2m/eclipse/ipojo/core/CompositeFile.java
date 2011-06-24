@@ -31,6 +31,11 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+/**
+ * A File compatible class working on an Eclipse IResource
+ * 
+ * @author Thomas Calmant
+ */
 public class CompositeFile extends File {
 
 	/** Serializable interface value */

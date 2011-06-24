@@ -151,14 +151,17 @@ public class ManifestUpdater {
 				manifestIFile.getFullPath());
 
 		// Search for Metadata.xml file
+		CompositeFile metadataFile = null;
 		IFile metadataIFile = findFile(aProject, "metadata.xml");
 		if (metadataIFile == null) {
 			Activator.logInfo("No metadata.xml file found (not critical)");
-		}
 
-		// Conversion to iPOJO understandable file
-		CompositeFile metadataFile = new CompositeFile(workspaceRoot,
-				metadataIFile.getFullPath());
+		} else {
+
+			// Convert the IFile to an iPOJO understandable File
+			metadataFile = new CompositeFile(workspaceRoot,
+					metadataIFile.getFullPath());
+		}
 
 		// iPOJO application
 		try {
