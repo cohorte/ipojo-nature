@@ -1,0 +1,25 @@
+@CHARSET "UTF-8";
+body {
+	background-image: url("images/bg.jpg");
+	background-repeat: repeat-x;
+	font-family: sans-serif;
+}
+
+h1 {
+	font-size: 150%;
+	text-align: center;
+}
+
+h2 {
+	font-size: 130%;
+	margin-left: 10px;
+}
+
+h3 {
+	font-size: 110%;
+	margin-left: 25px;
+}
+
+h1, h2, h3 {
+	color: #0a328c;
+}

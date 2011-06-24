@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+<title>iPOJO Builder Usage</title>
+</head>
+<body>
+	<h1>Usage</h1>
+	<h2>On Manifest.mf files</h2>
+	<p>
+		The builder can be run in standalone-like mode : just right-click on
+		the Manifest file and click on <strong>Update Manifest</strong>. It is
+		a one-shot pojoization.
+		
+		<img src="images/manifest.png" alt="Update Manifest" />
+	</p>
+
+	<h2>Using the iPOJO nature</h2>
+	<h3>Set up the project</h3>
+	<p>
+		To add or remove the iPOJO nature on a Java project, right-click on
+		the project and select <strong>Add/Remove iPOJO Nature</strong>.
+		
+		<img src="images/nature.png" alt="Add / Remove iPOJO Nature" />
+	</p>
+	<p>
+		To know if a project has this nature, look at its properties and look
+		for the <i>iPOJO Builder</i> in the builders panel.
+		
+		<img src="images/builders.png" alt="Builders page" />
+	</p>
+
+	<h3>Things to remember</h3>
+	<ul>
+		<li>Always have at least a default constructor in component
+			classes.</li>
+	</ul>
+
+	<h3>When does it do the job ?</h3>
+	<p>The builder is called when one of the next things happens :</p>
+	<ul>
+		<li>The metadata.xml file has been modified (if automatic build
+			if enabled).</li>
+		<li>A .class file and its corresponding .java file has been
+			modified (if automatic build if enabled).</li>
+		<li>A manual build is started.</li>
+	</ul>
+	<p>
+		The builder <strong>is not called</strong> when Manifest file is
+		modified.
+	</p>
+</body>
+</html>
