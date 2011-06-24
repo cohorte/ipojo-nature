@@ -77,8 +77,14 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 			IResourceDelta resourceDelta = getDelta(getProject());
 
-			if (resourceDelta == null
-					|| loadResourceDelta(resourceDelta, resources, classes)) {
+			boolean needCompleteBuild = false;
+			if (resourceDelta != null) {
+
+				needCompleteBuild = loadResourceDelta(resourceDelta, resources,
+						classes);
+			}
+
+			if (needCompleteBuild || resourceDelta == null) {
 				// Full build or metadata file modified : list all .class files
 				getAllClassFiles(getProjectOutputContainer(), deltas);
 
