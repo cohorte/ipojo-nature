@@ -448,6 +448,18 @@ public class EclipsePojoization extends Pojoization {
 	protected void setBytecode(final File classFile, final byte[] rawClass)
 			throws IOException {
 
+		/*
+		 * !! WARNING !!
+		 * 
+		 * If the class has already been manipulated, iPOJO 1.8.0 wants to make
+		 * an empty class.
+		 * 
+		 * !! WARNING !!
+		 */
+		if (rawClass == null || rawClass.length == 0) {
+			return;
+		}
+
 		IFile pojoizedFile = pProject.getWorkspace().getRoot()
 				.getFile(new Path(classFile.getPath()));
 
