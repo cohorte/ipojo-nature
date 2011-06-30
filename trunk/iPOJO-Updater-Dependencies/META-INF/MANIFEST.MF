@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: PSEM2M :: iPOJO Dependencies
 Bundle-SymbolicName: org.psem2m.eclipse.ipojo.dependencies
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.8.0
 Bundle-Vendor: isandlaTech
 Export-Package: org.apache.felix.ipojo;version="1.8.0",
  org.apache.felix.ipojo.architecture;version="1.8.0",

@@ -7,7 +7,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.help
 Bundle-Vendor: isandlaTech
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Name: PSEM2M :: iPOJO Manifest Updater
 Bundle-Activator: org.psem2m.eclipse.ipojo.Activator
 Bundle-ManifestVersion: 2
