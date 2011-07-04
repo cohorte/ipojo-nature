@@ -43,10 +43,12 @@
     </build>
 
     <modules>
-        <module>org.ow2.chameleon.eclipse.ipojo.dependencies</module>
-        <module>org.ow2.chameleon.eclipse.ipojo.dependencies.feature</module>
-        <module>org.ow2.chameleon.eclipse.ipojo.nature</module>
-        <module>org.ow2.chameleon.eclipse.ipojo.nature.feature</module>
+        <module>plugins/org.ow2.chameleon.eclipse.ipojo.dependencies</module>
+        <module>features/org.ow2.chameleon.eclipse.ipojo.dependencies.feature</module>
+
+        <module>plugins/org.ow2.chameleon.eclipse.ipojo.nature</module>
+        <module>features/org.ow2.chameleon.eclipse.ipojo.nature.feature</module>
+
         <module>update-site</module>
     </modules>
 </project>
