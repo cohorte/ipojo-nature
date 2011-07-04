@@ -46,7 +46,7 @@ import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
 public class IPojoBuilder extends IncrementalProjectBuilder {
 
 	/** Plugin Builder ID */
-	public static final String BUILDER_ID = "org.psem2m.eclipse.ipojo.ipojoBuilder";
+	public static final String BUILDER_ID = "org.ow2.chameleon.eclipse.ipojo.ipojoBuilder";
 
 	/** iPOJO Manifest updater */
 	private ManifestUpdater pManifestUpdater = new ManifestUpdater();

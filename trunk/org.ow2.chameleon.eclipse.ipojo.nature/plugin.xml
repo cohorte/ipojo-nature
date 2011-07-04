@@ -4,12 +4,12 @@
 
 <extension point="org.eclipse.ui.popupMenus"> 
 	<objectContribution
-       id="org.psem2m.eclipse.ipojo.popup.manifest"
+       id="org.ow2.chameleon.eclipse.ipojo.popup.manifest"
        nameFilter="MANIFEST.MF"
        objectClass="org.eclipse.core.resources.IFile">
 		<action
         class="org.ow2.chameleon.eclipse.ipojo.actions.UpdateMF"
-        id="org.psem2m.eclipse.ipojo.manifest.update"
+        id="org.ow2.chameleon.eclipse.ipojo.manifest.update"
         label="Update Manifest"
         menubarPath="additions"> 
 		</action> 
@@ -17,13 +17,13 @@
 	
  <objectContribution
        adaptable="true"
-       id="org.psem2m.eclipse.ipojo.nature.toggle"
+       id="org.ow2.chameleon.eclipse.ipojo.nature.toggle"
        nameFilter="*"
        objectClass="org.eclipse.core.resources.IProject">
     <action
           class="org.ow2.chameleon.eclipse.ipojo.builder.ToggleNatureAction"
           enablesFor="+"
-          id="org.psem2m.eclipse.ipojo.nature.addRemoveNatureAction"
+          id="org.ow2.chameleon.eclipse.ipojo.nature.addRemoveNatureAction"
           label="Add/Remove iPOJO Nature"
           menubarPath="additions"
           tooltip="Change the iPOJO Nature state">
@@ -32,8 +32,8 @@
 </extension>
 
 <extension
-      id="org.psem2m.eclipse.ipojo.ipojoBuilder"
-      name="iPOJO Builder"
+      id="org.ow2.chameleon.eclipse.ipojo.ipojoBuilder"
+      name="iPOJO Manipulator"
       point="org.eclipse.core.resources.builders">
    <builder
          hasNature="true">
@@ -43,8 +43,8 @@
    </builder>
 </extension>
 <extension
-      id="org.psem2m.eclipse.ipojo.iPojoNature"
-      name="iPOJO Nature"
+      id="org.ow2.chameleon.eclipse.ipojo.iPojoNature"
+      name="iPOJO Project Nature"
       point="org.eclipse.core.resources.natures">
    <runtime>
       <run
@@ -52,7 +52,7 @@
       </run>
    </runtime>
    <builder
-         id="org.psem2m.eclipse.ipojo.ipojoBuilder">
+         id="org.ow2.chameleon.eclipse.ipojo.ipojoBuilder">
    </builder>
 </extension>
 <extension

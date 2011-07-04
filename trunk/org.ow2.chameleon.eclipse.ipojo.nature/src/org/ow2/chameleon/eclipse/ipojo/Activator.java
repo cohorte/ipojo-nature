@@ -33,7 +33,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	/** The plug-in ID */
-	public static final String PLUGIN_ID = "org.psem2m.eclipse.ipojo.manifest.updater"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.ow2.chameleon.eclipse.ipojo.nature"; //$NON-NLS-1$
 
 	/** The shared instance */
 	private static Activator pPluginInstance;

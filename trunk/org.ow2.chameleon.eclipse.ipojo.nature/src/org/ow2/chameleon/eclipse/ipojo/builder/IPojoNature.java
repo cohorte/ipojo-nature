@@ -34,7 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 public class IPojoNature implements IProjectNature {
 
 	/** ID of this project nature */
-	public static final String NATURE_ID = "org.psem2m.eclipse.ipojo.iPojoNature";
+	public static final String NATURE_ID = "org.ow2.chameleon.eclipse.ipojo.iPojoNature";
 
 	/** The associated project */
 	private IProject pProject;
