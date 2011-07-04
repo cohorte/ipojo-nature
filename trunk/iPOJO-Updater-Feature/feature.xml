@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.psem2m.eclipse.ipojo.manifest.updater"
-      label="iPOJO Manifest Updater"
+      id="org.ow2.chameleon.eclipse.ipojo.nature"
+      label="OW2 Chameleon :: iPOJO Project Nature"
       version="1.0.1.qualifier"
-      provider-name="isandlaTech">
+      provider-name="isandlaTech.com">
 
-   <description url="http://www.isandlatech.com">
-      This plugin adds an iPOJO builder updating with an iPOJO manipulator Manifest.mf and .class files incrementally.
+   <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
+      This plugin adds an iPOJO builder updating with an iPOJO manipulator
+Manifest.mf and .class files incrementally.
    </description>
 
-   <copyright url="http://www.isandlatech.com">
-      isandlaTech iPOJO Builder plugin for Eclipse
+   <copyright url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
+      OW2 Chameleon iPOJO Project Nature plug-in for Eclipse
 Copyright 2010 isandlaTech
 This product includes software developed by isandlaTech
 (http://www.isandlatech.com)

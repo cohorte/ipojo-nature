@@ -1,11 +1,23 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: PSEM2M :: iPOJO Dependencies
-Bundle-SymbolicName: org.psem2m.eclipse.ipojo.dependencies
+Bundle-Name: OW2 Chameleon :: iPOJO Nature Dependencies
+Bundle-SymbolicName: org.ow2.chameleon.eclipse.ipojo.dependencies
 Bundle-Version: 1.8.0
-Bundle-Vendor: isandlaTech
-Export-Package: org.apache.felix.ipojo;version="1.8.0",
- org.apache.felix.ipojo.architecture;version="1.8.0",
+Bundle-Vendor: isandlaTech.com
+Export-Package: org.apache.felix.ipojo;version="1.8.0";
+  uses:="org.apache.felix.ipojo.util,
+   org.apache.felix.ipojo.handlers.dependency,
+   org.apache.felix.ipojo.handlers.providedservice,
+   org.apache.felix.ipojo.parser,
+   org.apache.felix.ipojo.architecture,
+   org.osgi.framework,
+   org.apache.felix.ipojo.metadata,
+   org.osgi.service.cm",
+ org.apache.felix.ipojo.architecture;version="1.8.0";
+  uses:="org.apache.felix.ipojo.util,
+   org.apache.felix.ipojo,
+   org.osgi.framework,
+   org.apache.felix.ipojo.metadata",
  org.apache.felix.ipojo.manipulation;version="1.8.0";
   uses:="new org.apache.felix.ipojo.manipulation,
    org.objectweb.asm,
@@ -20,9 +32,11 @@ Export-Package: org.apache.felix.ipojo;version="1.8.0",
  org.apache.felix.ipojo.xml.parser;version="1.8.0";uses:="org.apache.felix.ipojo.metadata,org.xml.sax",
  org.objectweb.asm,
  org.objectweb.asm.commons;uses:="org.objectweb.asm,org.objectweb.asm.tree",
- org.osgi.service.cm,
- org.osgi.service.log
+ org.osgi.service.cm;uses:="org.osgi.framework",
+ org.osgi.service.log;uses:="org.osgi.framework"
 Require-Bundle: javax.xml,
  org.objectweb.asm,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: org.apache.felix.ipojo-1.8.0.jar,
+ org.apache.felix.ipojo.manipulator-1.8.0.jar

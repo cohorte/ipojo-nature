@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.psem2m.eclipse.ipojo.dependencies"
-      label="iPOJO Manifest Updater Dependencies"
+      id="org.ow2.chameleon.eclipse.ipojo.dependencies"
+      label="OW2 Chameleon :: iPOJO Nature Dependencies"
       version="1.8.0"
-      provider-name="isandlaTech">
+      provider-name="isandlaTech.com">
 
    <description url="http://www.isandlatech.com">
       This feature embed the dependencies of the iPOJO

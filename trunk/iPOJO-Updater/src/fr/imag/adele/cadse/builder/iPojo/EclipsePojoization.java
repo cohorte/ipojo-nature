@@ -43,9 +43,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.psem2m.eclipse.ipojo.Activator;
-import org.psem2m.eclipse.ipojo.core.CompositeFile;
-import org.psem2m.eclipse.ipojo.core.SortedAttributes;
+import org.ow2.chameleon.eclipse.ipojo.Activator;
+import org.ow2.chameleon.eclipse.ipojo.core.CompositeFile;
+import org.ow2.chameleon.eclipse.ipojo.core.SortedAttributes;
 
 /**
  * Source from the CADSE project, modified to remove some CADSE internal

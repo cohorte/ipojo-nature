@@ -5,13 +5,12 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core;bundle-version="3.6.1",
  org.psem2m.eclipse.ipojo.dependencies;bundle-version="1.8.0",
  org.eclipse.help
-Bundle-Vendor: isandlaTech
+Bundle-Vendor: isandlaTech.com
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 1.0.1.qualifier
-Bundle-Name: PSEM2M :: iPOJO Manifest Updater
-Bundle-Activator: org.psem2m.eclipse.ipojo.Activator
+Bundle-Name: OW2 Chameleon :: iPOJO Project Nature
+Bundle-Activator: org.ow2.chameleon.eclipse.ipojo.Activator
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.psem2m.eclipse.ipojo.manifest.updater;singlet
- on:=true
+Bundle-SymbolicName: org.ow2.chameleon.eclipse.ipojo.nature;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 

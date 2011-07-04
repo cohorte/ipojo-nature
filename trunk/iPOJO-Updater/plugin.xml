@@ -8,7 +8,7 @@
        nameFilter="MANIFEST.MF"
        objectClass="org.eclipse.core.resources.IFile">
 		<action
-        class="org.psem2m.eclipse.ipojo.actions.UpdateMF"
+        class="org.ow2.chameleon.eclipse.ipojo.actions.UpdateMF"
         id="org.psem2m.eclipse.ipojo.manifest.update"
         label="Update Manifest"
         menubarPath="additions"> 
@@ -21,7 +21,7 @@
        nameFilter="*"
        objectClass="org.eclipse.core.resources.IProject">
     <action
-          class="org.psem2m.eclipse.ipojo.builder.ToggleNatureAction"
+          class="org.ow2.chameleon.eclipse.ipojo.builder.ToggleNatureAction"
           enablesFor="+"
           id="org.psem2m.eclipse.ipojo.nature.addRemoveNatureAction"
           label="Add/Remove iPOJO Nature"
@@ -38,7 +38,7 @@
    <builder
          hasNature="true">
       <run
-            class="org.psem2m.eclipse.ipojo.builder.IPojoBuilder">
+            class="org.ow2.chameleon.eclipse.ipojo.builder.IPojoBuilder">
       </run>
    </builder>
 </extension>
@@ -48,7 +48,7 @@
       point="org.eclipse.core.resources.natures">
    <runtime>
       <run
-            class="org.psem2m.eclipse.ipojo.builder.IPojoNature">
+            class="org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature">
       </run>
    </runtime>
    <builder
