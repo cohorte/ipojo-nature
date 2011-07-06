@@ -8,25 +8,19 @@
    <description url="http://www.isandlatech.com">
       This feature embed the dependencies of the iPOJO
 builder plugin by isandlaTech.
-It includes iPOJO Core 1.6.4 and a patched version
-of iPOJO Manipulator 1.7.0.
+It includes iPOJO Core 1.8.0 and iPOJO Manipulator 1.8.0.
    </description>
 
-   <copyright url="http://www.isandlatech.com">
-      isandlaTech iPOJO Builder dependencies plugin for Eclipse
-Copyright 2010 isandlaTech
-This product includes software developed by isandlaTech
-(http://www.isandlatech.com)
-
-I. Included Third-Party Software
+   <copyright url="http://wiki.chameleon.ow2.org/">
+      Copyright 2009-2011 OW2 Chameleon http://wiki.chameleon.ow2.org
+I. Included Software
 This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-Copyright 2008-2010 The Apache Software Foundation
+The OW2 Consortium (http://www.ow2.org/).
 Licensed under the Apache License 2.0.
-This product includes software developed at
-Copyright (c) 2000-2005 INRIA, France Telecom
-Licensed under BSD License.
-II. Used Third-Party Software
+II. Used Software
+This product uses software developed at
+The Apache Software Foundation (http://www.apache.org/).
+Licensed under the Apache License 2.0.
 III. License Summary
 - Apache License 2.0
    </copyright>
@@ -254,9 +248,8 @@ limitations under the License.
 
    <url>
       <update label="isandlaTech Update Site" url="http://forge.isandlatech.com:3080/eclipse"/>
-      <discovery label="isandlaTech Web site" url="http://www.isandlatech.com"/>
-      <discovery label="iPOJO main page" url="http://felix.apache.org/site/apache-felix-ipojo.html"/>
-      <discovery label="Apache License 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+      <discovery label="isandlaTech.com" url="http://www.isandlatech.com"/>
+      <discovery label="iPOJO Web Site" url="http://felix.apache.org/site/apache-felix-ipojo.html"/>
    </url>
 
    <requires>
