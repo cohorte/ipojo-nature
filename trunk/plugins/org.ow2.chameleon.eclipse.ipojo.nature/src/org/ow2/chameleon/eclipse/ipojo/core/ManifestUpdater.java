@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 
-import fr.imag.adele.cadse.builder.iPojo.EclipsePojoization;
 
 /**
  * Utility class applying iPOJO configuration to the Manifest file

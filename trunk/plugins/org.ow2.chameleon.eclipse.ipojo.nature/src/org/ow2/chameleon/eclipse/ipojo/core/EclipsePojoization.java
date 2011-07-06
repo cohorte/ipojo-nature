@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.imag.adele.cadse.builder.iPojo;
+package org.ow2.chameleon.eclipse.ipojo.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,14 +37,13 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
-import org.ow2.chameleon.eclipse.ipojo.core.CompositeFile;
-import org.ow2.chameleon.eclipse.ipojo.core.SortedAttributes;
 
 /**
- * Source from the CADSE project, modified to remove some CADSE internal
- * dependencies and to use a patched version of Pojoization
+ * Pojoization bridge between iPOJO and Eclipse worlds.
  * 
- * {@link http://code.google.com/a/eclipselabs.org/p/cadse/}
+ * Based on fr.imag.adele.cadse.builder.iPojo.EclipsePojoization from the CADSE
+ * project {@link http://code.google.com/a/eclipselabs.org/p/cadse/}, by the
+ * Adele Team/LIG/Grenoble University, France {@link http://www-adele.imag.fr}
  * 
  * @author Stéphane Chomat
  * @author Thomas Calmant - Transformation with a patched Pojoization class
