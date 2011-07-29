@@ -102,7 +102,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * @param aProject
 	 *            The project where to add or remove the iPOJO nature
 	 */
-	private void toggleNature(final IProject aProject) {
+	protected void toggleNature(final IProject aProject) {
 
 		try {
 			IProjectDescription description = aProject.getDescription();

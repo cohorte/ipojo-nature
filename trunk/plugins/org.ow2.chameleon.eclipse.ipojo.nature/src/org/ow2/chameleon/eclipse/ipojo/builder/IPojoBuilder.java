@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
@@ -41,6 +42,10 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 	/** Plugin Builder ID */
 	public static final String BUILDER_ID = "org.ow2.chameleon.eclipse.ipojo.ipojoBuilder";
+
+	/** Last build session property */
+	public static final QualifiedName PROJECT_LAST_BUILD = new QualifiedName(
+			null, BUILDER_ID + ".lastBuild");
 
 	/** iPOJO Manifest updater */
 	private ManifestUpdater pManifestUpdater = new ManifestUpdater();
@@ -85,17 +90,39 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			} else {
 				// Filter lists to get only needed binaries
 				deltas = filterLists(resources, classes);
+
 			}
 
 			// Do the work if needed
 			if (deltas.size() > 0) {
 				updateManifest(deltas);
 			}
+
 			break;
 		}
 
 		// Null, IProject, keep a list of handled projects ???
 		return new IProject[0];
+	}
+
+	/**
+	 * Tests if the resource has been modified since the given time
+	 * 
+	 * @param aJavaClass
+	 *            A Java .class file
+	 * @param aLastBuildTimestamp
+	 *            A build time stamp
+	 * @return True if the file has been modified
+	 */
+	protected boolean classFileChanged(final IResource aJavaClass,
+			final long aLastBuildTimestamp) {
+
+		if (aJavaClass.getModificationStamp() > aLastBuildTimestamp) {
+			System.out.println("Modified behind my back");
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -107,14 +134,31 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 *            Class files list
 	 * @return Class files to update
 	 */
-	private ArrayList<IResource> filterLists(
+	protected ArrayList<IResource> filterLists(
 			final ArrayList<IResource> aJavaSourceList,
 			final ArrayList<IResource> aJavaClassList) {
 
 		ArrayList<IResource> selectedClasses = new ArrayList<IResource>();
 
+		// Last build time
+		long lastBuildTimestamp = 0;
+		try {
+			Object propertyValue = getProject().getSessionProperty(
+					PROJECT_LAST_BUILD);
+			if (propertyValue != null) {
+				lastBuildTimestamp = (Long) propertyValue;
+			}
+
+		} catch (CoreException e) {
+			// First build ?
+			lastBuildTimestamp = 0;
+		}
+
 		for (IResource javaClass : aJavaClassList) {
-			if (sourceChanged(javaClass, aJavaSourceList)) {
+
+			if (classFileChanged(javaClass, lastBuildTimestamp)) {
+				selectedClasses.add(javaClass);
+			} else if (sourceChanged(javaClass, aJavaSourceList)) {
 				selectedClasses.add(javaClass);
 			}
 		}
@@ -127,7 +171,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * 
 	 * @return The .class files list
 	 */
-	private void getAllClassFiles(final IContainer aContainer,
+	protected void getAllClassFiles(final IContainer aContainer,
 			final List<IResource> aClassFileList) {
 
 		if (aContainer == null) {
@@ -161,7 +205,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * @throws CoreException
 	 *             An error occurred while retrieving project informations
 	 */
-	private IContainer getProjectOutputContainer() throws CoreException {
+	protected IContainer getProjectOutputContainer() throws CoreException {
 		return (IContainer) getProject().getWorkspace().getRoot()
 				.findMember(getProjectOutputPath());
 	}
@@ -171,7 +215,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * @throws CoreException
 	 *             An error occurred while retrieving project informations
 	 */
-	private IPath getProjectOutputPath() throws CoreException {
+	protected IPath getProjectOutputPath() throws CoreException {
 		IJavaProject javaProject = (IJavaProject) getProject().getNature(
 				JavaCore.NATURE_ID);
 		return javaProject.getOutputLocation();
@@ -190,7 +234,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * @return True if the metadata.xml file was modified (not added to
 	 *         aJavaResourcesList)
 	 */
-	private boolean loadResourceDelta(final IResourceDelta aDeltaRoot,
+	protected boolean loadResourceDelta(final IResourceDelta aDeltaRoot,
 			final List<IResource> aJavaResourcesList,
 			final List<IResource> aJavaClasslist) {
 		boolean foundMetadata = false;
@@ -233,7 +277,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 *            Modified .java source files
 	 * @return True if the corresponding .java file is in the list
 	 */
-	private boolean sourceChanged(final IResource javaClass,
+	protected boolean sourceChanged(final IResource javaClass,
 			final ArrayList<IResource> aJavaSourceList) {
 
 		String sourceName;
@@ -271,12 +315,20 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	/**
 	 * Calls {@link ManifestUpdater#updateManifest(IProject)} on the current
 	 * project
+	 * 
+	 * @throws CoreException
 	 */
-	private void updateManifest(final List<IResource> aResourceList) {
+	protected void updateManifest(final List<IResource> aResourceList)
+			throws CoreException {
+
 		try {
 			pManifestUpdater.updateManifest(getProject(), aResourceList);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+
+		// Store last update time
+		getProject().setSessionProperty(PROJECT_LAST_BUILD,
+				System.currentTimeMillis());
 	}
 }
