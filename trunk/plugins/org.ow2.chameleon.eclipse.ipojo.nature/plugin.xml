@@ -9,6 +9,7 @@
        objectClass="org.eclipse.core.resources.IFile">
 		<action
         class="org.ow2.chameleon.eclipse.ipojo.actions.UpdateMF"
+        icon="icons/nature_marker.png"
         id="org.ow2.chameleon.eclipse.ipojo.manifest.update"
         label="Update Manifest"
         menubarPath="additions"> 
@@ -23,6 +24,7 @@
     <action
           class="org.ow2.chameleon.eclipse.ipojo.builder.ToggleNatureAction"
           enablesFor="+"
+          icon="icons/nature_marker.png"
           id="org.ow2.chameleon.eclipse.ipojo.nature.addRemoveNatureAction"
           label="Add/Remove iPOJO Nature"
           menubarPath="additions"
@@ -61,6 +63,14 @@
          file="help_toc.xml"
          primary="true">
    </toc>
+</extension>
+<extension
+      point="org.eclipse.ui.ide.projectNatureImages">
+   <image
+         icon="icons/nature_marker_16.png"
+         id="org.ow2.chameleon.eclipse.ipojo.iPojoNature.image"
+         natureId="org.ow2.chameleon.eclipse.ipojo.iPojoNature">
+   </image>
 </extension>
 
 </plugin>
