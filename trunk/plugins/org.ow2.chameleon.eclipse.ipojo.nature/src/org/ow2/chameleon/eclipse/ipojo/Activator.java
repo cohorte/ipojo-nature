@@ -77,6 +77,19 @@ public class Activator extends AbstractUIPlugin {
 				new Status(Status.INFO, PLUGIN_ID, msg));
 	}
 
+	/**
+	 * Logs an ignored exception
+	 * 
+	 * @param msg
+	 *            Context description
+	 * @param ex
+	 *            Exception caught
+	 */
+	public static void logWarning(final String msg, final Exception ex) {
+		getUIPluginInstance().getLog().log(
+				new Status(Status.WARNING, PLUGIN_ID, msg, ex));
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

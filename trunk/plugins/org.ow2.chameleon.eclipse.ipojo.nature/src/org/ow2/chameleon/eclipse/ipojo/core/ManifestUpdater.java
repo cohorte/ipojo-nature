@@ -14,11 +14,17 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -26,13 +32,66 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 
-
 /**
  * Utility class applying iPOJO configuration to the Manifest file
  * 
  * @author Thomas Calmant
  */
 public class ManifestUpdater {
+
+	/** Default manifest file name (MANIFEST.MF) */
+	public static final String MANIFEST_NAME = "MANIFEST.MF";
+
+	/** Default manifest parent folder (META-INF) */
+	public static final String META_INF_FOLDER = "META-INF";
+
+	/** Default metadata file name */
+	public static final String METADATA_FILE = "metadata.xml";
+
+	/**
+	 * Creates an empty manifest file, to allow manifest result output
+	 * 
+	 * @param aProject
+	 *            Current manipulated project
+	 * @return A valid manifest IFile reference
+	 * @throws CoreException
+	 *             An error occurred while creating the manifest file or parent
+	 *             folder
+	 */
+	protected IFile createDefaultManifest(final IProject aProject)
+			throws CoreException {
+
+		// Create the folder
+		IFolder metaInf = aProject.getFolder(META_INF_FOLDER);
+		if (!metaInf.exists()) {
+			metaInf.create(true, false, null);
+		}
+
+		// Prepare the input
+		ByteArrayOutputStream manifestOutstream = new ByteArrayOutputStream();
+		Manifest emptyManifest = new Manifest();
+
+		// To be valid, a manifest must contain a Manifest-Version attribute
+		emptyManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
+				"1.0");
+
+		try {
+			emptyManifest.write(manifestOutstream);
+
+		} catch (IOException ex) {
+			// Ignore, this may never happen
+			Activator.logWarning("Unable to prepare the new Manifest content",
+					ex);
+		}
+
+		// Create the file
+		IFile manifestIFile = metaInf.getFile(MANIFEST_NAME);
+		manifestIFile.create(
+				new ByteArrayInputStream(manifestOutstream.toByteArray()),
+				true, null);
+
+		return manifestIFile;
+	}
 
 	/**
 	 * Search for the given file
@@ -133,10 +192,18 @@ public class ManifestUpdater {
 		IWorkspaceRoot workspaceRoot = aProject.getWorkspace().getRoot();
 
 		// Search for the Manifest
-		IFile manifestIFile = findFile(aProject, "MANIFEST.MF");
+		IFile manifestIFile = findFile(aProject, MANIFEST_NAME);
 		if (manifestIFile == null) {
-			Activator.logError("Manifest file not found", null);
-			return;
+			Activator.logInfo("Manifest file not found. Creating one.");
+
+			// Try to create a brand new one
+			try {
+				manifestIFile = createDefaultManifest(aProject);
+
+			} catch (CoreException ex) {
+				Activator.logError("Can't create a manifest file", ex);
+				return;
+			}
 		}
 
 		// Conversion to iPOJO understandable file
@@ -145,9 +212,10 @@ public class ManifestUpdater {
 
 		// Search for Metadata.xml file
 		CompositeFile metadataFile = null;
-		IFile metadataIFile = findFile(aProject, "metadata.xml");
+		IFile metadataIFile = findFile(aProject, METADATA_FILE);
 		if (metadataIFile == null) {
-			Activator.logInfo("No metadata.xml file found (not critical)");
+			Activator
+					.logInfo("No metadata.xml file found (only annotations will be parsed)");
 
 		} else {
 
@@ -159,10 +227,12 @@ public class ManifestUpdater {
 		try {
 			EclipsePojoization pojo = new EclipsePojoization(delta);
 			if (pojo.directoryPojoization(aProject, metadataFile, manifestFile)) {
-				Activator.logInfo("iPOJO transformation done");
+				Activator.logInfo("iPOJO transformation done ("
+						+ aProject.getName() + ")");
 			} else {
-				Activator.logError("iPOJO transformation ended with errors",
-						null);
+				Activator.logError(
+						"iPOJO transformation failed (" + aProject.getName()
+								+ ")", null);
 			}
 		} catch (Exception ex) {
 			Activator.logError("iPOJO manipulation error", ex);
@@ -171,8 +241,9 @@ public class ManifestUpdater {
 		// Refresh UI
 		try {
 			aProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+
 		} catch (CoreException ex) {
-			Activator.logError("Project refresh error", ex);
+			Activator.logWarning("Project refresh error", ex);
 		}
 	}
 }

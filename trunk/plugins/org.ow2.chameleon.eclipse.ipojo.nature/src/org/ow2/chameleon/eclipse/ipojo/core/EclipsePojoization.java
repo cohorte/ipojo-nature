@@ -50,11 +50,11 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
  */
 public class EclipsePojoization extends Pojoization {
 
-	/** Manifest.map field */
-	private static Field sEntriesField;
-
 	/** Manifest.attr field */
 	private static Field sAttrField;
+
+	/** Manifest.map field */
+	private static Field sEntriesField;
 
 	/** True if an error occurred */
 	private boolean pErrorCaught;
@@ -69,7 +69,7 @@ public class EclipsePojoization extends Pojoization {
 	private IProject pProject;
 
 	/** Handled files */
-	private List<IResource> pResources;
+	private final List<IResource> pResources;
 
 	/**
 	 * Prepares the builder, without specified handled resources
@@ -439,18 +439,6 @@ public class EclipsePojoization extends Pojoization {
 	@Override
 	protected void setBytecode(final File classFile, final byte[] rawClass)
 			throws IOException {
-
-		/*
-		 * !! WARNING !!
-		 * 
-		 * If the class has already been manipulated, iPOJO 1.8.0 wants to make
-		 * an empty class.
-		 * 
-		 * !! WARNING !!
-		 */
-		if (rawClass == null || rawClass.length == 0) {
-			return;
-		}
 
 		IFile pojoizedFile = pProject.getWorkspace().getRoot()
 				.getFile(new Path(classFile.getPath()));

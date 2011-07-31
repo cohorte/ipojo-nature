@@ -39,4 +39,4 @@ Require-Bundle: javax.xml,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: org.apache.felix.ipojo-1.8.0.jar,
- org.apache.felix.ipojo.manipulator-1.8.0.jar
+ org.apache.felix.ipojo.manipulator-1.9.0-20110703.183917-1.jar

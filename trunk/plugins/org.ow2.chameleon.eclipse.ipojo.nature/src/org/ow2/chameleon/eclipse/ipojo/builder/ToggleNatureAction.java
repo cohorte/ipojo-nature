@@ -102,7 +102,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * @param aProject
 	 *            The project where to add or remove the iPOJO nature
 	 */
-	private void toggleNature(final IProject aProject) {
+	protected void toggleNature(final IProject aProject) {
 
 		try {
 			IProjectDescription description = aProject.getDescription();
@@ -122,10 +122,11 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 				}
 			}
 
-			// Add the nature
+			// Add the nature at the top position : the project image is the one
+			// of the first nature with an icon
 			String[] newNatures = new String[natures.length + 1];
-			System.arraycopy(natures, 0, newNatures, 0, natures.length);
-			newNatures[natures.length] = IPojoNature.NATURE_ID;
+			newNatures[0] = IPojoNature.NATURE_ID;
+			System.arraycopy(natures, 0, newNatures, 1, natures.length);
 			description.setNatureIds(newNatures);
 			aProject.setDescription(description, null);
 
