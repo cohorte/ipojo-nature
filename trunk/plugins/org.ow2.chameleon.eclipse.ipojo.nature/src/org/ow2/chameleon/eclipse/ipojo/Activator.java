@@ -14,6 +14,7 @@
  */
 package org.ow2.chameleon.eclipse.ipojo;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -45,6 +46,23 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
+	 * Return the log prefix ("projectName :") or an empty string aProject is
+	 * null
+	 * 
+	 * @param aProject
+	 *            Current manipulated project
+	 * @return The log prefix
+	 */
+	protected static String getLogPrefix(final IProject aProject) {
+
+		if (aProject != null) {
+			return aProject.getName() + ": ";
+		}
+
+		return "";
+	}
+
+	/**
 	 * Returns the shared instance
 	 * 
 	 * @return the shared instance
@@ -56,38 +74,52 @@ public class Activator extends AbstractUIPlugin {
 	/**
 	 * Logs an exception
 	 * 
-	 * @param msg
+	 * @param aProject
+	 *            Current manipulated project
+	 * @param aMessage
 	 *            Context description
-	 * @param ex
+	 * @param aThrowable
 	 *            Exception caught
 	 */
-	public static void logError(final String msg, final Exception ex) {
+	public static void logError(final IProject aProject, final String aMessage,
+			final Throwable aThrowable) {
+
 		getUIPluginInstance().getLog().log(
-				new Status(Status.ERROR, PLUGIN_ID, msg, ex));
+				new Status(Status.ERROR, PLUGIN_ID, getLogPrefix(aProject)
+						+ aMessage, aThrowable));
 	}
 
 	/**
 	 * Logs an information
 	 * 
-	 * @param msg
+	 * @param aProject
+	 *            Current manipulated project
+	 * @param aMessage
 	 *            Message to log
 	 */
-	public static void logInfo(final String msg) {
+	public static void logInfo(final IProject aProject, final String aMessage) {
+
 		getUIPluginInstance().getLog().log(
-				new Status(Status.INFO, PLUGIN_ID, msg));
+				new Status(Status.INFO, PLUGIN_ID, getLogPrefix(aProject)
+						+ aMessage));
 	}
 
 	/**
 	 * Logs an ignored exception
 	 * 
-	 * @param msg
+	 * @param aProject
+	 *            Current manipulated project
+	 * @param aMessage
 	 *            Context description
-	 * @param ex
-	 *            Exception caught
+	 * @param aThrowable
+	 *            Exception to log
 	 */
-	public static void logWarning(final String msg, final Exception ex) {
+	public static void logWarning(final IProject aProject,
+			final String aMessage, final Throwable aThrowable) {
+
 		getUIPluginInstance().getLog().log(
-				new Status(Status.WARNING, PLUGIN_ID, msg, ex));
+				new Status(Status.WARNING, PLUGIN_ID, getLogPrefix(aProject)
+						+ aMessage, aThrowable));
 	}
 
 	/*

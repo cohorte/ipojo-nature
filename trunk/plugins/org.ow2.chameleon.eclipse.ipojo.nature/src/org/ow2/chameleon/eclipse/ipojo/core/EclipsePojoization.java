@@ -143,7 +143,8 @@ public class EclipsePojoization extends Pojoization {
 	@Override
 	protected void error(final String aErrorMessage) {
 		super.error(aErrorMessage);
-		Activator.logError("iPOJO Manipulator error : " + aErrorMessage, null);
+		Activator.logError(pProject, "iPOJO Manipulator error : "
+				+ aErrorMessage, null);
 		pErrorCaught = true;
 	}
 
@@ -161,8 +162,8 @@ public class EclipsePojoization extends Pojoization {
 	protected void error(final String aErrorMessage, final Exception aException) {
 		super.error(aErrorMessage);
 
-		Activator.logError("iPOJO Manipulator error : " + aErrorMessage,
-				aException);
+		Activator.logError(pProject, "iPOJO Manipulator error : "
+				+ aErrorMessage, aException);
 		aException.printStackTrace();
 		pErrorCaught = true;
 	}
@@ -200,7 +201,7 @@ public class EclipsePojoization extends Pojoization {
 					+ " is declared but not in directory here : "
 					+ origF.getFullPath().toOSString();
 
-			Activator.logError(message, null);
+			Activator.logError(pProject, message, null);
 			throw new IOException(message);
 		}
 
@@ -209,8 +210,8 @@ public class EclipsePojoization extends Pojoization {
 			origF.refreshLocal(IResource.DEPTH_ZERO, null);
 
 		} catch (CoreException e1) {
-			Activator.logError("Can't refresh file '" + origF.getName() + "'",
-					e1);
+			Activator.logError(pProject,
+					"Can't refresh file '" + origF.getName() + "'", e1);
 		}
 
 		// Read the file
@@ -299,7 +300,8 @@ public class EclipsePojoization extends Pojoization {
 					sAttrField.setAccessible(true);
 				}
 			} catch (NoSuchFieldException ex) {
-				Activator.logError("Can't find the Manifest attribute", ex);
+				Activator.logError(pProject,
+						"Can't find the Manifest attribute", ex);
 				return;
 			}
 
@@ -309,9 +311,11 @@ public class EclipsePojoization extends Pojoization {
 				sAttrField.set(aManifest, sortedAttributes);
 
 			} catch (IllegalArgumentException e) {
-				Activator.logError("Bad type of Manifest attribute", e);
+				Activator.logError(pProject, "Bad type of Manifest attribute",
+						e);
 			} catch (IllegalAccessException e) {
-				Activator.logError("Bad access to Manifest attribute", e);
+				Activator.logError(pProject,
+						"Bad access to Manifest attribute", e);
 			}
 		}
 	}

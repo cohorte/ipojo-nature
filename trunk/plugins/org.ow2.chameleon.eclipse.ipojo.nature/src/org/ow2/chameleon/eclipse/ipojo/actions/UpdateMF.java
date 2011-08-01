@@ -39,7 +39,7 @@ import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
 public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 
 	/** iPOJO Manifest updater */
-	private ManifestUpdater pManifestUpdater;
+	private final ManifestUpdater pManifestUpdater;
 
 	/** Current file selection */
 	private TreeSelection pSelection;
@@ -63,7 +63,7 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 
 		if (pSelection.size() == 0
 				|| !(pSelection.getFirstElement() instanceof IFile)) {
-			Activator.logInfo("No file selected");
+			Activator.logInfo(null, "No file selected");
 			return;
 		}
 
@@ -78,7 +78,8 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 			MessageDialog.openError(pShell, "iPOJO Updater Error",
 					"Error while updating the Manifest : " + ex);
 
-			Activator.logError("iPOJO update Manifest action error", ex);
+			Activator.logError(project, "iPOJO update Manifest action error",
+					ex);
 		}
 	}
 

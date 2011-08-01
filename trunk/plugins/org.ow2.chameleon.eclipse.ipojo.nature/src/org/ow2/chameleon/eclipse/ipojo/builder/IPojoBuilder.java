@@ -48,7 +48,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			null, BUILDER_ID + ".lastBuild");
 
 	/** iPOJO Manifest updater */
-	private ManifestUpdater pManifestUpdater = new ManifestUpdater();
+	private final ManifestUpdater pManifestUpdater = new ManifestUpdater();
 
 	/*
 	 * (non-Javadoc)
@@ -183,8 +183,9 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 		try {
 			members = aContainer.members();
 		} catch (CoreException e) {
-			Activator.logError("Error listing members in : "
-					+ aContainer.getFullPath().toOSString(), e);
+			Activator.logError(aContainer.getProject(),
+					"Error listing members in : "
+							+ aContainer.getFullPath().toOSString(), e);
 			e.printStackTrace();
 			return;
 		}
@@ -290,7 +291,8 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			}
 
 			if (end == -1) {
-				Activator.logInfo("Strange file name : " + sourceName);
+				Activator.logInfo(javaClass.getProject(),
+						"Strange file name : " + sourceName);
 				return true;
 			}
 
@@ -298,7 +300,8 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			sourceName += ".java";
 
 		} catch (CoreException e) {
-			Activator.logError("Error working on file name", e);
+			Activator.logError(javaClass.getProject(),
+					"Error working on file name", e);
 			e.printStackTrace();
 			return true;
 		}

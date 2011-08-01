@@ -80,8 +80,8 @@ public class ManifestUpdater {
 
 		} catch (IOException ex) {
 			// Ignore, this may never happen
-			Activator.logWarning("Unable to prepare the new Manifest content",
-					ex);
+			Activator.logWarning(aProject,
+					"Unable to prepare the new Manifest content", ex);
 		}
 
 		// Create the file
@@ -114,9 +114,10 @@ public class ManifestUpdater {
 		IResource[] members;
 		try {
 			members = aRoot.members();
+
 		} catch (CoreException ex) {
-			Activator.logError("Error searching for file '" + aFileName + "'",
-					ex);
+			Activator.logError(aRoot.getProject(), "Error searching for file '"
+					+ aFileName + "'", ex);
 			return null;
 		}
 
@@ -153,7 +154,7 @@ public class ManifestUpdater {
 		try {
 			return aProject.hasNature(JavaCore.NATURE_ID);
 		} catch (Exception ex) {
-			Activator.logError("Error retrieving project nature", ex);
+			Activator.logError(aProject, "Error retrieving project nature", ex);
 			return false;
 		}
 	}
@@ -185,7 +186,7 @@ public class ManifestUpdater {
 			final List<IResource> delta) throws FileNotFoundException {
 
 		if (!isJavaProject(aProject)) {
-			Activator.logInfo("Not a Java project");
+			Activator.logInfo(aProject, "Not a Java project");
 			return;
 		}
 
@@ -194,14 +195,16 @@ public class ManifestUpdater {
 		// Search for the Manifest
 		IFile manifestIFile = findFile(aProject, MANIFEST_NAME);
 		if (manifestIFile == null) {
-			Activator.logInfo("Manifest file not found. Creating one.");
+			Activator.logInfo(aProject,
+					"Manifest file not found. Creating one.");
 
 			// Try to create a brand new one
 			try {
 				manifestIFile = createDefaultManifest(aProject);
 
 			} catch (CoreException ex) {
-				Activator.logError("Can't create a manifest file", ex);
+				Activator
+						.logError(aProject, "Can't create a manifest file", ex);
 				return;
 			}
 		}
@@ -215,7 +218,8 @@ public class ManifestUpdater {
 		IFile metadataIFile = findFile(aProject, METADATA_FILE);
 		if (metadataIFile == null) {
 			Activator
-					.logInfo("No metadata.xml file found (only annotations will be parsed)");
+					.logInfo(aProject,
+							"No metadata.xml file found (only annotations will be parsed)");
 
 		} else {
 
@@ -227,15 +231,13 @@ public class ManifestUpdater {
 		try {
 			EclipsePojoization pojo = new EclipsePojoization(delta);
 			if (pojo.directoryPojoization(aProject, metadataFile, manifestFile)) {
-				Activator.logInfo("iPOJO transformation done ("
-						+ aProject.getName() + ")");
+				Activator.logInfo(aProject, "iPOJO transformation done");
 			} else {
-				Activator.logError(
-						"iPOJO transformation failed (" + aProject.getName()
-								+ ")", null);
+				Activator.logError(aProject, "iPOJO transformation failed",
+						null);
 			}
 		} catch (Exception ex) {
-			Activator.logError("iPOJO manipulation error", ex);
+			Activator.logError(aProject, "iPOJO manipulation error", ex);
 		}
 
 		// Refresh UI
@@ -243,7 +245,7 @@ public class ManifestUpdater {
 			aProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 
 		} catch (CoreException ex) {
-			Activator.logWarning("Project refresh error", ex);
+			Activator.logWarning(aProject, "Project refresh error", ex);
 		}
 	}
 }

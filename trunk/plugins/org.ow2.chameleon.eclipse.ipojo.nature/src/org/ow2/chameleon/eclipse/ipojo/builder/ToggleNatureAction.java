@@ -131,7 +131,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			aProject.setDescription(description, null);
 
 		} catch (CoreException e) {
-			Activator.logError("Error setting iPOJO nature", e);
+			Activator.logError(aProject, "Error setting iPOJO nature", e);
 		}
 	}
 
