@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OW2 Chameleon :: iPOJO Nature Dependencies
 Bundle-SymbolicName: org.ow2.chameleon.eclipse.ipojo.dependencies
-Bundle-Version: 1.8.0
+Bundle-Version: 1.9.0.qualifier
 Bundle-Vendor: isandlaTech.com
 Export-Package: org.apache.felix.ipojo;version="1.8.0";
   uses:="org.apache.felix.ipojo.util,

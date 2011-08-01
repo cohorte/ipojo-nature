@@ -3,10 +3,10 @@
    <description name="iPOJO Builder for Eclipse update site" url="http://wiki.chameleon.ow2.org/">
       This update site provides the iPOJO Builder for Eclipse.
    </description>
-   <feature url="features/org.ow2.chameleon.eclipse.ipojo.dependencies_1.8.0.jar" id="org.ow2.chameleon.eclipse.ipojo.dependencies" version="1.8.0">
+   <feature url="features/org.ow2.chameleon.eclipse.ipojo.nature_1.0.1.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.nature" version="1.0.1.qualifier">
       <category name="ipojo"/>
    </feature>
-   <feature url="features/org.ow2.chameleon.eclipse.ipojo.nature_1.0.1.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.nature" version="1.0.1.qualifier">
+   <feature url="features/org.ow2.chameleon.eclipse.ipojo.dependencies_1.9.0.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.dependencies" version="1.9.0.qualifier">
       <category name="ipojo"/>
    </feature>
    <category-def name="ipojo" label="iPOJO Updater Plugin">
