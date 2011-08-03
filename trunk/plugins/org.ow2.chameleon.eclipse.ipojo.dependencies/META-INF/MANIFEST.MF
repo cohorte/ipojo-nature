@@ -29,6 +29,13 @@ Export-Package: org.apache.felix.ipojo;version="1.8.0";
    javax.xml.parsers,
    org.apache.felix.ipojo.metadata",
  org.apache.felix.ipojo.manipulator;version="1.8.0";uses:="org.apache.felix.ipojo.metadata",
+ org.apache.felix.ipojo.manipulator.manifest,
+ org.apache.felix.ipojo.manipulator.metadata,
+ org.apache.felix.ipojo.manipulator.render,
+ org.apache.felix.ipojo.manipulator.store,
+ org.apache.felix.ipojo.manipulator.visitor,
+ org.apache.felix.ipojo.manipulator.visitor.check,
+ org.apache.felix.ipojo.manipulator.visitor.writer,
  org.apache.felix.ipojo.xml.parser;version="1.8.0";uses:="org.apache.felix.ipojo.metadata,org.xml.sax",
  org.objectweb.asm,
  org.objectweb.asm.commons;uses:="org.objectweb.asm,org.objectweb.asm.tree",
@@ -39,4 +46,4 @@ Require-Bundle: javax.xml,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: org.apache.felix.ipojo-1.8.0.jar,
- org.apache.felix.ipojo.manipulator-1.9.0-20110703.183917-1.jar
+ org.apache.felix.ipojo.manipulator-1.9.0-SNAPSHOT.jar

@@ -14,7 +14,6 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.builder;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +62,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 		switch (kind) {
 		case FULL_BUILD:
-			ArrayList<IResource> classFiles = new ArrayList<IResource>();
-			getAllClassFiles(getProjectOutputContainer(), classFiles);
-			updateManifest(classFiles);
+			updateManifest();
 			break;
 
 		case AUTO_BUILD:
@@ -94,8 +91,8 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			}
 
 			// Do the work if needed
-			if (deltas.size() > 0) {
-				updateManifest(deltas);
+			if (needCompleteBuild) {
+				updateManifest();
 			}
 
 			break;
@@ -217,6 +214,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 *             An error occurred while retrieving project informations
 	 */
 	protected IPath getProjectOutputPath() throws CoreException {
+
 		IJavaProject javaProject = (IJavaProject) getProject().getNature(
 				JavaCore.NATURE_ID);
 		return javaProject.getOutputLocation();
@@ -238,20 +236,24 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	protected boolean loadResourceDelta(final IResourceDelta aDeltaRoot,
 			final List<IResource> aJavaResourcesList,
 			final List<IResource> aJavaClasslist) {
-		boolean foundMetadata = false;
+
+		boolean needCompleteBuild = false;
 
 		// Test resource name
 		String resourceName = aDeltaRoot.getResource().getName();
 
-		// Test Java source file
 		if (resourceName.endsWith(".java")) {
+			// Test Java source file
 			aJavaResourcesList.add(aDeltaRoot.getResource());
-			// Tests Metadata file
+
 		} else if (resourceName.endsWith("metadata.xml")) {
-			foundMetadata = true;
-			// Tests binary .class file
+			// Tests Metadata file
+			needCompleteBuild = true;
+
 		} else if (resourceName.endsWith(".class")) {
+			// Tests binary .class file
 			aJavaClasslist.add(aDeltaRoot.getResource());
+
 		} else {
 			// Test sub directories, if any
 			IResourceDelta[] subdeltas = aDeltaRoot
@@ -260,13 +262,13 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 			if (subdeltas != null && subdeltas.length > 0) {
 				for (IResourceDelta subdelta : subdeltas) {
-					foundMetadata |= loadResourceDelta(subdelta,
+					needCompleteBuild |= loadResourceDelta(subdelta,
 							aJavaResourcesList, aJavaClasslist);
 				}
 			}
 		}
 
-		return foundMetadata;
+		return needCompleteBuild;
 	}
 
 	/**
@@ -320,15 +322,11 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * project
 	 * 
 	 * @throws CoreException
+	 *             An error occurred during manipulation
 	 */
-	protected void updateManifest(final List<IResource> aResourceList)
-			throws CoreException {
+	protected void updateManifest() throws CoreException {
 
-		try {
-			pManifestUpdater.updateManifest(getProject(), aResourceList);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		pManifestUpdater.updateManifest(getProject());
 
 		// Store last update time
 		getProject().setSessionProperty(PROJECT_LAST_BUILD,

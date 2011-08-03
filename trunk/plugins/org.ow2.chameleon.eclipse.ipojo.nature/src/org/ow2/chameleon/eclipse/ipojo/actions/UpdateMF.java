@@ -14,10 +14,9 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.actions;
 
-import java.io.FileNotFoundException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -74,7 +73,7 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 		try {
 			pManifestUpdater.updateManifest(project);
 
-		} catch (FileNotFoundException ex) {
+		} catch (CoreException ex) {
 			MessageDialog.openError(pShell, "iPOJO Updater Error",
 					"Error while updating the Manifest : " + ex);
 
