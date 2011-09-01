@@ -67,31 +67,30 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 		case AUTO_BUILD:
 		case INCREMENTAL_BUILD:
-			ArrayList<IResource> resources = new ArrayList<IResource>();
-			ArrayList<IResource> classes = new ArrayList<IResource>();
+			final ArrayList<IResource> resources = new ArrayList<IResource>();
+			final ArrayList<IResource> classes = new ArrayList<IResource>();
+			final IResourceDelta resourceDelta = getDelta(getProject());
+
 			List<IResource> deltas = new ArrayList<IResource>();
 
-			IResourceDelta resourceDelta = getDelta(getProject());
-
-			boolean needCompleteBuild = false;
+			boolean metadataModified = false;
 			if (resourceDelta != null) {
 
-				needCompleteBuild = loadResourceDelta(resourceDelta, resources,
+				metadataModified = loadResourceDelta(resourceDelta, resources,
 						classes);
 			}
 
-			if (needCompleteBuild || resourceDelta == null) {
+			if (metadataModified || resourceDelta == null) {
 				// Full build or metadata file modified : list all .class files
 				getAllClassFiles(getProjectOutputContainer(), deltas);
 
 			} else {
 				// Filter lists to get only needed binaries
 				deltas = filterLists(resources, classes);
-
 			}
 
 			// Do the work if needed
-			if (needCompleteBuild) {
+			if (metadataModified || !deltas.isEmpty()) {
 				updateManifest();
 			}
 
@@ -115,7 +114,6 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			final long aLastBuildTimestamp) {
 
 		if (aJavaClass.getModificationStamp() > aLastBuildTimestamp) {
-			System.out.println("Modified behind my back");
 			return true;
 		}
 
@@ -135,7 +133,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			final ArrayList<IResource> aJavaSourceList,
 			final ArrayList<IResource> aJavaClassList) {
 
-		ArrayList<IResource> selectedClasses = new ArrayList<IResource>();
+		final ArrayList<IResource> selectedClasses = new ArrayList<IResource>();
 
 		// Last build time
 		long lastBuildTimestamp = 0;
@@ -237,7 +235,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			final List<IResource> aJavaResourcesList,
 			final List<IResource> aJavaClasslist) {
 
-		boolean needCompleteBuild = false;
+		boolean metadataModified = false;
 
 		// Test resource name
 		String resourceName = aDeltaRoot.getResource().getName();
@@ -248,7 +246,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 		} else if (resourceName.endsWith("metadata.xml")) {
 			// Tests Metadata file
-			needCompleteBuild = true;
+			metadataModified = true;
 
 		} else if (resourceName.endsWith(".class")) {
 			// Tests binary .class file
@@ -262,13 +260,13 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 			if (subdeltas != null && subdeltas.length > 0) {
 				for (IResourceDelta subdelta : subdeltas) {
-					needCompleteBuild |= loadResourceDelta(subdelta,
+					metadataModified |= loadResourceDelta(subdelta,
 							aJavaResourcesList, aJavaClasslist);
 				}
 			}
 		}
 
-		return needCompleteBuild;
+		return metadataModified;
 	}
 
 	/**
