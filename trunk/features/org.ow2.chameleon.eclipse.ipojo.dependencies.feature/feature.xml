@@ -3,7 +3,7 @@
       id="org.ow2.chameleon.eclipse.ipojo.dependencies"
       label="OW2 Chameleon :: iPOJO Nature Dependencies"
       version="1.9.0.qualifier"
-      provider-name="isandlaTech.com">
+      provider-name="OW2 Chameleon">
 
    <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
       This feature embed the dependencies of the iPOJO
