@@ -5,7 +5,7 @@
       version="1.9.0.qualifier"
       provider-name="isandlaTech.com">
 
-   <description url="http://www.isandlatech.com">
+   <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
       This feature embed the dependencies of the iPOJO
 builder plugin by isandlaTech.
 It includes iPOJO Core 1.8.0 and iPOJO Manipulator 1.9.0-SNAPSHOT.

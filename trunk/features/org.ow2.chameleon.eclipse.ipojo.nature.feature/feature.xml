@@ -250,7 +250,7 @@ limitations under the License.
    </license>
 
    <url>
-      <update label="isandlaTech Update Site" url="http://forge.isandlatech.com:3080/eclipse"/>
+      <update label="OW2 Chameleon Update Site" url="http://chameleon.ow2.org/eclipse/"/>
       <discovery label="isandlaTech.com" url="http://www.isandlatech.com/"/>
       <discovery label="iPOJO Web Site" url="http://felix.apache.org/site/apache-felix-ipojo.html"/>
    </url>
