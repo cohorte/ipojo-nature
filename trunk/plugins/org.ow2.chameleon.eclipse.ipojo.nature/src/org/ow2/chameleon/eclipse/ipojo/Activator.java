@@ -15,6 +15,7 @@
 package org.ow2.chameleon.eclipse.ipojo;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -85,7 +86,7 @@ public class Activator extends AbstractUIPlugin {
 			final Throwable aThrowable) {
 
 		getUIPluginInstance().getLog().log(
-				new Status(Status.ERROR, PLUGIN_ID, getLogPrefix(aProject)
+				new Status(IStatus.ERROR, PLUGIN_ID, getLogPrefix(aProject)
 						+ aMessage, aThrowable));
 	}
 
@@ -100,7 +101,7 @@ public class Activator extends AbstractUIPlugin {
 	public static void logInfo(final IProject aProject, final String aMessage) {
 
 		getUIPluginInstance().getLog().log(
-				new Status(Status.INFO, PLUGIN_ID, getLogPrefix(aProject)
+				new Status(IStatus.INFO, PLUGIN_ID, getLogPrefix(aProject)
 						+ aMessage));
 	}
 
@@ -118,7 +119,7 @@ public class Activator extends AbstractUIPlugin {
 			final String aMessage, final Throwable aThrowable) {
 
 		getUIPluginInstance().getLog().log(
-				new Status(Status.WARNING, PLUGIN_ID, getLogPrefix(aProject)
+				new Status(IStatus.WARNING, PLUGIN_ID, getLogPrefix(aProject)
 						+ aMessage, aThrowable));
 	}
 

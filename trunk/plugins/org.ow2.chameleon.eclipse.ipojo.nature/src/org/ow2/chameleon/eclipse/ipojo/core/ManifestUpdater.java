@@ -1,17 +1,25 @@
-/**
- * 
+/*
+ * Copyright 2009 OW2 Chameleon
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.ow2.chameleon.eclipse.ipojo.core;
 
 import java.io.InputStream;
-import java.util.jar.Manifest;
 
-import org.apache.felix.ipojo.manipulator.DefaultManifestBuilder;
-import org.apache.felix.ipojo.manipulator.ManifestProvider;
 import org.apache.felix.ipojo.manipulator.Pojoization;
-import org.apache.felix.ipojo.manipulator.manifest.DirectManifestProvider;
 import org.apache.felix.ipojo.manipulator.metadata.StreamMetadataProvider;
 import org.apache.felix.ipojo.manipulator.render.MetadataRenderer;
+import org.apache.felix.ipojo.manipulator.store.builder.DefaultManifestBuilder;
 import org.apache.felix.ipojo.manipulator.visitor.check.CheckFieldConsistencyVisitor;
 import org.apache.felix.ipojo.manipulator.visitor.writer.ManipulatedResourcesWriter;
 import org.eclipse.core.resources.IProject;
@@ -47,9 +55,6 @@ public class ManifestUpdater {
 		// Pojoization API
 		final Pojoization pojoization = new Pojoization(reporter);
 
-		// Resource store
-		EclipseResourceStore resourceStore = new EclipseResourceStore(aProject);
-
 		// Metadata provider
 		StreamMetadataProvider metadataProvider = null;
 		final InputStream metadataStream = Utilities.INSTANCE
@@ -59,16 +64,16 @@ public class ManifestUpdater {
 					reporter);
 		}
 
-		// Manifest provider
-		Manifest manifestContent = Utilities.INSTANCE
-				.getManifestContent(aProject);
-
-		ManifestProvider manifestProvider = new DirectManifestProvider(
-				manifestContent);
-
 		// Manifest builder (default one)
-		DefaultManifestBuilder manifestBuilder = new DefaultManifestBuilder();
+		final DefaultManifestBuilder manifestBuilder = new DefaultManifestBuilder();
 		manifestBuilder.setMetadataRenderer(new MetadataRenderer());
+
+		// Resource store
+		final EclipseResourceStore resourceStore = new EclipseResourceStore(
+				aProject);
+		resourceStore.setManifest(Utilities.INSTANCE
+				.getManifestContent(aProject));
+		resourceStore.setManifestBuilder(manifestBuilder);
 
 		/*
 		 * Manipulation visitor, converted version of
@@ -76,14 +81,12 @@ public class ManifestUpdater {
 		 * .Pojoization.createDefaultVisitorChain(ManifestProvider,
 		 * ResourceStore)
 		 */
-		ManipulatedResourcesWriter resourcesWriter = new ManipulatedResourcesWriter();
-		resourcesWriter.setManifestBuilder(manifestBuilder);
-		resourcesWriter.setManifestProvider(manifestProvider);
+		final ManipulatedResourcesWriter resourcesWriter = new ManipulatedResourcesWriter();
 		resourcesWriter.setResourceStore(resourceStore);
 		resourcesWriter.setReporter(reporter);
 
 		// Finish with this one, as in default Pojoization implementation
-		CheckFieldConsistencyVisitor checkConsistencyVisitor = new CheckFieldConsistencyVisitor(
+		final CheckFieldConsistencyVisitor checkConsistencyVisitor = new CheckFieldConsistencyVisitor(
 				resourcesWriter);
 		checkConsistencyVisitor.setReporter(reporter);
 
