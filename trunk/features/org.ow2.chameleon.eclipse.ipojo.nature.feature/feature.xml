@@ -262,6 +262,9 @@ limitations under the License.
       <import plugin="org.eclipse.jdt.core" version="3.6.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help"/>
       <import plugin="org.ow2.chameleon.eclipse.ipojo.dependencies" version="1.8.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.ow2.chameleon.eclipse.ipojo.nature" version="1.0.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.core" version="3.6.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -270,5 +273,11 @@ limitations under the License.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.ow2.chameleon.eclipse.ipojo.exporter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
