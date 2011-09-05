@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -57,12 +58,12 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 */
 	@SuppressWarnings("rawtypes")
 	@Override
-	protected IProject[] build(final int kind, final Map args,
-			final IProgressMonitor monitor) throws CoreException {
+	protected IProject[] build(final int aKind, final Map aArgs,
+			final IProgressMonitor aMonitor) throws CoreException {
 
-		switch (kind) {
+		switch (aKind) {
 		case FULL_BUILD:
-			updateManifest();
+			updateManifest(aMonitor);
 			break;
 
 		case AUTO_BUILD:
@@ -91,7 +92,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 			// Do the work if needed
 			if (metadataModified || !deltas.isEmpty()) {
-				updateManifest();
+				updateManifest(aMonitor);
 			}
 
 			break;
@@ -319,10 +320,19 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * Calls {@link ManifestUpdater#updateManifest(IProject)} on the current
 	 * project
 	 * 
+	 * @param aMonitor
+	 *            Progress monitor
+	 * 
 	 * @throws CoreException
 	 *             An error occurred during manipulation
 	 */
-	protected void updateManifest() throws CoreException {
+	protected void updateManifest(final IProgressMonitor aMonitor)
+			throws CoreException {
+
+		IProgressMonitor monitor = aMonitor;
+		if (monitor == null) {
+			monitor = new NullProgressMonitor();
+		}
 
 		pManifestUpdater.updateManifest(getProject());
 
