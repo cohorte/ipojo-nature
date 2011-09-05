@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.exportWizards">
+      <wizard
+            category="org.ow2.chameleon.eclipse.ipojo.exporter.category"
+            class="org.ow2.chameleon.eclipse.ipojo.exporter.ui.IPojoExportWizard"
+            icon="icons/nature_marker.png"
+            id="org.ow2.chameleon.eclipse.ipojo.exporter.bundle"
+            name="iPOJO Bundle">
+      </wizard>
+      <category
+            id="org.ow2.chameleon.eclipse.ipojo.exporter.category"
+            name="iPOJO Bundles">
+      </category>
+   </extension>
+
+</plugin>
