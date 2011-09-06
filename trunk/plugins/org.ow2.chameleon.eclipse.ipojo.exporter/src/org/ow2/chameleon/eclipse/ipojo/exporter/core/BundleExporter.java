@@ -185,6 +185,15 @@ public class BundleExporter {
 			outStream.write(jarContent);
 			outStream.close();
 
+			// Update Eclipse resource, if the JAR is visible from the IDE
+			final IFile[] eclipseFiles = pWorkspaceRoot
+					.findFilesForLocationURI(outputJarFile.toURI());
+			if (eclipseFiles != null) {
+				for (IFile eclipseFile : eclipseFiles) {
+					eclipseFile.refreshLocal(IResource.DEPTH_ONE, aMonitor);
+				}
+			}
+
 		} catch (IOException e) {
 
 			throw new CoreException(new Status(IStatus.ERROR,
