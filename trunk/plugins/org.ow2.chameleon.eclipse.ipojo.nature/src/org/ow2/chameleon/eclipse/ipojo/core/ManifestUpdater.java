@@ -19,7 +19,6 @@ import java.io.InputStream;
 import org.apache.felix.ipojo.manipulator.Pojoization;
 import org.apache.felix.ipojo.manipulator.metadata.StreamMetadataProvider;
 import org.apache.felix.ipojo.manipulator.render.MetadataRenderer;
-import org.apache.felix.ipojo.manipulator.store.builder.DefaultManifestBuilder;
 import org.apache.felix.ipojo.manipulator.visitor.check.CheckFieldConsistencyVisitor;
 import org.apache.felix.ipojo.manipulator.visitor.writer.ManipulatedResourcesWriter;
 import org.eclipse.core.resources.IProject;
@@ -65,7 +64,7 @@ public class ManifestUpdater {
 		}
 
 		// Manifest builder (default one)
-		final DefaultManifestBuilder manifestBuilder = new DefaultManifestBuilder();
+		final SortedManifestBuilder manifestBuilder = new SortedManifestBuilder();
 		manifestBuilder.setMetadataRenderer(new MetadataRenderer());
 
 		// Resource store
