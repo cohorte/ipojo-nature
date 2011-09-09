@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
@@ -42,10 +41,6 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 	/** Plugin Builder ID */
 	public static final String BUILDER_ID = "org.ow2.chameleon.eclipse.ipojo.ipojoBuilder";
-
-	/** Last build session property */
-	public static final QualifiedName PROJECT_LAST_BUILD = new QualifiedName(
-			null, BUILDER_ID + ".lastBuild");
 
 	/** iPOJO Manifest updater */
 	private final ManifestUpdater pManifestUpdater = new ManifestUpdater();
@@ -103,25 +98,6 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	}
 
 	/**
-	 * Tests if the resource has been modified since the given time
-	 * 
-	 * @param aJavaClass
-	 *            A Java .class file
-	 * @param aLastBuildTimestamp
-	 *            A build time stamp
-	 * @return True if the file has been modified
-	 */
-	protected boolean classFileChanged(final IResource aJavaClass,
-			final long aLastBuildTimestamp) {
-
-		if (aJavaClass.getModificationStamp() > aLastBuildTimestamp) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Filters classes : returns only classes corresponding to modified sources
 	 * 
 	 * @param aJavaSourceList
@@ -136,25 +112,8 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 		final ArrayList<IResource> selectedClasses = new ArrayList<IResource>();
 
-		// Last build time
-		long lastBuildTimestamp = 0;
-		try {
-			Object propertyValue = getProject().getSessionProperty(
-					PROJECT_LAST_BUILD);
-			if (propertyValue != null) {
-				lastBuildTimestamp = (Long) propertyValue;
-			}
-
-		} catch (CoreException e) {
-			// First build ?
-			lastBuildTimestamp = 0;
-		}
-
 		for (IResource javaClass : aJavaClassList) {
-
-			if (classFileChanged(javaClass, lastBuildTimestamp)) {
-				selectedClasses.add(javaClass);
-			} else if (sourceChanged(javaClass, aJavaSourceList)) {
+			if (sourceChanged(javaClass, aJavaSourceList)) {
 				selectedClasses.add(javaClass);
 			}
 		}
@@ -335,9 +294,5 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 		}
 
 		pManifestUpdater.updateManifest(getProject());
-
-		// Store last update time
-		getProject().setSessionProperty(PROJECT_LAST_BUILD,
-				System.currentTimeMillis());
 	}
 }
