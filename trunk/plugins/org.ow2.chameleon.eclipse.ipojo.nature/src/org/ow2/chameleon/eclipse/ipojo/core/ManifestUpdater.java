@@ -64,8 +64,11 @@ public class ManifestUpdater {
 		}
 
 		// Manifest builder (default one)
+		final MetadataRenderer metadataRenderer = new MetadataRenderer();
+		metadataRenderer.addMetadataFilter(new MetadataIpojoElementFilter());
+
 		final SortedManifestBuilder manifestBuilder = new SortedManifestBuilder();
-		manifestBuilder.setMetadataRenderer(new MetadataRenderer());
+		manifestBuilder.setMetadataRenderer(metadataRenderer);
 
 		// Resource store
 		final EclipseResourceStore resourceStore = new EclipseResourceStore(
