@@ -44,6 +44,12 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
  */
 public class EclipseResourceStore implements ResourceStore {
 
+	/** The bundle manifest */
+	private Manifest pManifest;
+
+	/** The manifest builder */
+	private ManifestBuilder pManifestBuilder;
+
 	/** Project output directory, relative to the project's workspace */
 	private final IPath pOutputLocation;
 
@@ -52,12 +58,6 @@ public class EclipseResourceStore implements ResourceStore {
 
 	/** Current project workspace root */
 	private final IWorkspaceRoot pWorkspaceRoot;
-
-	/** The manifest builder */
-	private ManifestBuilder pManifestBuilder;
-
-	/** The bundle manifest */
-	private Manifest pManifest;
 
 	/**
 	 * Prepares the resource store
