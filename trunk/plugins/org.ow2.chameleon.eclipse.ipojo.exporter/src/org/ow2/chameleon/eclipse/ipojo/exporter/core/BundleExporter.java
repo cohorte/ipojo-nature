@@ -147,8 +147,8 @@ public class BundleExporter {
 			if (buildProperties.exists()) {
 				try {
 					// Try to read it
-					readBuildProperties(aProject, jarEntriesMapping);
-					buildPropertiesFound = true;
+					buildPropertiesFound = readBuildProperties(aProject,
+							jarEntriesMapping);
 
 				} catch (IOException e) {
 					IPojoExporterPlugin.logWarning(
@@ -293,12 +293,13 @@ public class BundleExporter {
 	 *            Project to look in
 	 * @param aJarEntriesMapping
 	 *            File -> JAR entry map
+	 * @return True if the build.properties contains all what we need
 	 * @throws IOException
 	 *             An error occurred while reading the properties file
 	 * @throws CoreException
 	 *             An error occurred while accessible the file
 	 */
-	protected void readBuildProperties(final IProject aProject,
+	protected boolean readBuildProperties(final IProject aProject,
 			final Map<IFile, String> aJarEntriesMapping) throws IOException,
 			CoreException {
 
@@ -313,6 +314,10 @@ public class BundleExporter {
 		/* Output folder */
 		final String outputFolderStr = buildProperties
 				.getProperty(IExporterConstants.BUILD_PROPERTIES_KEY_OUTPUT);
+		if (outputFolderStr == null || outputFolderStr.isEmpty()) {
+			// Invalid build.properties
+			return false;
+		}
 
 		final IFolder outputFolder = aProject.getFolder(outputFolderStr);
 		final IPath outputFolderPath = outputFolder.getProjectRelativePath();
@@ -351,6 +356,8 @@ public class BundleExporter {
 								.makeRelativeTo(projectPath).toString());
 			}
 		}
+
+		return true;
 	}
 
 	/**
