@@ -69,15 +69,15 @@ public class MetadataIpojoElementFilter implements
 		if (isInjectedConstant(aElement.getAttribute(ELEMENT_ATTRIBUTE_NAME))
 				|| isInjectedConstructor(aElement)) {
 			// The given element has been injected
-			return false;
+			return true;
 		}
 
 		if (!filterElement(null, aElement)) {
 			// Root element has been injected
-			return false;
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
@@ -178,6 +178,10 @@ public class MetadataIpojoElementFilter implements
 	 * @return True if the given name is a pure injection
 	 */
 	protected boolean isInjectedConstant(final String aElementName) {
+
+		if (aElementName == null) {
+			return false;
+		}
 
 		return aElementName.equals(MethodCreator.IM_FIELD)
 				|| aElementName.startsWith(MethodCreator.PREFIX);
