@@ -51,10 +51,10 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
 	 * java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
-	protected IProject[] build(final int aKind,
-			final Map<String, String> aArgs, final IProgressMonitor aMonitor)
-			throws CoreException {
+	protected IProject[] build(final int aKind, final Map aArgs,
+			final IProgressMonitor aMonitor) throws CoreException {
 
 		switch (aKind) {
 		case FULL_BUILD:
