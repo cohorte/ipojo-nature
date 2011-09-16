@@ -14,15 +14,21 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.core;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.apache.felix.ipojo.manipulator.Pojoization;
 import org.apache.felix.ipojo.manipulator.metadata.StreamMetadataProvider;
 import org.apache.felix.ipojo.manipulator.render.MetadataRenderer;
 import org.apache.felix.ipojo.manipulator.visitor.check.CheckFieldConsistencyVisitor;
 import org.apache.felix.ipojo.manipulator.visitor.writer.ManipulatedResourcesWriter;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 
 /**
@@ -32,6 +38,53 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
  * @author Thomas Calmant
  */
 public class ManifestUpdater {
+
+	/** iPOJO Manifest entry */
+	public static final String IPOJO_HEADER = "iPOJO-Components";
+
+	/**
+	 * Removes the iPOJO-Component entry from the manifest file
+	 * 
+	 * @param aProject
+	 *            Currently modified project
+	 * @throws CoreException
+	 *             An error occurred clearing the Manifest file
+	 */
+	public void removeManifestEntry(final IProject aProject)
+			throws CoreException {
+
+		// Get the file
+		final IFile manifestFile = Utilities.INSTANCE.getManifestFile(aProject,
+				false);
+		if (!manifestFile.exists()) {
+			// No manifest, do nothing
+			return;
+		}
+
+		// Read the current manifest content
+		final Manifest manifestContent;
+		try {
+			manifestContent = new Manifest(manifestFile.getContents(true));
+
+		} catch (IOException ex) {
+			throw new CoreException(new Status(IStatus.WARNING,
+					Activator.PLUGIN_ID, aProject.getName()
+							+ " : Can't read the project's manifest file", ex));
+		}
+
+		// Remove the iPOJO-Component entry
+		final Attributes.Name entryName = new Attributes.Name(IPOJO_HEADER);
+		final Object previousValue = manifestContent.getMainAttributes()
+				.remove(entryName);
+
+		if (previousValue != null) {
+			// Use a sorted manifest object first
+			Utilities.INSTANCE.makeSortedManifest(aProject, manifestContent);
+
+			// There was something before, so write the new manifest
+			Utilities.INSTANCE.setManifestContent(aProject, manifestContent);
+		}
+	}
 
 	/**
 	 * Applies a full iPOJO update on the project Manifest.

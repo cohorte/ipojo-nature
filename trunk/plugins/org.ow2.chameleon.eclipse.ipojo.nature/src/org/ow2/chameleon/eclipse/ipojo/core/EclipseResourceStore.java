@@ -15,7 +15,6 @@
 package org.ow2.chameleon.eclipse.ipojo.core;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.jar.Manifest;
@@ -124,32 +123,12 @@ public class EclipseResourceStore implements ResourceStore {
 		Utilities.INSTANCE.makeSortedManifest(pProject, updateManifest);
 
 		// Write the file
-		IFile manifestFile = Utilities.INSTANCE.findFile(pProject,
-				Utilities.MANIFEST_NAME);
-		if (manifestFile == null) {
-			try {
-				manifestFile = Utilities.INSTANCE
-						.createDefaultManifest(pProject);
-
-			} catch (CoreException e) {
-				throw new IOException("Can't find the Manifest file", e);
-			}
-		}
-
-		// Write the manifest in memory
-		ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-		updateManifest.write(byteOutStream);
-
-		// Convert to an input stream
-		ByteArrayInputStream byteInStream = new ByteArrayInputStream(
-				byteOutStream.toByteArray());
-
 		try {
-			// Update the file content
-			manifestFile.setContents(byteInStream, IResource.FORCE, null);
+			Utilities.INSTANCE.setManifestContent(pProject, updateManifest);
 
-		} catch (CoreException e) {
-			throw new IOException("Can't write in the Manifest file", e);
+		} catch (CoreException ex) {
+			ex.printStackTrace();
+			throw new IOException("Can't write the manifest file", ex);
 		}
 	}
 

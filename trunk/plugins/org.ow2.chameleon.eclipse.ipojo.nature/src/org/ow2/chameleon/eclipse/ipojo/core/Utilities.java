@@ -174,7 +174,7 @@ public final class Utilities {
 	public Manifest getManifestContent(final IProject aProject)
 			throws CoreException {
 
-		IFile manifestFile = getManifestFile(aProject);
+		final IFile manifestFile = getManifestFile(aProject, true);
 
 		try {
 			return new Manifest(manifestFile.getContents(true));
@@ -193,13 +193,17 @@ public final class Utilities {
 	 * 
 	 * @param aProject
 	 *            Current manipulated project
-	 * @return A reference to the manifest file
+	 * @param aForce
+	 *            Creates the Manifest file if it doesn't exist yet
+	 * @return A reference to the manifest file, null if the file doesn't exist
+	 *         and aForce is false
 	 */
-	public IFile getManifestFile(final IProject aProject) throws CoreException {
+	public IFile getManifestFile(final IProject aProject, final boolean aForce)
+			throws CoreException {
 
 		// Search for the Manifest file
-		IFile manifestFile = findFile(aProject, MANIFEST_NAME);
-		if (manifestFile == null) {
+		final IFile manifestFile = findFile(aProject, MANIFEST_NAME);
+		if (manifestFile == null && aForce) {
 			Activator.logInfo(aProject,
 					"Manifest file not found. Creating one.");
 
@@ -369,5 +373,43 @@ public final class Utilities {
 		if (aContainer instanceof IFolder && !aContainer.exists()) {
 			((IFolder) aContainer).create(true, true, null);
 		}
+	}
+
+	/**
+	 * Sets the project manifest file content
+	 * 
+	 * @param aProject
+	 *            Project currently modified
+	 * @param aManifest
+	 *            The new manifest content
+	 * @throws CoreException
+	 *             An error occurred while writing down the file
+	 */
+	public void setManifestContent(final IProject aProject,
+			final Manifest aManifest) throws CoreException {
+
+		final IFile manifestFile = getManifestFile(aProject, true);
+
+		System.out.println("Compo : "
+				+ aManifest.getMainAttributes().getValue("iPOJO-Components"));
+
+		// Write the manifest in memory
+		final ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+		try {
+			aManifest.write(byteOutStream);
+
+		} catch (IOException e) {
+			// Should never happen
+			throw new CoreException(new Status(IStatus.ERROR,
+					Activator.PLUGIN_ID, "Can't write the manifest in memory",
+					e));
+		}
+
+		// Convert to an input stream
+		final ByteArrayInputStream byteInStream = new ByteArrayInputStream(
+				byteOutStream.toByteArray());
+
+		// Update the file content
+		manifestFile.setContents(byteInStream, IResource.FORCE, null);
 	}
 }

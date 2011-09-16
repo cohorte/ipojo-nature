@@ -51,10 +51,10 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
 	 * java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected IProject[] build(final int aKind, final Map aArgs,
-			final IProgressMonitor aMonitor) throws CoreException {
+	protected IProject[] build(final int aKind,
+			final Map<String, String> aArgs, final IProgressMonitor aMonitor)
+			throws CoreException {
 
 		switch (aKind) {
 		case FULL_BUILD:
@@ -95,6 +95,31 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 		// Null, IProject, keep a list of handled projects ???
 		return new IProject[0];
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.core.resources.IncrementalProjectBuilder#clean(org.eclipse
+	 * .core.runtime.IProgressMonitor)
+	 */
+	@Override
+	protected void clean(final IProgressMonitor aMonitor) throws CoreException {
+
+		super.clean(aMonitor);
+
+		// Remove the iPOJO-Component Manifest entry
+		try {
+			pManifestUpdater.removeManifestEntry(getProject());
+
+		} catch (CoreException ex) {
+			Activator
+					.logError(
+							getProject(),
+							"Something went wrong while cleaning the manifest file",
+							ex);
+		}
 	}
 
 	/**
