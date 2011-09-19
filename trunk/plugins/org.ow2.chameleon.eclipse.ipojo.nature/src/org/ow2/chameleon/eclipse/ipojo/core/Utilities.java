@@ -227,10 +227,6 @@ public final class Utilities {
 
 		if (metadataFile == null) {
 			// No metadata.xml file
-			Activator
-					.logInfo(aProject,
-							"No metadata.xml file found (only annotations will be parsed)");
-
 			return null;
 		}
 

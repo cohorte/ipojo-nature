@@ -19,7 +19,12 @@ import java.io.InputStream;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import org.apache.felix.ipojo.manipulator.ManipulationVisitor;
+import org.apache.felix.ipojo.manipulator.MetadataProvider;
 import org.apache.felix.ipojo.manipulator.Pojoization;
+import org.apache.felix.ipojo.manipulator.Reporter;
+import org.apache.felix.ipojo.manipulator.ResourceStore;
+import org.apache.felix.ipojo.manipulator.metadata.EmptyMetadataProvider;
 import org.apache.felix.ipojo.manipulator.metadata.StreamMetadataProvider;
 import org.apache.felix.ipojo.manipulator.render.MetadataRenderer;
 import org.apache.felix.ipojo.manipulator.visitor.check.CheckFieldConsistencyVisitor;
@@ -41,6 +46,88 @@ public class ManifestUpdater {
 
 	/** iPOJO Manifest entry */
 	public static final String IPOJO_HEADER = "iPOJO-Components";
+
+	/**
+	 * Prepares the manipulation visitor. Based on
+	 * org.apache.felix.ipojo.manipulator.Pojoization.createDefaultVisitorChain
+	 * (ManifestProvider,ResourceStore).
+	 * 
+	 * @param aReporter
+	 *            Status reporter
+	 * @param aResourceStore
+	 *            Resource store
+	 * @return The manipulation visitor
+	 */
+	protected ManipulationVisitor prepareManipulationVisitor(
+			final Reporter aReporter, final ResourceStore aResourceStore) {
+
+		final ManipulatedResourcesWriter resourcesWriter = new ManipulatedResourcesWriter();
+		resourcesWriter.setResourceStore(aResourceStore);
+		resourcesWriter.setReporter(aReporter);
+
+		// Finish with this one, as in default Pojoization implementation
+		final CheckFieldConsistencyVisitor checkConsistencyVisitor = new CheckFieldConsistencyVisitor(
+				resourcesWriter);
+		checkConsistencyVisitor.setReporter(aReporter);
+
+		return checkConsistencyVisitor;
+	}
+
+	/**
+	 * Prepares a composite meta data provider (XML file if found, else an empty
+	 * provider). iPOJO automatically adds the annotation meta data provider.
+	 * 
+	 * @param aProject
+	 *            Currently modified project
+	 * @param aReporter
+	 *            Status reporter
+	 * @param aResourceStore
+	 *            Resource store
+	 * @return A composite meta data provider.
+	 */
+	protected MetadataProvider prepareMetadataProvider(final IProject aProject,
+			final Reporter aReporter, final ResourceStore aResourceStore) {
+
+		// Find the metadata.xml file
+		final InputStream metadataStream = Utilities.INSTANCE
+				.getMetadataStream(aProject);
+		if (metadataStream != null) {
+			// Return the found meta data
+			return new StreamMetadataProvider(metadataStream, aReporter);
+		}
+
+		// Return an empty provider if no meta data is found
+		return new EmptyMetadataProvider();
+	}
+
+	/**
+	 * Prepares the resource store
+	 * 
+	 * @param aProject
+	 *            Currently modified project
+	 * @return The resource store
+	 * @throws CoreException
+	 *             An error occurred while preparing the resource store
+	 */
+	protected ResourceStore prepareResourceStore(final IProject aProject)
+			throws CoreException {
+
+		// Manifest builder (default one)
+		final MetadataRenderer metadataRenderer = new MetadataRenderer();
+		metadataRenderer.addMetadataFilter(new MetadataIpojoElementFilter());
+
+		final SortedManifestBuilder manifestBuilder = new SortedManifestBuilder();
+		manifestBuilder.setMetadataRenderer(metadataRenderer);
+
+		// Resource store
+		final EclipseResourceStore resourceStore = new EclipseResourceStore(
+				aProject);
+		resourceStore.setManifest(Utilities.INSTANCE
+				.getManifestContent(aProject));
+		resourceStore.setManifestBuilder(manifestBuilder);
+
+		return resourceStore;
+	}
 
 	/**
 	 * Removes the iPOJO-Component entry from the manifest file
@@ -104,49 +191,21 @@ public class ManifestUpdater {
 		// Error reporter for Eclipse
 		final EclipseReporter reporter = new EclipseReporter(aProject);
 
+		// Prepare the resource store
+		final ResourceStore resourceStore = prepareResourceStore(aProject);
+
+		// Prepare the meta data provider
+		final MetadataProvider metadataProvider = prepareMetadataProvider(
+				aProject, reporter, resourceStore);
+
+		// Manipulation visitor
+		final ManipulationVisitor manipulationVisitor = prepareManipulationVisitor(
+				reporter, resourceStore);
+
 		// Pojoization API
 		final Pojoization pojoization = new Pojoization(reporter);
-
-		// Metadata provider
-		StreamMetadataProvider metadataProvider = null;
-		final InputStream metadataStream = Utilities.INSTANCE
-				.getMetadataStream(aProject);
-		if (metadataStream != null) {
-			metadataProvider = new StreamMetadataProvider(metadataStream,
-					reporter);
-		}
-
-		// Manifest builder (default one)
-		final MetadataRenderer metadataRenderer = new MetadataRenderer();
-		metadataRenderer.addMetadataFilter(new MetadataIpojoElementFilter());
-
-		final SortedManifestBuilder manifestBuilder = new SortedManifestBuilder();
-		manifestBuilder.setMetadataRenderer(metadataRenderer);
-
-		// Resource store
-		final EclipseResourceStore resourceStore = new EclipseResourceStore(
-				aProject);
-		resourceStore.setManifest(Utilities.INSTANCE
-				.getManifestContent(aProject));
-		resourceStore.setManifestBuilder(manifestBuilder);
-
-		/*
-		 * Manipulation visitor, converted version of
-		 * org.apache.felix.ipojo.manipulator
-		 * .Pojoization.createDefaultVisitorChain(ManifestProvider,
-		 * ResourceStore)
-		 */
-		final ManipulatedResourcesWriter resourcesWriter = new ManipulatedResourcesWriter();
-		resourcesWriter.setResourceStore(resourceStore);
-		resourcesWriter.setReporter(reporter);
-
-		// Finish with this one, as in default Pojoization implementation
-		final CheckFieldConsistencyVisitor checkConsistencyVisitor = new CheckFieldConsistencyVisitor(
-				resourcesWriter);
-		checkConsistencyVisitor.setReporter(reporter);
-
 		pojoization.pojoization(resourceStore, metadataProvider,
-				checkConsistencyVisitor);
+				manipulationVisitor);
 
 		if (reporter.getErrors().isEmpty() && reporter.getWarnings().isEmpty()) {
 			// No problem : full success
