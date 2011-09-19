@@ -390,9 +390,6 @@ public final class Utilities {
 
 		final IFile manifestFile = getManifestFile(aProject, true);
 
-		System.out.println("Compo : "
-				+ aManifest.getMainAttributes().getValue("iPOJO-Components"));
-
 		// Write the manifest in memory
 		final ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
 		try {
