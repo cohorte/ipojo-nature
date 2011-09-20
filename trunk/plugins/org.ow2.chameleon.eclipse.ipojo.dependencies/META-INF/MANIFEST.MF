@@ -49,5 +49,5 @@ Require-Bundle: javax.xml,
  org.objectweb.asm,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: org.apache.felix.ipojo-1.8.0.jar,
+Bundle-ClassPath: org.apache.felix.ipojo-1.9.0-SNAPSHOT.jar,
  org.apache.felix.ipojo.manipulator-1.9.0-SNAPSHOT.jar
