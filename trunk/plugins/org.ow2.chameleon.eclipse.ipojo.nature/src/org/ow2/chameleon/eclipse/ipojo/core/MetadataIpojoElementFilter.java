@@ -31,11 +31,17 @@ public class MetadataIpojoElementFilter implements
 	/** Element arguments attribute name */
 	public static final String ELEMENT_ATTRIBUTE_ARGUMENTS = "arguments";
 
+	/** Method attribute name */
+	public static final String ELEMENT_ATTRIBUTE_METHOD = "method";
+
 	/** iPOJO meta data element name attribute */
 	public static final String ELEMENT_ATTRIBUTE_NAME = "name";
 
 	/** Constructor method name */
 	public static final String ELEMENT_CONSTRUCTOR_VALUE = "$init";
+
+	/** Callback element name */
+	public static final String ELEMENT_NAME_CALLBACK = "callback";
 
 	/** Instance manager class name */
 	public static final String INSTANCEMANAGER_CLASS_NAME = InstanceManager.class
@@ -149,12 +155,18 @@ public class MetadataIpojoElementFilter implements
 					// Can't remove the element, so we don't want the current
 					// one
 					return false;
+
 				} else {
-					// Remove the element from the model
+					// Remove the element from the model and do not work on
+					// children
 					aParentElement.removeElement(aElement);
+					return false;
 				}
 			}
 		}
+
+		// Update attributes
+		renameAttributes(aElement);
 
 		// Recursive thing
 		for (Element subElement : aElement.getElements()) {
@@ -239,15 +251,7 @@ public class MetadataIpojoElementFilter implements
 			return false;
 		}
 
-		String nameWithoutPrefix = null;
-
-		for (String prefix : IPOJO_PREFIXES) {
-			// Test all known prefixes
-			if (aElementName.startsWith(prefix)) {
-				nameWithoutPrefix = aElementName.substring(prefix.length());
-			}
-		}
-
+		final String nameWithoutPrefix = nameWithoutPrefix(aElementName);
 		if (nameWithoutPrefix == null) {
 			// Not an iPOJO prefix, ignore it
 			return false;
@@ -269,5 +273,62 @@ public class MetadataIpojoElementFilter implements
 		}
 
 		return false;
+	}
+
+	/**
+	 * Constructs a name without iPOJO prefix. Returns null if the name was
+	 * "pure".
+	 * 
+	 * @param aName
+	 *            A name with an iPOJO prefix
+	 * @return The name without prefix, null if it was pure
+	 */
+	protected String nameWithoutPrefix(final String aName) {
+
+		for (String prefix : IPOJO_PREFIXES) {
+
+			// Test all known prefixes
+			if (aName.startsWith(prefix)) {
+				return aName.substring(prefix.length());
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Looks into element's attributes and changes bad values where needed.
+	 * 
+	 * @param aElement
+	 *            Element to be treated
+	 */
+	protected void renameAttributes(final Element aElement) {
+
+		final String elementName = aElement.getName();
+
+		if (elementName.equals(ELEMENT_NAME_CALLBACK)) {
+			// 'callback' elements
+
+			final String methodName = aElement
+					.getAttribute(ELEMENT_ATTRIBUTE_METHOD);
+			if (methodName != null) {
+				/*
+				 * Change the method associated to the callback, as the
+				 * attribute will be invalid on the second manipulation of the
+				 * same file : the annotation will stay at the same place,
+				 * whereas the method to be called we'll be injected somewhere
+				 * else. Therefore, on the second manipulation, the callback
+				 * method would point on an injected method, which is filtered
+				 * from the meta data.
+				 */
+				final String pureMethodName = nameWithoutPrefix(methodName);
+				if (pureMethodName != null) {
+					// Replace the current method name with a pure one
+					final Attribute attr = new Attribute(
+							ELEMENT_ATTRIBUTE_METHOD, pureMethodName);
+					aElement.addAttribute(attr);
+				}
+			}
+		}
 	}
 }
