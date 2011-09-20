@@ -48,15 +48,15 @@ public class MetadataIpojoElementFilter implements
 			.getName();
 
 	/**
-	 * iPOJO injected elements prefixes
+	 * iPOJO injected elements prefixes (longest possibilities first)
 	 * 
 	 * @see MethodCreatod
 	 */
 	public static final String[] IPOJO_PREFIXES = {
 	/** Field flag prefix */
-	"__F",
+	"__F_", "__F",
 	/** Method flag prefix */
-	"__M",
+	"__M_", "__M",
 	/** Injected getter */
 	"__get",
 	/** Injected setter */
@@ -251,15 +251,15 @@ public class MetadataIpojoElementFilter implements
 			return false;
 		}
 
+		/* Fast test : if it contains a '$' (dollar), it has been injected */
+		if (aElementName.indexOf('$') != -1) {
+			return true;
+		}
+
 		final String nameWithoutPrefix = nameWithoutPrefix(aElementName);
 		if (nameWithoutPrefix == null) {
 			// Not an iPOJO prefix, ignore it
 			return false;
-		}
-
-		/* Fast test : if it contains a '$' (dollar), it has been injected */
-		if (nameWithoutPrefix.indexOf('$') != -1) {
-			return true;
 		}
 
 		// Test all sub-elements names
