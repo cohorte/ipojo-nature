@@ -72,7 +72,7 @@ public class ExportPage extends WizardPage {
 	protected class FolderSelectionListener implements SelectionListener {
 
 		/** Target text container */
-		private Text pTarget;
+		private final Text pTarget;
 
 		/**
 		 * Prepares the listener
@@ -108,6 +108,9 @@ public class ExportPage extends WizardPage {
 		}
 	}
 
+	/** Flag indicating if Dialog Settings are actually set */
+	public static final String SETTINGS_ARE_SET = "settingsSet";
+
 	/** Output folder setting */
 	public static final String SETTINGS_OUTPUT_FOLDER = "outputFolder";
 
@@ -130,7 +133,7 @@ public class ExportPage extends WizardPage {
 	private Table pProjectsTable;
 
 	/** Dialog settings */
-	private IDialogSettings pSettings;
+	private final IDialogSettings pSettings;
 
 	/** Use build.properties check box */
 	private Button pUseBuildProperties;
@@ -143,7 +146,7 @@ public class ExportPage extends WizardPage {
 	 */
 	protected ExportPage(final String aPageName) {
 
-		super(aPageName);
+		super(aPageName, aPageName, null);
 		pSettings = IPojoExporterPlugin.getDefault().getDialogSettings();
 	}
 
@@ -173,21 +176,23 @@ public class ExportPage extends WizardPage {
 		// Set up the page root
 		pPageRoot = new Composite(aParent, SWT.NONE);
 
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
+		final GridLayout layout = new GridLayout(1, false);
+		layout.verticalSpacing = 10;
 		pPageRoot.setLayout(layout);
 
-		// Project selection area
+		/* Project selection area */
 		final Group projectsGroup = new Group(pPageRoot, SWT.NONE);
 		projectsGroup.setText("Projects to export :");
-		projectsGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		projectsGroup
+				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		createProjectSelection(projectsGroup);
 
 		/* Export options */
 		final Group exportGroup = new Group(pPageRoot, SWT.NONE);
 		exportGroup.setText("Export options");
-		exportGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		exportGroup.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+				false));
 
 		createExportFields(exportGroup);
 
@@ -203,26 +208,29 @@ public class ExportPage extends WizardPage {
 	 */
 	private void createExportFields(final Composite aParent) {
 
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		aParent.setLayout(layout);
+		aParent.setLayout(new GridLayout(2, false));
 
 		// Use build.properties
 		pUseBuildProperties = new Button(aParent, SWT.BORDER | SWT.CHECK);
 		pUseBuildProperties.setText("Use build.properties");
 		pUseBuildProperties.addListener(SWT.Selection, pEventListener);
+		pUseBuildProperties.setLayoutData(new GridData(SWT.BEGINNING,
+				SWT.BOTTOM, true, false, 2, 1));
 
 		// Selected, by default
-		pUseBuildProperties.setSelection(pSettings
-				.getBoolean(SETTINGS_USE_BUILDPROPERTIES));
+		boolean checkUseBuildProperies = true;
+		if (pSettings.getBoolean(SETTINGS_ARE_SET)) {
+			// Settings have been set before, use them
+			checkUseBuildProperies = pSettings
+					.getBoolean(SETTINGS_USE_BUILDPROPERTIES);
+		}
 
-		GridData data = new GridData();
-		data.horizontalSpan = 2;
-		pUseBuildProperties.setLayoutData(data);
+		pUseBuildProperties.setSelection(checkUseBuildProperies);
 
 		// Output folder
 		pOutputFolder = new Text(aParent, SWT.BORDER);
-		pOutputFolder.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		pOutputFolder.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+				false));
 		pOutputFolder.addListener(SWT.Modify, pEventListener);
 
 		// Set the default text
@@ -248,9 +256,7 @@ public class ExportPage extends WizardPage {
 	private void createProjectSelection(final Composite aParent) {
 
 		// Set a grid layout
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		aParent.setLayout(layout);
+		aParent.setLayout(new GridLayout(1, false));
 
 		// Prepare the project image
 		final Image projectImage = PlatformUI.getWorkbench().getSharedImages()
@@ -259,7 +265,8 @@ public class ExportPage extends WizardPage {
 		// Prepare the table
 		pProjectsTable = new Table(aParent, SWT.BORDER | SWT.CHECK
 				| SWT.H_SCROLL | SWT.V_SCROLL);
-		pProjectsTable.setLayoutData(new GridData(GridData.FILL_BOTH));
+		pProjectsTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+				true));
 		pProjectsTable.addListener(SWT.Selection, pEventListener);
 
 		// Fill it
@@ -358,6 +365,9 @@ public class ExportPage extends WizardPage {
 		// Store settings
 		pSettings.put(SETTINGS_USE_BUILDPROPERTIES, useBuildProperties());
 		pSettings.put(SETTINGS_OUTPUT_FOLDER, getOutputFolder());
+
+		// We now have user settings
+		pSettings.put(SETTINGS_ARE_SET, true);
 	}
 
 	/**
