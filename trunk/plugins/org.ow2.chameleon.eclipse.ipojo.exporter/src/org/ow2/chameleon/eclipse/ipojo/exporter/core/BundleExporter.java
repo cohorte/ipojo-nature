@@ -350,10 +350,8 @@ public class BundleExporter {
 
 			} else if (includedResource instanceof IFile) {
 				// Map the file directly
-				aJarEntriesMapping.put(
-						(IFile) includedResource,
-						includedResource.getFullPath()
-								.makeRelativeTo(projectPath).toString());
+				aJarEntriesMapping.put((IFile) includedResource,
+						includedResource.getProjectRelativePath().toString());
 			}
 		}
 
@@ -405,12 +403,11 @@ public class BundleExporter {
 
 			} else if (resource instanceof IFile) {
 				/*
-				 * Only store files. makeRelativeTo allows to have entry names
-				 * relative to the root of the resulting JAR.
+				 * Only store files. Entry names are relative to the root of the
+				 * resulting JAR.
 				 */
 				aJarEntriesMapping.put((IFile) resource, resource
-						.getProjectRelativePath().makeRelativeTo(aBasePath)
-						.toString());
+						.getProjectRelativePath().toString());
 			}
 		}
 	}
