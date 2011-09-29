@@ -72,5 +72,20 @@
          natureId="org.ow2.chameleon.eclipse.ipojo.iPojoNature">
    </image>
 </extension>
+<extension
+      point="org.eclipse.ui.propertyPages">
+   <page
+         class="org.ow2.chameleon.eclipse.ipojo.ui.properties.ProjectPropertyPage"
+         icon="icons/menu_marker_16.png"
+         id="org.ow2.chameleon.eclipse.ipojo.ui.properties.projectPropertyPage"
+         name="iPOJO Project"
+         selectionFilter="single">
+      <enabledWhen>
+        <adapt type="org.eclipse.core.resources.IProject">
+                  <test property="org.eclipse.core.resources.projectNature" value="org.ow2.chameleon.eclipse.ipojo.iPojoNature"/>
+             </adapt>     
+      </enabledWhen>
+   </page>
+</extension>
 
 </plugin>

@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaCore;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
@@ -53,6 +54,10 @@ public final class Utilities {
 
 	/** Default metadata file name */
 	public static final String METADATA_FILE = "metadata.xml";
+
+	/** Metadata file path property */
+	public static final QualifiedName METADATA_FILE_PROPERTY = new QualifiedName(
+			Activator.PLUGIN_ID, "ipojo.metadata.path");
 
 	/** Manifest.attr field */
 	private static Field sAttrField;
@@ -212,6 +217,37 @@ public final class Utilities {
 		}
 
 		return manifestFile;
+	}
+
+	/**
+	 * Reads the "metadata file path" property from the given resource
+	 * 
+	 * @param aResource
+	 *            Resource containing the property
+	 * @return The property value or an empty string (never null)
+	 */
+	public String getMetadataFileProperty(final IResource aResource) {
+
+		if (aResource == null) {
+			return "";
+		}
+
+		// Read the property
+		String result = null;
+		try {
+			result = aResource.getPersistentProperty(METADATA_FILE_PROPERTY);
+
+		} catch (CoreException e) {
+			Activator.logError(aResource.getProject(),
+					"Error reading a resource property", e);
+		}
+
+		if (result == null) {
+			// Do not return null
+			return "";
+		}
+
+		return result;
 	}
 
 	/**
@@ -404,5 +440,47 @@ public final class Utilities {
 
 		// Update the file content
 		manifestFile.setContents(byteInStream, IResource.FORCE, null);
+	}
+
+	/**
+	 * Sets the "metadata file path" property to the given resource (useful on a
+	 * project only). Removes it if the given string is null or empty.
+	 * 
+	 * @param aResource
+	 *            Resource where to apply the property.
+	 * @param aFilePath
+	 *            The metadata file path or null.
+	 * 
+	 * @return True on success, false on error
+	 */
+	public boolean setMetadataFileProperty(final IResource aResource,
+			final String aFilePath) {
+
+		if (aResource == null) {
+			return false;
+		}
+
+		// Set the metadata property
+		final String metadataPath;
+		if (aFilePath == null || aFilePath.isEmpty()) {
+			// Remove the property if it is useless
+			metadataPath = null;
+
+		} else {
+			metadataPath = aFilePath;
+		}
+
+		// Store it
+		try {
+			aResource.setPersistentProperty(METADATA_FILE_PROPERTY,
+					metadataPath);
+			return true;
+
+		} catch (CoreException e) {
+			Activator.logError(aResource.getProject(),
+					"Error setting a resource property", e);
+
+			return false;
+		}
 	}
 }
