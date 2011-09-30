@@ -291,13 +291,17 @@ public final class Utilities {
 	}
 
 	/**
-	 * Tries to get an InputStream for the specified meta data file.
+	 * Retrieves the File object corresponding to the specified meta data file
+	 * path. Returns null if the meta data property is empty.
+	 * 
+	 * The returned File is a representation of the full file path, but the file
+	 * may not exist.
 	 * 
 	 * @param aProject
-	 *            Manipulated project, containing the meta data path property
-	 * @return The specified meta data stream, null if not available
+	 *            Manipulated project
+	 * @return The meta data File representation, null if not specified
 	 */
-	protected InputStream getSpecifiedMetadataStream(final IProject aProject) {
+	public File getSpecifiedMetadataFile(final IProject aProject) {
 
 		final String specifiedMetadataLocation = getMetadataFileProperty(aProject);
 
@@ -318,24 +322,38 @@ public final class Utilities {
 
 			if (!expandedLocation.isEmpty()) {
 				// Use Java File, as it may be out of the scope of the workspace
-				final File metadataFile = new File(expandedLocation);
-
-				// Try to open it
-				try {
-					return new FileInputStream(metadataFile);
-
-				} catch (IOException e) {
-					// File is not accessible
-					Activator.logError(aProject,
-							"Error opening metadata file : '"
-									+ specifiedMetadataLocation + "' / '"
-									+ expandedLocation + "'", e);
-					return null;
-				}
+				return new File(expandedLocation);
 			}
 		}
 
-		// No file specified
+		return null;
+	}
+
+	/**
+	 * Tries to get an InputStream for the specified meta data file.
+	 * 
+	 * @param aProject
+	 *            Manipulated project, containing the meta data path property
+	 * @return The specified meta data stream, null if not available
+	 */
+	protected InputStream getSpecifiedMetadataStream(final IProject aProject) {
+
+		// Use Java File, as it may be out of the scope of the workspace
+		final File metadataFile = getSpecifiedMetadataFile(aProject);
+		if (metadataFile == null) {
+			return null;
+		}
+
+		// Try to open it
+		try {
+			return new FileInputStream(metadataFile);
+
+		} catch (IOException e) {
+			// File is not accessible
+			Activator.logError(aProject, "Error opening metadata file : '"
+					+ metadataFile.getAbsolutePath() + "'", e);
+		}
+
 		return null;
 	}
 

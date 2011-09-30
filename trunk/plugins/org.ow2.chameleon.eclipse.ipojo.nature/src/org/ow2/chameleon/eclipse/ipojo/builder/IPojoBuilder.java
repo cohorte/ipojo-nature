@@ -14,6 +14,7 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.builder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +29,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
+import org.ow2.chameleon.eclipse.ipojo.core.Utilities;
 
 /**
  * iPOJO Manifest updater for iPOJO nature projects
@@ -44,6 +47,10 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 	/** Plugin Builder ID */
 	public static final String BUILDER_ID = "org.ow2.chameleon.eclipse.ipojo.ipojoBuilder";
+
+	/** Last manipulation project session property */
+	public static final QualifiedName PROJECT_LAST_MANIPULATION = new QualifiedName(
+			BUILDER_ID, "project.last_manipulation");
 
 	/** iPOJO Manifest updater */
 	private final ManifestUpdater pManifestUpdater = new ManifestUpdater();
@@ -108,6 +115,9 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 				// Test cancellation
 				break;
 			}
+
+			// Test on specified metadata
+			metadataModified |= hasSpecifiedMetadataChanged();
 
 			// Do the work if needed
 			if (metadataModified || !deltas.isEmpty()) {
@@ -207,6 +217,8 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	}
 
 	/**
+	 * Retrieves the IContainer of the Java project output
+	 * 
 	 * @return The Java project output container
 	 * @throws CoreException
 	 *             An error occurred while retrieving project informations
@@ -217,6 +229,8 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	}
 
 	/**
+	 * Retrieves the Java project output path
+	 * 
 	 * @return The Java project output path
 	 * @throws CoreException
 	 *             An error occurred while retrieving project informations
@@ -226,6 +240,46 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 		IJavaProject javaProject = (IJavaProject) getProject().getNature(
 				JavaCore.NATURE_ID);
 		return javaProject.getOutputLocation();
+	}
+
+	/**
+	 * Tests if the specified meta data file has been modified since last build.
+	 * Returns false if the file does not exist or if no file is specified.
+	 * 
+	 * @return True if the file has been modified since last build
+	 */
+	protected boolean hasSpecifiedMetadataChanged() {
+
+		final File specifiedFile = Utilities.INSTANCE
+				.getSpecifiedMetadataFile(getProject());
+
+		if (specifiedFile == null || !specifiedFile.exists()) {
+			// No file
+			return false;
+		}
+
+		// Read the last manipulation time stamp
+		long lastProjectManipulation;
+
+		try {
+			final Object lastProjectManipulationValue = getProject()
+					.getSessionProperty(PROJECT_LAST_MANIPULATION);
+
+			if (lastProjectManipulationValue instanceof Long) {
+				// Convert the value
+				lastProjectManipulation = (Long) lastProjectManipulationValue;
+
+			} else {
+				// No such property
+				lastProjectManipulation = 0;
+			}
+
+		} catch (CoreException e) {
+			// Error reading property
+			lastProjectManipulation = 0;
+		}
+
+		return specifiedFile.lastModified() > lastProjectManipulation;
 	}
 
 	/**
@@ -350,6 +404,10 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 		// Do the job
 		final IStatus result = pManifestUpdater.updateManifest(getProject(),
 				monitor);
+
+		// Store the manipulation time
+		getProject().setSessionProperty(PROJECT_LAST_MANIPULATION,
+				Long.valueOf(System.currentTimeMillis()));
 
 		// Log the result
 		if (result.isOK()) {
