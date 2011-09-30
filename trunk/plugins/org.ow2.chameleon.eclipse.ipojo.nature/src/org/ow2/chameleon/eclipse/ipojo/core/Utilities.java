@@ -16,6 +16,8 @@ package org.ow2.chameleon.eclipse.ipojo.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -33,6 +35,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jdt.core.JavaCore;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 
@@ -259,6 +263,13 @@ public final class Utilities {
 	 */
 	protected InputStream getMetadataStream(final IProject aProject) {
 
+		final InputStream specifiedStream = getSpecifiedMetadataStream(aProject);
+		if (specifiedStream != null) {
+			// The specified stream exists
+			return specifiedStream;
+		}
+
+		// Find the first metadata file if the specified one wasn't found
 		final IFile metadataFile = findFile(aProject, METADATA_FILE);
 
 		if (metadataFile == null) {
@@ -276,6 +287,55 @@ public final class Utilities {
 					"Can't read the contents of the metadata file", ex);
 		}
 
+		return null;
+	}
+
+	/**
+	 * Tries to get an InputStream for the specified meta data file.
+	 * 
+	 * @param aProject
+	 *            Manipulated project, containing the meta data path property
+	 * @return The specified meta data stream, null if not available
+	 */
+	protected InputStream getSpecifiedMetadataStream(final IProject aProject) {
+
+		final String specifiedMetadataLocation = getMetadataFileProperty(aProject);
+
+		if (!specifiedMetadataLocation.isEmpty()) {
+			// A metadata file has been specified
+			final IStringVariableManager varMan = VariablesPlugin.getDefault()
+					.getStringVariableManager();
+
+			String expandedLocation;
+			try {
+				expandedLocation = varMan
+						.performStringSubstitution(specifiedMetadataLocation);
+
+			} catch (CoreException e) {
+				// Ignore error
+				expandedLocation = "";
+			}
+
+			if (!expandedLocation.isEmpty()) {
+				// Use Java File, as it may be out of the scope of the workspace
+				final File metadataFile = new File(expandedLocation);
+
+				// Try to open it
+				try {
+					return new FileInputStream(metadataFile);
+
+				} catch (IOException e) {
+					// File is not accessible
+					Activator.logError(aProject,
+							"Error opening metadata file : '"
+									+ specifiedMetadataLocation + "' / '"
+									+ expandedLocation + "'", e);
+					return null;
+				}
+			}
+		}
+
+		// No file specified
 		return null;
 	}
 
