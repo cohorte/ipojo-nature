@@ -32,8 +32,10 @@ import org.apache.felix.ipojo.manipulator.visitor.writer.ManipulatedResourcesWri
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 
 /**
@@ -180,45 +182,75 @@ public class ManifestUpdater {
 	}
 
 	/**
-	 * Applies a full iPOJO update on the project Manifest.
+	 * Applies a full iPOJO update on the project Manifest. Returns an IStatus
+	 * representing the result.
 	 * 
 	 * @param aProject
 	 *            Eclipse Java project containing the Manifest
+	 * @param aMonitor
+	 *            Progress monitor
+	 * 
+	 * @return Returns an Eclipse IStatus
+	 * 
 	 * @throws CoreException
 	 *             An error occurred during file treatments
 	 */
-	public void updateManifest(final IProject aProject) throws CoreException {
+	public IStatus updateManifest(final IProject aProject,
+			final IProgressMonitor aMonitor) throws CoreException {
 
 		if (!Utilities.INSTANCE.isJavaProject(aProject)) {
 			Activator.logInfo(aProject, "Not a Java project");
-			return;
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+					aProject.getName() + " is not a Java Project");
 		}
+
+		// Prepare a sub monitor
+		final SubMonitor subMonitor = SubMonitor.convert(aMonitor, 100);
+		final IProgressMonitor preparationMonitor = subMonitor.newChild(4);
+		preparationMonitor.setTaskName("Manipulation preparation");
 
 		// Error reporter for Eclipse
 		final EclipseReporter reporter = new EclipseReporter(aProject);
+		preparationMonitor.worked(1);
 
 		// Prepare the resource store
 		final ResourceStore resourceStore = prepareResourceStore(aProject);
+		preparationMonitor.worked(1);
 
 		// Prepare the meta data provider
 		final MetadataProvider metadataProvider = prepareMetadataProvider(
 				aProject, reporter, resourceStore);
+		preparationMonitor.worked(1);
 
 		// Manipulation visitor
 		final ManipulationVisitor manipulationVisitor = prepareManipulationVisitor(
 				reporter, resourceStore);
+		preparationMonitor.worked(1);
+
+		// Test cancellation
+		if (preparationMonitor.isCanceled()) {
+			return new Status(IStatus.OK, Activator.PLUGIN_ID,
+					"Manipulation cancelled");
+		}
+
+		// New progression
+		final IProgressMonitor pojoizationMonitor = subMonitor.newChild(96);
+		pojoizationMonitor.setTaskName("Manipulation");
+
+		// Set the resource store progress monitor
+		((EclipseResourceStore) resourceStore)
+				.setProgressMonitor(pojoizationMonitor);
 
 		// Pojoization API
 		final Pojoization pojoization = new Pojoization(reporter);
 		pojoization.pojoization(resourceStore, metadataProvider,
 				manipulationVisitor);
 
-		if (reporter.getErrors().isEmpty() && reporter.getWarnings().isEmpty()) {
-			// No problem : full success
-			Activator.logInfo(aProject, "Manipulation done");
+		// Update progress monitor
+		if (aMonitor != null) {
+			aMonitor.done();
 		}
 
-		// Errors have already been logged.
-		// TODO pop up an error box with all warnings & errors
+		return reporter.getEclipseStatus();
 	}
 }

@@ -26,9 +26,12 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
 
@@ -56,9 +59,12 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	protected IProject[] build(final int aKind, final Map aArgs,
 			final IProgressMonitor aMonitor) throws CoreException {
 
+		final SubMonitor subMonitor = SubMonitor.convert(aMonitor,
+				"iPOJO Build", 100);
+
 		switch (aKind) {
 		case FULL_BUILD:
-			updateManifest(aMonitor);
+			updateManifest(subMonitor);
 			break;
 
 		case AUTO_BUILD:
@@ -69,27 +75,46 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 			List<IResource> deltas = new ArrayList<IResource>();
 
+			// Preparation progress monitor
+			final IProgressMonitor preparationMonitor = subMonitor.newChild(10);
+			preparationMonitor.beginTask("Prepare incremental build", 10);
+
 			boolean metadataModified = false;
 			if (resourceDelta != null) {
 
 				metadataModified = loadResourceDelta(resourceDelta, resources,
 						classes);
+
+				preparationMonitor.worked(5);
+			}
+
+			if (preparationMonitor.isCanceled()) {
+				// Test cancellation
+				break;
 			}
 
 			if (metadataModified || resourceDelta == null) {
 				// Full build or metadata file modified : list all .class files
 				getAllClassFiles(getProjectOutputContainer(), deltas);
+				preparationMonitor.worked(5);
 
 			} else {
 				// Filter lists to get only needed binaries
 				deltas = filterLists(resources, classes);
+				preparationMonitor.worked(5);
+			}
+
+			if (preparationMonitor.isCanceled()) {
+				// Test cancellation
+				break;
 			}
 
 			// Do the work if needed
 			if (metadataModified || !deltas.isEmpty()) {
-				updateManifest(aMonitor);
+				updateManifest(subMonitor.newChild(90));
 			}
 
+			aMonitor.done();
 			break;
 		}
 
@@ -314,10 +339,26 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			throws CoreException {
 
 		IProgressMonitor monitor = aMonitor;
-		if (monitor == null) {
+		if (aMonitor == null) {
 			monitor = new NullProgressMonitor();
+
+		} else if (aMonitor.isCanceled()) {
+			// Work cancelled
+			return;
 		}
 
-		pManifestUpdater.updateManifest(getProject());
+		// Do the job
+		final IStatus result = pManifestUpdater.updateManifest(getProject(),
+				monitor);
+
+		// Log the result
+		if (result.isOK()) {
+			// No problem : full success
+			Activator.logInfo(getProject(), "Manipulation done");
+
+		} else {
+			// Errors have already been logged, so just pop a dialog
+			StatusManager.getManager().handle(result, StatusManager.SHOW);
+		}
 	}
 }

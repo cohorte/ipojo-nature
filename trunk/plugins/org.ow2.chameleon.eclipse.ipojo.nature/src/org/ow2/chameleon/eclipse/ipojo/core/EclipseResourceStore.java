@@ -32,6 +32,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
@@ -43,11 +45,20 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
  */
 public class EclipseResourceStore implements ResourceStore {
 
+	/** Base progress monitor */
+	private SubMonitor pBaseMonitor;
+
+	/** Current progress monitor */
+	private IProgressMonitor pCurrentMonitor;
+
 	/** The bundle manifest */
 	private Manifest pManifest;
 
 	/** The manifest builder */
 	private ManifestBuilder pManifestBuilder;
+
+	/** Number of {@link #writeMetadata(Element)} calls, for progress monitor */
+	private int pNbStoredMetadata;
 
 	/** Project output directory, relative to the project's workspace */
 	private final IPath pOutputLocation;
@@ -90,6 +101,17 @@ public class EclipseResourceStore implements ResourceStore {
 
 		try {
 			IFolder outputFolder = pWorkspaceRoot.getFolder(pOutputLocation);
+
+			// Count files
+			int nbFiles = countFiles(outputFolder);
+
+			// Prepare the read monitor
+			pNbStoredMetadata = 0;
+			pCurrentMonitor = SubMonitor.convert(pBaseMonitor.newChild(1),
+					nbFiles);
+			pCurrentMonitor.setTaskName("Read class files");
+
+			// Visit the folder
 			visitFolder(outputFolder, aVisitor);
 
 		} catch (CoreException e) {
@@ -108,6 +130,35 @@ public class EclipseResourceStore implements ResourceStore {
 		// Nothing to release / to do
 	}
 
+	/**
+	 * Recursively count the number of files in a container
+	 * 
+	 * @param aContainer
+	 *            A container
+	 * @return The number of files in the container
+	 */
+	protected int countFiles(final IContainer aContainer) {
+
+		int nbMembers = 0;
+
+		try {
+			for (IResource member : aContainer.members()) {
+
+				if (member instanceof IContainer) {
+					nbMembers += countFiles((IContainer) member);
+
+				} else if (member instanceof IFile) {
+					nbMembers++;
+				}
+			}
+
+		} catch (CoreException e) {
+			Activator.logError(pProject, "Error counting members", e);
+		}
+
+		return nbMembers;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -115,6 +166,16 @@ public class EclipseResourceStore implements ResourceStore {
 	 */
 	@Override
 	public void open() throws IOException {
+
+		if (pCurrentMonitor.isCanceled()) {
+			// Test cancellation
+			return;
+		}
+
+		// Prepare the write part monitor
+		pCurrentMonitor = SubMonitor.convert(pBaseMonitor.newChild(1),
+				pNbStoredMetadata);
+		pCurrentMonitor.setTaskName("Write manipulated files");
 
 		// Update manifest
 		final Manifest updateManifest = pManifestBuilder.build(pManifest);
@@ -175,6 +236,16 @@ public class EclipseResourceStore implements ResourceStore {
 	}
 
 	/**
+	 * Sets the base progress monitor
+	 * 
+	 * @param aMonitor
+	 *            Base progress monitor
+	 */
+	public void setProgressMonitor(final IProgressMonitor aMonitor) {
+		pBaseMonitor = SubMonitor.convert(aMonitor, 2);
+	}
+
+	/**
 	 * Recursively visits the project binary output folder
 	 * 
 	 * @param aContainer
@@ -187,6 +258,11 @@ public class EclipseResourceStore implements ResourceStore {
 	protected void visitFolder(final IContainer aContainer,
 			final ResourceVisitor aVisitor) throws CoreException {
 
+		if (pCurrentMonitor.isCanceled()) {
+			// Test cancellation
+			return;
+		}
+
 		for (IResource resource : aContainer.members()) {
 
 			if (resource instanceof IContainer) {
@@ -197,6 +273,9 @@ public class EclipseResourceStore implements ResourceStore {
 				// Make a relative path
 				IPath path = resource.getFullPath();
 				aVisitor.visit(path.makeRelativeTo(pOutputLocation).toString());
+
+				// File handled
+				pCurrentMonitor.worked(1);
 			}
 		}
 	}
@@ -211,6 +290,11 @@ public class EclipseResourceStore implements ResourceStore {
 	@Override
 	public void write(final String aPath, final byte[] aResourceContent)
 			throws IOException {
+
+		if (pCurrentMonitor.isCanceled()) {
+			// Test cancellation
+			return;
+		}
 
 		// Compute the file path
 		IFile file = pWorkspaceRoot.getFile(pOutputLocation.append(aPath));
@@ -240,6 +324,9 @@ public class EclipseResourceStore implements ResourceStore {
 						+ "'", e);
 			}
 		}
+
+		// Done
+		pCurrentMonitor.worked(1);
 	}
 
 	/*
@@ -255,5 +342,7 @@ public class EclipseResourceStore implements ResourceStore {
 		pManifestBuilder.addMetada(Collections.singletonList(aMetadata));
 		pManifestBuilder.addReferredPackage(Metadatas
 				.findReferredPackages(aMetadata));
+
+		pNbStoredMetadata++;
 	}
 }

@@ -17,6 +17,7 @@ package org.ow2.chameleon.eclipse.ipojo.actions;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -26,6 +27,7 @@ import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionDelegate;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
 
@@ -71,7 +73,13 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 		IProject project = manifestIFile.getProject();
 
 		try {
-			pManifestUpdater.updateManifest(project);
+			final IStatus result = pManifestUpdater.updateManifest(project,
+					null);
+
+			if (!result.isOK()) {
+				// Errors have already been logged, so just pop a dialog
+				StatusManager.getManager().handle(result, StatusManager.SHOW);
+			}
 
 		} catch (CoreException ex) {
 			MessageDialog.openError(pShell, "iPOJO Updater Error",
