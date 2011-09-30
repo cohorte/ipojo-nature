@@ -92,8 +92,14 @@ public class ManifestUpdater {
 		final InputStream metadataStream = Utilities.INSTANCE
 				.getMetadataStream(aProject);
 		if (metadataStream != null) {
+
 			// Return the found meta data
-			return new StreamMetadataProvider(metadataStream, aReporter);
+			final StreamMetadataProvider provider = new StreamMetadataProvider(
+					metadataStream, aReporter);
+
+			// Use local schemas, to avoid Internet connections
+			provider.setValidateUsingLocalSchemas(true);
+			return provider;
 		}
 
 		// Return an empty provider if no meta data is found
