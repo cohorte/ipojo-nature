@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.apache.felix.ipojo.manipulator.Reporter;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 
 /**
@@ -63,6 +65,47 @@ public class EclipseReporter implements Reporter {
 
 		pErrorsList.add(formattedMessage);
 		Activator.logError(pProject, formattedMessage, throwable);
+	}
+
+	/**
+	 * Prepares an Eclipse IStatus object to represent the current errors and
+	 * warnings stored. Returns an "OK" status if no errors nor warnings were
+	 * stored
+	 * 
+	 * @return An Eclipse IStatus
+	 */
+	public IStatus getEclipseStatus() {
+
+		// Compute the severity level
+		int severity = IStatus.OK;
+		if (!pErrorsList.isEmpty()) {
+			severity = IStatus.ERROR;
+
+		} else if (!pWarningsList.isEmpty()) {
+			severity = IStatus.WARNING;
+		}
+
+		// Prepare the message
+		final StringBuilder message = new StringBuilder();
+		message.append(pProject.getName()).append(" :\n");
+
+		if (!pErrorsList.isEmpty()) {
+			// Print errors first
+			for (String error : pErrorsList) {
+				message.append("- ").append(error).append("\n");
+			}
+
+			message.append("\n");
+		}
+
+		if (!pWarningsList.isEmpty()) {
+			// Print warnings
+			for (String warning : pWarningsList) {
+				message.append("- ").append(warning).append("\n");
+			}
+		}
+
+		return new Status(severity, Activator.PLUGIN_ID, message.toString());
 	}
 
 	/*
@@ -167,7 +210,7 @@ public class EclipseReporter implements Reporter {
 		final String formattedMessage = String.format(aMessage,
 				getMessageArguments(aFormatArgs));
 
-		pErrorsList.add(formattedMessage);
+		pWarningsList.add(formattedMessage);
 		Activator.logWarning(pProject, formattedMessage, throwable);
 	}
 }
