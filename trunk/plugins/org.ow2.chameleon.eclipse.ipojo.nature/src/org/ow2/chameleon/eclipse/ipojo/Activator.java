@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -68,7 +69,7 @@ public class Activator extends AbstractUIPlugin {
 	 * 
 	 * @return the shared instance
 	 */
-	public static Activator getUIPluginInstance() {
+	public static Activator getPluginInstance() {
 		return pPluginInstance;
 	}
 
@@ -85,7 +86,7 @@ public class Activator extends AbstractUIPlugin {
 	public static void logError(final IProject aProject, final String aMessage,
 			final Throwable aThrowable) {
 
-		getUIPluginInstance().getLog().log(
+		StatusManager.getManager().handle(
 				new Status(IStatus.ERROR, PLUGIN_ID, getLogPrefix(aProject)
 						+ aMessage, aThrowable));
 	}
@@ -100,7 +101,7 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static void logInfo(final IProject aProject, final String aMessage) {
 
-		getUIPluginInstance().getLog().log(
+		StatusManager.getManager().handle(
 				new Status(IStatus.INFO, PLUGIN_ID, getLogPrefix(aProject)
 						+ aMessage));
 	}
@@ -118,7 +119,7 @@ public class Activator extends AbstractUIPlugin {
 	public static void logWarning(final IProject aProject,
 			final String aMessage, final Throwable aThrowable) {
 
-		getUIPluginInstance().getLog().log(
+		StatusManager.getManager().handle(
 				new Status(IStatus.WARNING, PLUGIN_ID, getLogPrefix(aProject)
 						+ aMessage, aThrowable));
 	}
