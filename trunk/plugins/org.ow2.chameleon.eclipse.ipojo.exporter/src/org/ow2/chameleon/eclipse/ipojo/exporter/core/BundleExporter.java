@@ -407,7 +407,8 @@ public class BundleExporter {
 				 * resulting JAR.
 				 */
 				aJarEntriesMapping.put((IFile) resource, resource
-						.getProjectRelativePath().toString());
+						.getProjectRelativePath().makeRelativeTo(aBasePath)
+						.toString());
 			}
 		}
 	}
