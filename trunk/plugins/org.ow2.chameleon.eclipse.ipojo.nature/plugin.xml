@@ -33,6 +33,7 @@
  </objectContribution>
 </extension>
 
+<!--
 <extension
       id="org.ow2.chameleon.eclipse.ipojo.ipojoBuilder"
       name="iPOJO Manipulator"
@@ -44,6 +45,8 @@
       </run>
    </builder>
 </extension>
+-->
+
 <extension
       id="org.ow2.chameleon.eclipse.ipojo.iPojoNature"
       name="iPOJO Project Nature"
@@ -53,9 +56,11 @@
             class="org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature">
       </run>
    </runtime>
+   <!--
    <builder
          id="org.ow2.chameleon.eclipse.ipojo.ipojoBuilder">
    </builder>
+   -->
 </extension>
 <extension
       point="org.eclipse.help.toc">
@@ -86,6 +91,13 @@
              </adapt>     
       </enabledWhen>
    </page>
+</extension>
+<extension
+      point="org.eclipse.jdt.core.compilationParticipant">
+   <compilationParticipant
+         class="org.ow2.chameleon.eclipse.ipojo.builder.IPojoCompilationParticipant"
+         id="org.ow2.chameleon.eclipse.ipojo.nature.compilationParticipant1">
+   </compilationParticipant>
 </extension>
 
 </plugin>

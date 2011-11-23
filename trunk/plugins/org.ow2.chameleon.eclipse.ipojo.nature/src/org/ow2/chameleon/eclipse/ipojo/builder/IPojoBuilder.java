@@ -39,7 +39,9 @@ import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
 import org.ow2.chameleon.eclipse.ipojo.core.Utilities;
 
 /**
- * iPOJO Manifest updater for iPOJO nature projects
+ * iPOJO Manifest updater for iPOJO nature projects.
+ * 
+ * <b>DEACTIVATED</b> by a comment in the file plugin.xml.
  * 
  * @author Thomas Calmant
  */
