@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
+import org.ow2.chameleon.eclipse.ipojo.Activator;
 
 /**
  * iPOJO project nature life cycle handler
@@ -29,6 +30,37 @@ public class IPojoNature implements IProjectNature {
 
 	/** ID of this project nature */
 	public static final String NATURE_ID = "org.ow2.chameleon.eclipse.ipojo.iPojoNature";
+
+	/**
+	 * Tests if the given project has the iPOJO Nature
+	 * 
+	 * @param aProject
+	 *            Project to tested
+	 * @return True if the given project has the iPOJO Nature
+	 */
+	public static boolean isIPojoProject(final IProject aProject) {
+
+		IProjectDescription desc;
+		try {
+			desc = aProject.getDescription();
+		} catch (CoreException e) {
+			Activator.logError(
+					aProject,
+					"Error testing the nature of the project '"
+							+ aProject.getName() + "'", e);
+			return false;
+		}
+
+		ICommand[] commands = desc.getBuildSpec();
+
+		for (int i = 0; i < commands.length; ++i) {
+			if (commands[i].getBuilderName().equals(IPojoBuilder.BUILDER_ID)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	/** The associated project */
 	private IProject pProject;
