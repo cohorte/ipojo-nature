@@ -14,6 +14,9 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.builder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,25 +46,11 @@ import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
  */
 public class IPojoCompilationParticipant extends CompilationParticipant {
 
-	/** Last project built */
-	private IProject pLastProject;
-
 	/** iPOJO Manifest updater */
 	private final ManifestUpdater pManifestUpdater = new ManifestUpdater();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.jdt.core.compiler.CompilationParticipant#aboutToBuild(org
-	 * .eclipse.jdt.core.IJavaProject)
-	 */
-	@Override
-	public int aboutToBuild(final IJavaProject aProject) {
-
-		pLastProject = aProject.getProject();
-		return READY_FOR_BUILD;
-	}
+	/** Projects to be compiled */
+	private final Set<IProject> pProjectsToCompile = new HashSet<IProject>();
 
 	/*
 	 * (non-Javadoc)
@@ -73,14 +62,50 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 	@Override
 	public void buildFinished(final IJavaProject aProject) {
 
-		// Forget the last project
-		pLastProject = null;
+		synchronized (pProjectsToCompile) {
+
+			for (IProject project : pProjectsToCompile) {
+
+				try {
+					// Manipulate the project
+					updateManifest(project);
+
+				} catch (CoreException ex) {
+					Activator.logError(project, "Error manipulating project",
+							ex);
+				}
+			}
+
+			// Clear the projects list
+			pProjectsToCompile.clear();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jdt.core.compiler.CompilationParticipant#buildStarting(org
+	 * .eclipse.jdt.core.compiler.BuildContext[], boolean)
+	 */
+	@Override
+	public void buildStarting(final BuildContext[] aFiles,
+			final boolean aIsBatch) {
+
+		synchronized (pProjectsToCompile) {
+
+			for (BuildContext file : aFiles) {
+				// Prepare the list of projects to compile
+				pProjectsToCompile.add(file.getFile().getProject());
+			}
+		}
 	}
 
 	/**
 	 * Removes the iPOJO entry in the project Manifest.
 	 * 
-	 * @see org.eclipse.jdt.core.compiler.CompilationParticipant#cleanStarting(org.eclipse.jdt.core.IJavaProject)
+	 * @see org.eclipse.jdt.core.compiler.CompilationParticipant#cleanStarting(org
+	 *      .eclipse.jdt.core.IJavaProject)
 	 */
 	@Override
 	public void cleanStarting(final IJavaProject aProject) {
@@ -107,46 +132,6 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 	public boolean isActive(final IJavaProject aProject) {
 
 		return IPojoNature.isIPojoProject(aProject.getProject());
-	}
-
-	/**
-	 * Defines this participant as an annotation processor
-	 * 
-	 * @return Always true
-	 * 
-	 * @see org.eclipse.jdt.core.compiler.CompilationParticipant#isAnnotationProcessor()
-	 */
-	@Override
-	public boolean isAnnotationProcessor() {
-		return true;
-	}
-
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jdt.core.compiler.CompilationParticipant#processAnnotations(org.eclipse.jdt.core.compiler.BuildContext[])
-	 */
-	@Override
-	public void processAnnotations(final BuildContext[] aFiles) {
-
-		final IProject project;
-
-		if (aFiles.length == 0) {
-			// No files ? Special case : work on the last seen project
-			project = pLastProject;
-
-		} else {
-			// Use the project containing the first file in build context
-			project = aFiles[0].getFile().getProject();
-		}
-
-		try {
-			// Manipulation
-			updateManifest(project);
-
-		} catch (CoreException ex) {
-			Activator.logError(project, "Error manipulating project", ex);
-		}
 	}
 
 	/**
