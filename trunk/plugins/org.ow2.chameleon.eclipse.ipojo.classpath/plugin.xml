@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+            class="org.ow2.chameleon.eclipse.ipojo.classpath.container.AnnotationContainerInitializer"
+            id="org.ow2.chameleon.ipojo.CLASSPATH_CONTAINER">
+      </classpathContainerInitializer>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.ui.classpathContainerPage">
+      <classpathContainerPage
+            class="org.ow2.chameleon.eclipse.ipojo.classpath.ui.AnnotationsContainerPage"
+            id="org.ow2.chameleon.ipojo.CLASSPATH_CONTAINER"
+            name="iPOJO Annotations">
+      </classpathContainerPage>
+   </extension>
+
+</plugin>
