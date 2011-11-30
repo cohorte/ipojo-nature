@@ -64,6 +64,7 @@
 
 		<module>plugins/org.ow2.chameleon.eclipse.ipojo.nature</module>
 		<module>plugins/org.ow2.chameleon.eclipse.ipojo.exporter</module>
+		<module>plugins/org.ow2.chameleon.eclipse.ipojo.classpath</module>
 		<module>features/org.ow2.chameleon.eclipse.ipojo.nature.feature</module>
 
 		<module>update-site</module>
