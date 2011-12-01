@@ -24,6 +24,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -42,6 +43,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.exporter.IPojoExporterPlugin;
 
 /**
@@ -146,7 +148,8 @@ public class ExportPage extends WizardPage {
 	 */
 	protected ExportPage(final String aPageName) {
 
-		super(aPageName, aPageName, null);
+		super(aPageName, aPageName, ImageDescriptor.createFromFile(
+				Activator.class, "/icons/ipojo-small.png"));
 		pSettings = IPojoExporterPlugin.getDefault().getDialogSettings();
 	}
 
@@ -274,7 +277,7 @@ public class ExportPage extends WizardPage {
 				.getProjects()) {
 
 			try {
-				if (project.hasNature(JavaCore.NATURE_ID)) {
+				if (project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
 					// Only Java projects are shown
 					final TableItem item = new TableItem(pProjectsTable,
 							SWT.NONE);
