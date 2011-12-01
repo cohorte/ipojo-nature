@@ -4,41 +4,51 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
-<title>iPOJO Builder overview</title>
+<title>iPOJO Nature for Eclipse overview</title>
 </head>
 <body>
-	<h1>About iPOJO Builder</h1>
-	<p>iPOJO Builder is an Eclipse plug-in providing a project nature
-		and a builder for Java projects. It is based on the iPOJO manipulator,
-		so it is compatible with metadata.xml and Java annotations component
-		descriptions.</p>
+	<h1>About iPOJO Nature for Eclipse</h1>
 	<p>
-		It automates the <i>pojoization</i> of class files after their
-		compilation by the Java plug-in. This way, the user use an OSGi
-		Run/Debug Configuration without using an external tool or a Maven
-		plug-in to use an iPOJO component.
+		iPOJO Nature is an Eclipse plug-in from <a
+			href="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/WebHome">
+			OW2 Chameleon project</a> providing a project nature and a builder for
+		Java and PDE projects. It is based on the iPOJO manipulator, so it is
+		compatible with metadata.xml and Java annotations component
+		descriptions.
 	</p>
-	
-	<p>Usage is described <a href="./usage.html">here</a></p>
-	
+	<p>It automates the manipulation of class files by iPOJO after
+		their compilation by the Java plug-in. This way, the developer can
+		use an OSGi Run/Debug Configuration without using an external tool nor
+		a Maven plug-in to run or test an iPOJO components.</p>
+
+	<h2>Usage</h2>
+	<ul>
+		<li><a href="setup-nature.html">Set up the iPOJO nature to a
+				project</a></li>
+		<li><a href="usage.html">Usage</a></li>
+	</ul>
+
 	<h2>Author</h2>
 	<ul>
 		<li>Thomas Calmant (<a href="http://www.isandlatech.com/">isandlaTech,
-				France</a>)</li>
+				France</a>)
+		</li>
 	</ul>
-	<p>See the <a href="./credits.html">credits</a></p>
-	
+	<p>
+		See the <a href="./credits.html">credits</a>
+	</p>
+
 	<h2>License</h2>
 	<p>
-		The iPOJO Builder is distributed under <a
+		The iPOJO Nature plug-in is distributed under <a
 			href="http://www.apache.org/licenses/LICENSE-2.0">Apache License
 			v2.0</a>.
 	</p>
 	<p>There are two features in this extension :</p>
 	<ul>
-		<li>iPOJO Builder : the iPOJO builder</li>
-		<li>iPOJO Builder Dependency : the iPOJO core and manipulator
-			(version 1.8.0)</li>
+		<li>iPOJO Nature : the Eclipse extensions</li>
+		<li>iPOJO Nature Dependency : the iPOJO core, manipulator and
+			annotations library (version 1.9.0-SNAPSHOT)</li>
 	</ul>
 </body>
 </html>

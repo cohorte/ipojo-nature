@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+<title>Setup the iPOJO Nature</title>
+</head>
+<body>
+	<h1>Set up the manipulator</h1>
+
+	<h2>Table of Contents</h2>
+	<ul>
+		<li><a href="#ipojo-nature">Set up the iPOJO nature</a></li>
+		<li><a href="#ipojo-manifest">One-shot manipulation</a></li>
+	</ul>
+
+	<h2 id="ipojo-nature">Using the iPOJO nature</h2>
+	<h4>Set up the an existing project</h4>
+	<ul>
+		<li>To add or remove the iPOJO nature on a Java project,
+			right-click on the project and select <strong>Add/Remove
+				iPOJO Nature</strong>. <br /> <img src="images/nature.png"
+			alt="Add / Remove iPOJO Nature" />
+		</li>
+		<li>Projects with the iPOJO nature have this project icon : <img
+			src="images/project-icon.png" alt="iPOJO projects icon" /></li>
+	</ul>
+
+	<h4>When does the manipulator do its job ?</h4>
+	<p>The builder is called each time the Java plug-in (JDT) decides
+		to compile a project, that is to say :</p>
+	<ul>
+		<li>When a source file has been modified</li>
+		<li>When a dependency or the build path has been modified (JAR
+			library, project, ...)</li>
+	</ul>
+	<p>
+		The builder <strong>is not called</strong> when the Manifest file is
+		modified.
+	</p>
+
+	<h2 id="ipojo-manifest">One-shot manipulation</h2>
+	<p>
+		The builder can be run on project without the iPOJO nature or can be
+		forced : just right-click on the Manifest file and click on <strong>Update
+			Manifest</strong>. It is a one-shot manipulation.
+	</p>
+	<div>
+		<img src="images/manifest.png" alt="Update Manifest" />
+	</div>
+</body>
+</html>

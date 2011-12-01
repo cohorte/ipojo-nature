@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<toc label="iPOJO Builder Plug-in" topic="html/overview.html">
-	<topic label="Overview" href="html/overview.html" />
+<toc label="iPOJO Nature for Eclipse" topic="html/overview.html">
+	<topic href="html/overview.html" label="Overview">
+ </topic>
+ <topic href="html/setup-nature.html" label="Setup a project nature">
+ </topic>
 	<topic label="Usage" href="html/usage.html" />
 	<topic label="Credits" href="html/credits.html" />
 </toc>

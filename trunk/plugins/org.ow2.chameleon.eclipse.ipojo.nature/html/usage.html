@@ -4,52 +4,103 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
-<title>iPOJO Builder Usage</title>
+<title>iPOJO Nature for Eclipse Usage</title>
 </head>
 <body>
-	<h1>Usage</h1>
-	<h2>On Manifest.mf files</h2>
-	<p>
-		The builder can be run in standalone-like mode : just right-click on
-		the Manifest file and click on <strong>Update Manifest</strong>. It is
-		a one-shot pojoization.
-		
-		<img src="images/manifest.png" alt="Update Manifest" />
-	</p>
+	<h1>iPOJO Nature plug-in usage</h1>
 
-	<h2>Using the iPOJO nature</h2>
-	<h3>Set up the project</h3>
-	<p>
-		To add or remove the iPOJO nature on a Java project, right-click on
-		the project and select <strong>Add/Remove iPOJO Nature</strong>.
-		
-		<img src="images/nature.png" alt="Add / Remove iPOJO Nature" />
-	</p>
-	<p>
-		To know if a project has this nature, look at its properties and look
-		for the <i>iPOJO Builder</i> in the builders panel.
-		
-		<img src="images/builders.png" alt="Builders page" />
-	</p>
-
-	<h3>Things to remember</h3>
+	<h2>Table of Contents</h2>
 	<ul>
-		<li>Always have at least a default constructor in component
-			classes.</li>
+		<li><a href="#annotations">Add the annotations library</a></li>
+		<li><a href="#change-metadata">Specify the metadata.xml file
+				to use</a></li>
+		<li><a href="#exporter">Export manipulated bundles</a></li>
 	</ul>
 
-	<h3>When does it do the job ?</h3>
-	<p>The builder is called when one of the next things happens :</p>
-	<ul>
-		<li>The metadata.xml file has been modified (if automatic build
-			if enabled).</li>
-		<li>A .class file and its corresponding .java file has been
-			modified (if automatic build if enabled).</li>
-		<li>A manual build is started.</li>
-	</ul>
+	
+
+	<h2 id="#annotations">Add the annotations library</h2>
+	<p>This plug-in embeds a version of iPOJO annotations library,
+		which can be added to a project build path. The project will reference
+		a plug-in library that does not depend on the Eclipse installation
+		location nor the workspace location.</p>
+
+	<ol>
+		<li>Right-click a Java or PDE project and select <strong>Build
+				Path &gt; Add library</strong></li>
+		<li>Select <strong>iPOJO Annotations</strong>, then click <strong>Next</strong>
+			<div>
+				<img src="images/add-library.png" alt="Select iPOJO Annotations" />
+			</div>
+		</li>
+		<li>A page shows the location of the JAR file that will be used,
+			click <strong>Finish</strong>
+		</li>
+		<li>The build path of the project now contains the annotations
+			library :
+			<div>
+				<img src="images/annotation-container.png" alt="Export wizard" />
+			</div>
+		</li>
+	</ol>
+
+	<p>This method also works on project without the iPOJO nature.</p>
+
+	<h2 id="#change-metadata">
+		Specify the <em>metadata.xml</em> file to use
+	</h2>
 	<p>
-		The builder <strong>is not called</strong> when Manifest file is
-		modified.
+		By default, the plug-in will use the first <em>metadata.xml</em> file
+		found to prepare the manipulation. Also, it is able to use a specified
+		meta data file.
+	</p>
+
+	<ol>
+		<li>Right-click on a Java/PDE project <em>that has the iPOJO
+				nature</em> and select <strong>Properties</strong>
+		</li>
+		<li>Select <strong>iPOJO Project</strong>
+			<div>
+				<img src="images/specify-metadata.png" alt="Specify metadata" />
+			</div></li>
+		<li>On the page select the file to use as iPOJO meta data. The
+			path can contain Eclipse variables.</li>
+		<li>You can use <em>Restore defaults</em> to return to the
+			standard behavior of the plug-in.
+		</li>
+	</ol>
+
+	<h2 id="#exporter">Export manipulated bundles</h2>
+	<p>iPOJO Nature plug-in also provides a bundle Exporter, which
+		allows to create bundles from iPOJO and pure-Java projects.</p>
+
+	<ol>
+		<li>Open the Export wizard <strong>File &gt; Export</strong></li>
+		<li>Select <strong>iPOJO Bundles &gt; iPOJO Bundle</strong></li>
+		<li>Select the export options :
+			<div>
+				<img src="images/export-wizard.png" alt="Export wizard" />
+			</div>
+			<ul>
+				<li>Check the projects to export. They will be (re-)built if
+					necessary</li>
+				<li>Check <strong>Use build.properties</strong> if you're
+					willing to embed files in the output JAR using the <em>build.properties</em>
+					file
+				</li>
+				<li>Select an output folder</li>
+			</ul>
+		</li>
+		<li>Click <strong>Finish</strong></li>
+	</ol>
+
+	<p>
+		The exported bundles files names will be their symbolic name : the
+		version <strong>does not</strong> appear in the files names.
+	</p>
+	<p>
+		Existing bundles with the same files names are overwritten <strong>without</strong>
+		confirmation.
 	</p>
 </body>
 </html>
