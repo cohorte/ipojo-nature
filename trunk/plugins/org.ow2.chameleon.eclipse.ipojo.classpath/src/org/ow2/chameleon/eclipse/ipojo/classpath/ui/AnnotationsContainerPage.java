@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.IClasspathContainerPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -57,10 +58,7 @@ public class AnnotationsContainerPage extends WizardPage implements
 		layout.verticalSpacing = 10;
 		pageRoot.setLayout(layout);
 
-		// Just add a label to the page
-		final Label someText = new Label(pageRoot, SWT.NONE);
-
-		// Setup its text
+		// Prepare the label text : JAR file path
 		final String annotationJarPath = new AnnotationContainer()
 				.getAnnotationLibraryPath();
 
@@ -76,6 +74,10 @@ public class AnnotationsContainerPage extends WizardPage implements
 			setPageComplete(true);
 		}
 
+		// Just add a label to the page
+		final Label someText = new Label(pageRoot, SWT.WRAP);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		someText.setLayoutData(data);
 		someText.setText(builder.toString());
 
 		// Set the control
