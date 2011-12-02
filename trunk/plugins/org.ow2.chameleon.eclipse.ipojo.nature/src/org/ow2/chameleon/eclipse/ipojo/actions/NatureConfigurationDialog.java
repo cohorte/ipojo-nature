@@ -19,6 +19,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -27,6 +31,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.ow2.chameleon.eclipse.ipojo.Activator;
+import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
+import org.ow2.chameleon.eclipse.ipojo.IImagesConstants;
 
 /**
  * Pops up an iPOJO nature configuration dialog
@@ -35,11 +42,17 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class NatureConfigurationDialog extends TitleAreaDialog {
 
-	/** The "Add annotations" box */
+	/** The "Use annotations" box */
 	private Button pAnnotationsBox;
+
+	/** Stores the "Use annotations box state */
+	private boolean pAnnotationsBoxChecked;
 
 	/** The "Create metadata.xml" box */
 	private Button pMetadataBox;
+
+	/** Stores the "Create metadata.xml" box state */
+	private boolean pMetadataBoxChecked;
 
 	/** The modified project */
 	private final List<IProject> pProjects;
@@ -77,6 +90,10 @@ public class NatureConfigurationDialog extends TitleAreaDialog {
 		// Set the title
 		setTitle("iPOJO Nature configuration");
 
+		// Set the image
+		setTitleImage(Activator.getImageDescriptor(
+				IImagesConstants.LOGO_IPOJO_SMALL).createImage());
+
 		// Set the message
 		final StringBuilder builder = new StringBuilder(
 				"Set up the iPOJO nature for ");
@@ -107,7 +124,7 @@ public class NatureConfigurationDialog extends TitleAreaDialog {
 		// Prepare the annotations box
 		pAnnotationsBox = new Button(composite, SWT.CHECK);
 		pAnnotationsBox.setLayoutData(gridData);
-		pAnnotationsBox.setText("Add annotations to build path");
+		pAnnotationsBox.setText("Use annotations");
 
 		// Prepare the metadata template box
 		pMetadataBox = new Button(composite, SWT.CHECK);
@@ -116,26 +133,69 @@ public class NatureConfigurationDialog extends TitleAreaDialog {
 
 		// Tests available if only one project is selected
 		if (pProjects.size() == 1) {
+
+			final IProject project = pProjects.get(0);
+
 			// The template can be create only if there is no existing metadata
 			// file
-			pMetadataBox.setEnabled((pProjects.get(0).findMember(
-					"/metadata.xml") == null));
+			pMetadataBox
+					.setEnabled((project.findMember("/metadata.xml") == null));
 
-			// TODO check annotation box if there is already an annotation
-			// library
-			// in the build path of the project
+			// Check annotation box if there is already an annotation
+			// library in the build path of the project
+			pAnnotationsBox.setSelection(hasAnnotations(project));
 		}
 
 		return composite;
 	}
 
 	/**
-	 * Tests if the "Add annotations library" box is checked
+	 * Tests if the iPOJO annotations class path container is already present in
+	 * the project build path.
+	 * 
+	 * @param aProject
+	 *            Project to be tested
+	 * @return True on present, false if not or on error
+	 */
+	protected boolean hasAnnotations(final IProject aProject) {
+
+		final IClasspathEntry[] classpath;
+
+		try {
+			// Get the class path
+			final IJavaProject javaProject = (IJavaProject) aProject
+					.getNature(JavaCore.NATURE_ID);
+
+			classpath = javaProject.getRawClasspath();
+
+		} catch (CoreException e) {
+			Activator.logError(aProject, "Error retrieving classpath", e);
+			return false;
+		}
+
+		// Get project class path entries
+		for (IClasspathEntry entry : classpath) {
+
+			// We're looking for a specific container
+			if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER
+					&& IClasspathConstants.ANNOTATIONS_CONTAINER_PATH
+							.equals(entry.getPath())) {
+
+				// Found !
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests if the "Use annotations library" box is checked
 	 * 
 	 * @return True if the box is checked
 	 */
-	public boolean isAddAnnotationsBoxChecked() {
-		return pAnnotationsBox.getSelection();
+	public boolean isAnnotationsBoxChecked() {
+		return pAnnotationsBoxChecked;
 	}
 
 	/**
@@ -144,6 +204,21 @@ public class NatureConfigurationDialog extends TitleAreaDialog {
 	 * @return True if the box is checked
 	 */
 	public boolean isCreateMetadataBoxChecked() {
-		return pMetadataBox.getSelection();
+		return pMetadataBoxChecked;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.dialogs.Dialog#okPressed()
+	 */
+	@Override
+	protected void okPressed() {
+
+		// Store check boxes state, before their disposal
+		pAnnotationsBoxChecked = pAnnotationsBox.getSelection();
+		pMetadataBoxChecked = pMetadataBox.getSelection();
+
+		super.okPressed();
 	}
 }

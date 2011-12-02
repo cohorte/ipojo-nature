@@ -14,16 +14,21 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.builder;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -32,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
+import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
 import org.ow2.chameleon.eclipse.ipojo.actions.NatureConfigurationDialog;
 
 /**
@@ -46,6 +52,91 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 
 	/** Current selection */
 	private ISelection pSelection;
+
+	/**
+	 * Adds the annotations class path container to the project build path
+	 * 
+	 * @param aProject
+	 *            Project to be modified
+	 */
+	protected void addAnnotationsLibrary(final IProject aProject) {
+
+		// Get the Java nature
+		final IJavaProject javaProject;
+		try {
+			javaProject = (IJavaProject) aProject.getNature(JavaCore.NATURE_ID);
+
+		} catch (CoreException e) {
+			Activator.logError(aProject, "Can't get the Java nature", e);
+			return;
+		}
+
+		// Get current entries
+		final IClasspathEntry[] currentEntries;
+		try {
+			currentEntries = javaProject.getRawClasspath();
+
+		} catch (JavaModelException e) {
+			Activator.logError(aProject, "Error reading project classpath", e);
+			return;
+		}
+
+		for (IClasspathEntry entry : currentEntries) {
+
+			if (IClasspathConstants.ANNOTATIONS_CONTAINER_PATH.equals(entry
+					.getPath())) {
+				// The annotation container is already here.
+				return;
+			}
+		}
+
+		// Set up the new class path array
+		final IClasspathEntry[] newEntries = new IClasspathEntry[currentEntries.length + 1];
+		System.arraycopy(currentEntries, 0, newEntries, 0,
+				currentEntries.length);
+
+		// Add the new entry
+		newEntries[currentEntries.length] = JavaCore
+				.newContainerEntry(IClasspathConstants.ANNOTATIONS_CONTAINER_PATH);
+
+		// Set the project class path
+		try {
+			javaProject.setRawClasspath(newEntries, null);
+
+		} catch (JavaModelException e) {
+			Activator.logError(aProject,
+					"Error setting up the new project class path", e);
+		}
+	}
+
+	/**
+	 * Creates the template metadata.xml file
+	 * 
+	 * @param aProject
+	 *            Project where the metadata.xml file must be created
+	 */
+	protected void createMetadataTemplate(final IProject aProject) {
+
+		// Get the metadata.xml Eclipse file
+		final IFile metadataFile = aProject.getFile("/metadata.xml");
+		if (metadataFile.exists()) {
+			// Do nothing if the file already exists
+			return;
+		}
+
+		// Get the metadata.xml template
+		final InputStream inStream = getClass().getResourceAsStream(
+				"/templates/metadata.xml");
+
+		// Set the file content
+		try {
+			metadataFile.create(inStream, true, null);
+
+		} catch (CoreException e) {
+			Activator.logError(aProject,
+					"Error creating the metadata.xml file", e);
+		}
+	}
 
 	/**
 	 * Separates the selected projects in two parts : those to deconfigure
@@ -142,12 +233,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			return;
 		}
 
-		System.out.println("Selected : " + selectedProjects);
-		System.out.println("ToConf : " + toConfigure);
-		System.out.println("ToUnconf: " + toDeconfigure);
-
-		boolean setNature = toConfigure.size() >= toDeconfigure.size();
-
+		final boolean setNature = toConfigure.size() >= toDeconfigure.size();
 		if (setNature) {
 			// More projects to configure than to deconfigure
 			toggleProjectsNature(setNature, toConfigure);
@@ -214,7 +300,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			}
 
 			// Set up flags
-			addAnnotations = configDialog.isAddAnnotationsBoxChecked();
+			addAnnotations = configDialog.isAnnotationsBoxChecked();
 			createMetadataTemplate = configDialog.isCreateMetadataBoxChecked();
 		}
 
@@ -237,15 +323,17 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 				pNature.setProject(project);
 
 				if (aSetNature) {
+					// Set the nature
 					pNature.configure();
-					// TODO add annotations and metadata, if needed
 
 					if (addAnnotations) {
-						// TODO
+						// Adds the annotation library
+						addAnnotationsLibrary(project);
 					}
 
 					if (createMetadataTemplate) {
-						// TODO
+						// Add the metadata.xml file template
+						createMetadataTemplate(project);
 					}
 
 				} else {
