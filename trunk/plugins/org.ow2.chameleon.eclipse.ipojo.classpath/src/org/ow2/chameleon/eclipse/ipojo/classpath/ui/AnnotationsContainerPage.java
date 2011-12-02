@@ -23,7 +23,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
+import org.ow2.chameleon.eclipse.ipojo.IImagesConstants;
 import org.ow2.chameleon.eclipse.ipojo.classpath.container.AnnotationContainer;
 
 /**
@@ -38,7 +40,9 @@ public class AnnotationsContainerPage extends WizardPage implements
 	 * Default constructor, called when instantiating plug-in
 	 */
 	public AnnotationsContainerPage() {
-		super("iPOJO Annotations", "iPOJO Annotations", null);
+		super("iPOJO Annotations", "iPOJO Annotations", Activator
+				.getImageDescriptor(IImagesConstants.LOGO_IPOJO_SMALL));
+
 		setPageComplete(true);
 	}
 

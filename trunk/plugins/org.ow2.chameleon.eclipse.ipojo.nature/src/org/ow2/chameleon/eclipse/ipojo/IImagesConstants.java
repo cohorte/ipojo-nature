@@ -14,20 +14,16 @@
  */
 package org.ow2.chameleon.eclipse.ipojo;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-
 /**
- * Defines iPOJO Nature class path constants
+ * Defines iPOJO Nature images constants
  * 
  * @author Thomas Calmant
  */
-public interface IClasspathConstants {
+public interface IImagesConstants {
 
-	/** The class path container path object */
-	IPath ANNOTATIONS_CONTAINER_PATH = new Path(
-			IClasspathConstants.ANNOTATIONS_CONTAINER_PATH_STR);
+	/** Small Chameleon logo */
+	String LOGO_CHAMELEON_SMALL = "/icons/chameleon-small.png";
 
-	/** The class path container path */
-	String ANNOTATIONS_CONTAINER_PATH_STR = "org.ow2.chameleon.ipojo.CLASSPATH_CONTAINER";
+	/** Small iPOJO logo */
+	String LOGO_IPOJO_SMALL = "/icons/ipojo-small.png";
 }
