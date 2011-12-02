@@ -124,6 +124,24 @@ public class Activator extends AbstractUIPlugin {
 						+ aMessage, aThrowable));
 	}
 
+	/**
+	 * Shows an error in the UI (doesn't log it)
+	 * 
+	 * @param aProject
+	 *            Erroneous project (can be null)
+	 * @param aMessage
+	 *            Error message
+	 * @param aThrowable
+	 *            Exception to show (can be null)
+	 */
+	public static void showError(final IProject aProject,
+			final String aMessage, final Throwable aThrowable) {
+
+		StatusManager.getManager().handle(
+				new Status(IStatus.ERROR, PLUGIN_ID, getLogPrefix(aProject)
+						+ aMessage, aThrowable), StatusManager.SHOW);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
