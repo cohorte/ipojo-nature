@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ow2.chameleon.eclipse.ipojo.builder;
+package org.ow2.chameleon.eclipse.ipojo.actions;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
-import org.ow2.chameleon.eclipse.ipojo.actions.NatureConfigurationDialog;
+import org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature;
 
 /**
  * Add/Remove iPOJO nature popup menu action handler

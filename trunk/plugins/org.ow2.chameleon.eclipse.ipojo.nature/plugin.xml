@@ -22,7 +22,7 @@
        nameFilter="*"
        objectClass="org.eclipse.core.resources.IProject">
     <action
-          class="org.ow2.chameleon.eclipse.ipojo.builder.ToggleNatureAction"
+          class="org.ow2.chameleon.eclipse.ipojo.actions.ToggleNatureAction"
           enablesFor="+"
           icon="icons/menu_marker_16.png"
           id="org.ow2.chameleon.eclipse.ipojo.nature.addRemoveNatureAction"
