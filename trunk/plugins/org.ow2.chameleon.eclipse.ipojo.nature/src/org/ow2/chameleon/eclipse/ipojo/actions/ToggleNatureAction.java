@@ -39,6 +39,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
 import org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature;
+import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
 
 /**
  * Add/Remove iPOJO nature popup menu action handler
@@ -285,6 +286,16 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 		boolean addAnnotations = false;
 		boolean createMetadataTemplate = false;
 
+		// Manifest updater, to clean the manifest on nature removal
+		final ManifestUpdater manifestUpdater;
+		if (!aSetNature) {
+			// Only instantiate the updater on removal
+			manifestUpdater = new ManifestUpdater();
+
+		} else {
+			manifestUpdater = null;
+		}
+
 		if (aSetNature) {
 			// Get the shell
 			final Shell shell = Activator.getPluginInstance().getWorkbench()
@@ -339,6 +350,9 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 				} else {
 					// Remove the nature
 					pNature.deconfigure();
+
+					// Clean up the manifest
+					manifestUpdater.removeManifestEntry(project);
 				}
 
 			} catch (CoreException e) {
