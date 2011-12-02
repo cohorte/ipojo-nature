@@ -129,9 +129,20 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 	 * @return True if aProject has the IPojo nature
 	 */
 	@Override
-	public boolean isActive(final IJavaProject aProject) {
+	public boolean isActive(final IJavaProject aJavaProject) {
 
-		return IPojoNature.isIPojoProject(aProject.getProject());
+		final IProject project = aJavaProject.getProject();
+
+		try {
+			return project.hasNature(IPojoNature.NATURE_ID);
+
+		} catch (CoreException e) {
+			// Error ?
+			Activator.logError(project,
+					"Error testing nature of " + project.getName(), e);
+		}
+
+		return false;
 	}
 
 	/**
