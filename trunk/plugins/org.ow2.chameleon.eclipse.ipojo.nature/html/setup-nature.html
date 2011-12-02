@@ -12,22 +12,35 @@
 	<h2>Table of Contents</h2>
 	<ul>
 		<li><a href="#ipojo-nature">Set up the iPOJO nature</a></li>
+		<li><a href="#remove-nature">Remove the iPOJO nature</a></li>
 		<li><a href="#ipojo-manifest">One-shot manipulation</a></li>
 	</ul>
 
 	<h2 id="ipojo-nature">Using the iPOJO nature</h2>
-	<h4>Set up the an existing project</h4>
-	<ul>
-		<li>To add or remove the iPOJO nature on a Java project,
-			right-click on the project and select <strong>Add/Remove
-				iPOJO Nature</strong>. <br /> <img src="images/nature.png"
-			alt="Add / Remove iPOJO Nature" />
+	<h3>Set up the an existing project</h3>
+	<ol>
+		<li>To add the iPOJO nature on a Java project, right-click on the
+			project and select <strong>Add/Remove iPOJO Nature</strong>. <br />
+			<img src="images/nature.png" alt="Add / Remove iPOJO Nature" />
+		</li>
+		<li>Select optional actions :<br />
+			<div>
+				<img src="images/nature-config.png" alt="iPOJO nature settings" />
+			</div>
+			<ul>
+				<li><em>Use annotations</em> : adds the annotations library to
+					the project build path</li>
+				<li><em>Create a metadata.xml template</em> : Adds a simple
+					metadata.xml file with the iPOJO namespaces declaration. This
+					option is disabled if a <em>metadata.xml</em> file already exists
+					at the root of the project</li>
+			</ul>
 		</li>
 		<li>Projects with the iPOJO nature have this project icon : <img
 			src="images/project-icon.png" alt="iPOJO projects icon" /></li>
-	</ul>
+	</ol>
 
-	<h4>When does the manipulator do its job ?</h4>
+	<h3>When does the manipulator do its job ?</h3>
 	<p>The builder is called each time the Java plug-in (JDT) decides
 		to compile a project, that is to say :</p>
 	<ul>
@@ -37,6 +50,34 @@
 	</ul>
 	<p>
 		The builder <strong>is not called</strong> when the Manifest file is
+		modified.
+	</p>
+
+	<h2 id="remove-nature">Remove the iPOJO nature</h2>
+	<ol>
+		<li>To remove the iPOJO nature on a Java project, right-click on
+			the project and select <strong>Add/Remove iPOJO Nature</strong>
+			again. <br /> <img src="images/nature.png"
+			alt="Add / Remove iPOJO Nature" />
+		</li>
+		<li>If you added the iPOJO annotations to the project and you
+			don't them anymore to build the project, you can remove the library
+			reference using the project explorer :
+			<ol>
+				<li>Right click on <em>iPOJO Annotations</em> in the project
+				</li>
+				<li>Select <strong>Build Path &gt; Remove from Build
+						Path</strong></li>
+			</ol>
+			<div>
+				<img src="images/remove-annotations.png"
+					alt="Remove annotations from build path" />
+			</div>
+		</li>
+	</ol>
+	<p>
+		The iPOJO-Components entry is removed from the Manifest file when the
+		nature is removed, but the <em>Import-Package</em> entry is not
 		modified.
 	</p>
 
