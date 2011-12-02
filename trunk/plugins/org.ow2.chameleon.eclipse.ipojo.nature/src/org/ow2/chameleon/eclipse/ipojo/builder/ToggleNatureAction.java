@@ -14,18 +14,25 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.builder;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
+import org.ow2.chameleon.eclipse.ipojo.actions.NatureConfigurationDialog;
 
 /**
  * Add/Remove iPOJO nature popup menu action handler
@@ -34,8 +41,56 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
  */
 public class ToggleNatureAction implements IObjectActionDelegate {
 
+	/** iPOJO Nature handler */
+	private final IPojoNature pNature = new IPojoNature();
+
 	/** Current selection */
 	private ISelection pSelection;
+
+	/**
+	 * Separates the selected projects in two parts : those to deconfigure
+	 * (remove the nature) and those to configure (add the nature).
+	 * 
+	 * @param aSelectedProjects
+	 *            Projects to work on
+	 * @param aToConfigure
+	 *            Result list : projects to configure
+	 * @param aToDeconfigure
+	 *            Result list : projects to deconfigure
+	 * 
+	 * @return True if the selection returned at least one project
+	 */
+	protected boolean getProjectsToToggle(
+			final Collection<IProject> aSelectedProjects,
+			final Collection<IProject> aToConfigure,
+			final Collection<IProject> aToDeconfigure) {
+
+		boolean atLeastOneValid = false;
+
+		for (IProject project : aSelectedProjects) {
+
+			try {
+				if (project.hasNature(IPojoNature.NATURE_ID)) {
+					// The project has the iPOJO nature : we want to deconfigure
+					// it
+					aToDeconfigure.add(project);
+					atLeastOneValid = true;
+
+				} else if (project.hasNature(JavaCore.NATURE_ID)) {
+					// Project has not the iPOJO nature but is a Java project :
+					// we want to configure it
+					aToConfigure.add(project);
+					atLeastOneValid = true;
+				}
+
+			} catch (CoreException ex) {
+				// Just log the error...
+				Activator.logError(project, "Error testing nature", ex);
+			}
+		}
+
+		return atLeastOneValid;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -43,29 +98,63 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
 	public void run(final IAction aAction) {
+
+		// Prepare selection list
+		final List<IProject> selectedProjects = new ArrayList<IProject>();
 
 		if (pSelection instanceof IStructuredSelection) {
 
-			for (Iterator it = ((IStructuredSelection) pSelection).iterator(); it
-					.hasNext();) {
+			for (Iterator<?> it = ((IStructuredSelection) pSelection)
+					.iterator(); it.hasNext();) {
 
-				Object element = it.next();
+				final Object element = it.next();
 				IProject project = null;
 
 				if (element instanceof IProject) {
+					// Is the element a project ?
 					project = (IProject) element;
 
 				} else if (element instanceof IAdaptable) {
+					// Is the element adaptable to a project ?
 					project = (IProject) ((IAdaptable) element)
 							.getAdapter(IProject.class);
 				}
 
-				if (project != null) {
-					toggleNature(project);
+				if (project != null && project.isOpen()) {
+					// Add the found project, if it's opened
+					selectedProjects.add(project);
 				}
 			}
+		}
+
+		if (selectedProjects.isEmpty()) {
+			// No valid project found, do nothing
+			return;
+		}
+
+		// Prepare configuration list
+		final List<IProject> toConfigure = new ArrayList<IProject>();
+		final List<IProject> toDeconfigure = new ArrayList<IProject>();
+
+		if (!getProjectsToToggle(selectedProjects, toConfigure, toDeconfigure)) {
+			// No projects to modify...
+			return;
+		}
+
+		System.out.println("Selected : " + selectedProjects);
+		System.out.println("ToConf : " + toConfigure);
+		System.out.println("ToUnconf: " + toDeconfigure);
+
+		boolean setNature = toConfigure.size() >= toDeconfigure.size();
+
+		if (setNature) {
+			// More projects to configure than to deconfigure
+			toggleProjectsNature(setNature, toConfigure);
+
+		} else {
+			// More projects to deconfigure
+			toggleProjectsNature(setNature, toDeconfigure);
 		}
 	}
 
@@ -97,42 +186,111 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	}
 
 	/**
-	 * Toggles sample nature on a project
+	 * Pops up the iPOJO nature configuration dialog and sets the nature to
+	 * projects
 	 * 
-	 * @param aProject
-	 *            The project where to add or remove the iPOJO nature
+	 * @param aProjects
+	 *            Projects to configure.
 	 */
-	protected void toggleNature(final IProject aProject) {
+	protected void toggleProjectsNature(final boolean aSetNature,
+			final Collection<IProject> aProjects) {
 
-		try {
-			IProjectDescription description = aProject.getDescription();
-			String[] natures = description.getNatureIds();
+		// Default options
+		boolean addAnnotations = false;
+		boolean createMetadataTemplate = false;
 
-			for (int i = 0; i < natures.length; ++i) {
+		if (aSetNature) {
+			// Get the shell
+			final Shell shell = Activator.getPluginInstance().getWorkbench()
+					.getActiveWorkbenchWindow().getShell();
 
-				if (IPojoNature.NATURE_ID.equals(natures[i])) {
-					// Remove the nature
-					String[] newNatures = new String[natures.length - 1];
-					System.arraycopy(natures, 0, newNatures, 0, i);
-					System.arraycopy(natures, i + 1, newNatures, i,
-							natures.length - i - 1);
-					description.setNatureIds(newNatures);
-					aProject.setDescription(description, null);
-					return;
-				}
+			// Open the configuration dialog
+			final NatureConfigurationDialog configDialog = new NatureConfigurationDialog(
+					shell, aProjects);
+
+			if (configDialog.open() != Window.OK) {
+				// User click CANCEL : do nothing
+				return;
 			}
 
-			// Add the nature at the top position : the project image is the one
-			// of the first nature with an icon
-			String[] newNatures = new String[natures.length + 1];
-			newNatures[0] = IPojoNature.NATURE_ID;
-			System.arraycopy(natures, 0, newNatures, 1, natures.length);
-			description.setNatureIds(newNatures);
-			aProject.setDescription(description, null);
+			// Set up flags
+			addAnnotations = configDialog.isAddAnnotationsBoxChecked();
+			createMetadataTemplate = configDialog.isCreateMetadataBoxChecked();
+		}
 
-		} catch (CoreException e) {
-			Activator.logError(aProject, "Error setting iPOJO nature", e);
+		// Prepare the error message, just in case
+		boolean hasError = false;
+
+		final StringBuilder errorBuilder = new StringBuilder("Error ");
+		if (aSetNature) {
+			errorBuilder.append("setting");
+
+		} else {
+			errorBuilder.append("removing");
+		}
+		errorBuilder.append(" iPOJO nature to :\n");
+
+		for (IProject project : aProjects) {
+
+			try {
+				// Set the nature
+				pNature.setProject(project);
+
+				if (aSetNature) {
+					pNature.configure();
+					// TODO add annotations and metadata, if needed
+
+					if (addAnnotations) {
+						// TODO
+					}
+
+					if (createMetadataTemplate) {
+						// TODO
+					}
+
+				} else {
+					// Remove the nature
+					pNature.deconfigure();
+				}
+
+			} catch (CoreException e) {
+				// Log the error
+				final StringBuilder builder = new StringBuilder("Can't ");
+				if (aSetNature) {
+					builder.append("set");
+
+				} else {
+					builder.append("remove");
+				}
+				builder.append(" the project nature");
+
+				Activator.logError(project, builder.toString(), e);
+
+				// Add it to the message
+				errorBuilder.append("\t").append(project.getName())
+						.append("\n");
+
+				hasError = true;
+			}
+		}
+
+		// Refresh modified projects
+		for (IProject project : aProjects) {
+			try {
+				project.refreshLocal(IResource.DEPTH_ONE, null);
+
+			} catch (CoreException e) {
+				// Just log...
+				Activator.logWarning(project, "Error refreshing project.", e);
+			}
+		}
+
+		// Last word, if necessary
+		if (hasError) {
+			errorBuilder.append("\n(See the logs)");
+
+			// Show the error
+			Activator.showError(null, errorBuilder.toString(), null);
 		}
 	}
-
 }
