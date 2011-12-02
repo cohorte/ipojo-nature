@@ -23,6 +23,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
 import org.ow2.chameleon.eclipse.ipojo.classpath.container.AnnotationContainer;
 
 /**
@@ -103,7 +104,8 @@ public class AnnotationsContainerPage extends WizardPage implements
 	@Override
 	public IClasspathEntry getSelection() {
 
-		return JavaCore.newContainerEntry(AnnotationContainer.CONTAINER_PATH);
+		return JavaCore
+				.newContainerEntry(IClasspathConstants.ANNOTATIONS_CONTAINER_PATH);
 	}
 
 	/*

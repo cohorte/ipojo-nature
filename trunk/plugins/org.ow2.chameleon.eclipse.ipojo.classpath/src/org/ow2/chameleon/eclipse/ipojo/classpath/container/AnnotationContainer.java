@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.framework.internal.core.BundleURLConnection;
+import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
 import org.ow2.chameleon.eclipse.ipojo.classpath.IPojoClasspathPlugin;
 
 /**
@@ -37,13 +38,6 @@ import org.ow2.chameleon.eclipse.ipojo.classpath.IPojoClasspathPlugin;
  */
 @SuppressWarnings("restriction")
 public class AnnotationContainer implements IClasspathContainer {
-
-	/** The class path container path object */
-	public static final IPath CONTAINER_PATH = new Path(
-			AnnotationContainer.CONTAINER_PATH_STR);
-
-	/** The class path container path */
-	public static final String CONTAINER_PATH_STR = "org.ow2.chameleon.ipojo.CLASSPATH_CONTAINER";
 
 	/** The found annotation library path */
 	private String pAnnotationLibraryPath;
@@ -185,6 +179,6 @@ public class AnnotationContainer implements IClasspathContainer {
 	@Override
 	public IPath getPath() {
 
-		return CONTAINER_PATH;
+		return IClasspathConstants.ANNOTATIONS_CONTAINER_PATH;
 	}
 }
