@@ -41,22 +41,48 @@ public class IPojoNature implements IProjectNature {
 	@Override
 	public void configure() throws CoreException {
 
-		IProjectDescription desc = pProject.getDescription();
-		ICommand[] commands = desc.getBuildSpec();
+		final IProjectDescription description = pProject.getDescription();
 
-		for (int i = 0; i < commands.length; ++i) {
-			if (commands[i].getBuilderName().equals(IPojoBuilder.BUILDER_ID)) {
-				return;
+		// Look for the builder
+		boolean builderFound = false;
+		final ICommand[] commands = description.getBuildSpec();
+		for (ICommand command : commands) {
+			if (IPojoBuilder.BUILDER_ID.equals(command.getBuilderName())) {
+				builderFound = true;
 			}
 		}
 
-		ICommand[] newCommands = new ICommand[commands.length + 1];
-		System.arraycopy(commands, 0, newCommands, 0, commands.length);
-		ICommand command = desc.newCommand();
-		command.setBuilderName(IPojoBuilder.BUILDER_ID);
-		newCommands[newCommands.length - 1] = command;
-		desc.setBuildSpec(newCommands);
-		pProject.setDescription(desc, null);
+		if (!builderFound) {
+			// Builder not found : add it
+			ICommand[] newCommands = new ICommand[commands.length + 1];
+			System.arraycopy(commands, 0, newCommands, 0, commands.length);
+			ICommand command = description.newCommand();
+			command.setBuilderName(IPojoBuilder.BUILDER_ID);
+			newCommands[newCommands.length - 1] = command;
+			description.setBuildSpec(newCommands);
+		}
+
+		// Add the nature at the top position : the project image is the one
+		// of the first nature with an icon
+		boolean natureFound = false;
+		final String[] natures = description.getNatureIds();
+
+		for (String nature : natures) {
+			if (NATURE_ID.equals(nature)) {
+				natureFound = true;
+			}
+		}
+
+		if (!natureFound) {
+			// Nature not found : add it
+			String[] newNatures = new String[natures.length + 1];
+			newNatures[0] = NATURE_ID;
+			System.arraycopy(natures, 0, newNatures, 1, natures.length);
+			description.setNatureIds(newNatures);
+		}
+
+		// Update the project description
+		pProject.setDescription(description, null);
 	}
 
 	/*
@@ -67,21 +93,40 @@ public class IPojoNature implements IProjectNature {
 	@Override
 	public void deconfigure() throws CoreException {
 
-		IProjectDescription description = getProject().getDescription();
-		ICommand[] commands = description.getBuildSpec();
+		final IProjectDescription description = getProject().getDescription();
 
+		// Remove the builder from the description
+		final ICommand[] commands = description.getBuildSpec();
 		for (int i = 0; i < commands.length; ++i) {
 
-			if (commands[i].getBuilderName().equals(IPojoBuilder.BUILDER_ID)) {
+			if (IPojoBuilder.BUILDER_ID.equals(commands[i].getBuilderName())) {
+				// Remove the builder
 				ICommand[] newCommands = new ICommand[commands.length - 1];
 				System.arraycopy(commands, 0, newCommands, 0, i);
 				System.arraycopy(commands, i + 1, newCommands, i,
 						commands.length - i - 1);
 				description.setBuildSpec(newCommands);
-				pProject.setDescription(description, null);
-				return;
+				break;
 			}
 		}
+
+		// Remove the nature from the description
+		final String[] natures = description.getNatureIds();
+		for (int i = 0; i < natures.length; ++i) {
+
+			if (NATURE_ID.equals(natures[i])) {
+				// Remove the nature
+				String[] newNatures = new String[natures.length - 1];
+				System.arraycopy(natures, 0, newNatures, 0, i);
+				System.arraycopy(natures, i + 1, newNatures, i, natures.length
+						- i - 1);
+				description.setNatureIds(newNatures);
+				break;
+			}
+		}
+
+		// Update the project description at once
+		pProject.setDescription(description, null);
 	}
 
 	/*
