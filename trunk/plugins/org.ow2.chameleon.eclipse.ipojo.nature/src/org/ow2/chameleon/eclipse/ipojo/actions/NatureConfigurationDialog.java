@@ -19,10 +19,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -32,7 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
-import org.ow2.chameleon.eclipse.ipojo.IClasspathConstants;
 import org.ow2.chameleon.eclipse.ipojo.IImagesConstants;
 
 /**
@@ -97,7 +92,7 @@ public class NatureConfigurationDialog extends TitleAreaDialog {
 		// Set the message
 		final StringBuilder builder = new StringBuilder(
 				"Set up the iPOJO nature for ");
-		builder.append(pProjects.size()).append(" projects");
+		builder.append(pProjects.size()).append(" project(s)");
 		setMessage(builder.toString());
 
 		return content;
@@ -126,6 +121,9 @@ public class NatureConfigurationDialog extends TitleAreaDialog {
 		pAnnotationsBox.setLayoutData(gridData);
 		pAnnotationsBox.setText("Use annotations");
 
+		// Check annotation box by default
+		pAnnotationsBox.setSelection(true);
+
 		// Prepare the metadata template box
 		pMetadataBox = new Button(composite, SWT.CHECK);
 		pMetadataBox.setLayoutData(gridData);
@@ -140,53 +138,9 @@ public class NatureConfigurationDialog extends TitleAreaDialog {
 			// file
 			pMetadataBox
 					.setEnabled((project.findMember("/metadata.xml") == null));
-
-			// Check annotation box if there is already an annotation
-			// library in the build path of the project
-			pAnnotationsBox.setSelection(hasAnnotations(project));
 		}
 
 		return composite;
-	}
-
-	/**
-	 * Tests if the iPOJO annotations class path container is already present in
-	 * the project build path.
-	 * 
-	 * @param aProject
-	 *            Project to be tested
-	 * @return True on present, false if not or on error
-	 */
-	protected boolean hasAnnotations(final IProject aProject) {
-
-		final IClasspathEntry[] classpath;
-
-		try {
-			// Get the class path
-			final IJavaProject javaProject = (IJavaProject) aProject
-					.getNature(JavaCore.NATURE_ID);
-
-			classpath = javaProject.getRawClasspath();
-
-		} catch (CoreException e) {
-			Activator.logError(aProject, "Error retrieving classpath", e);
-			return false;
-		}
-
-		// Get project class path entries
-		for (IClasspathEntry entry : classpath) {
-
-			// We're looking for a specific container
-			if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER
-					&& IClasspathConstants.ANNOTATIONS_CONTAINER_PATH
-							.equals(entry.getPath())) {
-
-				// Found !
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
