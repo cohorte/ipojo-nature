@@ -19,17 +19,17 @@ Export-Package: org.apache.felix.ipojo;version="1.8.0";
    org.apache.felix.ipojo,
    org.osgi.framework,
    org.apache.felix.ipojo.metadata",
- org.apache.felix.ipojo.manipulation;version="1.8.0";
+ org.apache.felix.ipojo.manipulation;
   uses:="new org.apache.felix.ipojo.manipulation,
    org.objectweb.asm,
    org.objectweb.asm.commons,
    org.apache.felix.ipojo.metadata",
- org.apache.felix.ipojo.manipulation.annotations;version="1.8.0";
+ org.apache.felix.ipojo.manipulation.annotations;
   uses:="org.objectweb.asm,
    org.objectweb.asm.commons,
    javax.xml.parsers,
    org.apache.felix.ipojo.metadata",
- org.apache.felix.ipojo.manipulator;version="1.8.0";uses:="org.apache.felix.ipojo.metadata",
+ org.apache.felix.ipojo.manipulator,
  org.apache.felix.ipojo.manipulator.manifest;uses:="org.apache.felix.ipojo.manipulator",
  org.apache.felix.ipojo.manipulator.metadata;uses:="org.apache.felix.ipojo.manipulator",
  org.apache.felix.ipojo.manipulator.render;uses:="org.apache.felix.ipojo.metadata",
@@ -50,6 +50,5 @@ Require-Bundle: javax.xml,
  org.objectweb.asm,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: org.apache.felix.ipojo-1.9.0-SNAPSHOT.jar,
- org.apache.felix.ipojo.manipulator-1.9.0-SNAPSHOT.jar,
- org.apache.felix.ipojo.annotations-1.9.0-SNAPSHOT.jar
+Bundle-ClassPath: org.apache.felix.ipojo.annotations-1.9.0-SNAPSHOT.jar,
+ org.apache.felix.ipojo-1.9.0-SNAPSHOT.jar
