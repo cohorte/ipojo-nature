@@ -1,0 +1,26 @@
+Index: core/pom.xml
+===================================================================
+--- core/pom.xml	(révision 1307827)
++++ core/pom.xml	(copie de travail)
+@@ -38,7 +38,7 @@
+     <ipojo.package.version>1.8.1</ipojo.package.version>
+ 
+     <!-- Embedded manipulator version -->
+-    <ipojo.manipulator.version>1.8.0</ipojo.manipulator.version>
++    <ipojo.manipulator.version>1.9.0-SNAPSHOT</ipojo.manipulator.version>
+   </properties>
+ 
+   <description>
+Index: manipulator/manipulator/src/main/java/org/apache/felix/ipojo/manipulation/Manipulator.java
+===================================================================
+--- manipulator/manipulator/src/main/java/org/apache/felix/ipojo/manipulation/Manipulator.java	(révision 1307827)
++++ manipulator/manipulator/src/main/java/org/apache/felix/ipojo/manipulation/Manipulator.java	(copie de travail)
+@@ -97,7 +97,7 @@
+             ClassWriter cw0 = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+             //CheckClassAdapter ch = new CheckClassAdapter(cw0);
+             MethodCreator preprocess = new MethodCreator(cw0, m_fields, m_methods);
+-            cr0.accept(preprocess, 0);
++            cr0.accept(preprocess, ClassReader.SKIP_FRAMES);
+             is2.close();
+             finalWriter = cw0;
+         }
