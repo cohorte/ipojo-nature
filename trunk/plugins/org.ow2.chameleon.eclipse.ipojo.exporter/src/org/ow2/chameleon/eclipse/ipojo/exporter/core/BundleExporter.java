@@ -320,7 +320,7 @@ public class BundleExporter {
 		}
 
 		final IFolder outputFolder = aProject.getFolder(outputFolderStr);
-		final IPath outputFolderPath = outputFolder.getProjectRelativePath();
+		final IPath outputFolderPath = outputFolder.getFullPath();
 
 		// Visit the output folder
 		visitFolder(outputFolderPath, outputFolder, aJarEntriesMapping);
@@ -349,9 +349,43 @@ public class BundleExporter {
 						aJarEntriesMapping);
 
 			} else if (includedResource instanceof IFile) {
-				// Map the file directly
-				aJarEntriesMapping.put((IFile) includedResource,
-						includedResource.getProjectRelativePath().toString());
+
+				// Only add the file if it has not been computed yet
+				final String jarEntry = includedResource
+						.getProjectRelativePath().toString();
+
+				if (!aJarEntriesMapping.containsValue(jarEntry)) {
+					// Map the file directly
+					aJarEntriesMapping.put((IFile) includedResource, jarEntry);
+
+				} else {
+					// Find the previous file definition
+					IFile previous = null;
+					for (Entry<IFile, String> entry : aJarEntriesMapping
+							.entrySet()) {
+
+						if (jarEntry.equals(entry.getValue())) {
+							// Previous file found
+							previous = entry.getKey();
+							break;
+						}
+					}
+
+					if (previous != null) {
+						// Log warning
+						final String previousStr = previous.getFullPath()
+								.toString();
+						final String currentStr = includedResource
+								.getFullPath().toString();
+
+						IPojoExporterPlugin
+								.logWarning(
+										String.format(
+												"JAR file entry '%s' defined twice, in '%s' and '%s'.\nUsing '%s'.",
+												jarEntry, previousStr,
+												currentStr, previousStr), null);
+					}
+				}
 			}
 		}
 
@@ -383,6 +417,8 @@ public class BundleExporter {
 	 * Prepares the list of files in the given folder to be stored in the output
 	 * JAR file
 	 * 
+	 * The given base path must be a full path, i.e. relative to the workspace.
+	 * 
 	 * @param aBasePath
 	 *            All found files paths will be relative to this path
 	 * @param aFolder
@@ -406,9 +442,8 @@ public class BundleExporter {
 				 * Only store files. Entry names are relative to the root of the
 				 * resulting JAR.
 				 */
-				aJarEntriesMapping.put((IFile) resource, resource
-						.getProjectRelativePath().makeRelativeTo(aBasePath)
-						.toString());
+				aJarEntriesMapping.put((IFile) resource, resource.getFullPath()
+						.makeRelativeTo(aBasePath).toString());
 			}
 		}
 	}
