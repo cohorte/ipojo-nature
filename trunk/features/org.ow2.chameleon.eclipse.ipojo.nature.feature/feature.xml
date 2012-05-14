@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.ow2.chameleon.eclipse.ipojo.nature"
+      id="org.ow2.chameleon.eclipse.ipojo.nature.feature"
       label="OW2 Chameleon :: iPOJO Project Nature"
       version="1.0.1.qualifier"
       provider-name="OW2 Chameleon">
