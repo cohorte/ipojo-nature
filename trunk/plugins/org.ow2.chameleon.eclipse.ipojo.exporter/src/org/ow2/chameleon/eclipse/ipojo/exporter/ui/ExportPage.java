@@ -53,346 +53,439 @@ import org.ow2.chameleon.eclipse.ipojo.exporter.IPojoExporterPlugin;
  */
 public class ExportPage extends WizardPage {
 
-	/**
-	 * Listener that updates the wizard buttons
-	 * 
-	 * @author Thomas Calmant
-	 */
-	protected class EventListener implements Listener {
-		@Override
-		public void handleEvent(final Event aEvent) {
-			// Update navigation buttons state
-			getWizard().getContainer().updateButtons();
-		}
-	}
+    /**
+     * Listener that updates the wizard buttons
+     * 
+     * @author Thomas Calmant
+     */
+    protected class EventListener implements Listener {
 
-	/**
-	 * Folder selection button listener
-	 * 
-	 * @author Thomas Calmant
-	 */
-	protected class FolderSelectionListener implements SelectionListener {
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.swt.widgets.Listener#handleEvent(org.eclipse.swt.widgets
+         * .Event)
+         */
+        @Override
+        public void handleEvent(final Event aEvent) {
 
-		/** Target text container */
-		private final Text pTarget;
+            // Update navigation buttons state
+            getWizard().getContainer().updateButtons();
+        }
+    }
 
-		/**
-		 * Prepares the listener
-		 * 
-		 * @param aTextWidget
-		 *            Widget that will contain the selected path
-		 */
-		public FolderSelectionListener(final Text aTextWidget) {
-			pTarget = aTextWidget;
-		}
+    /**
+     * Folder selection button listener
+     * 
+     * @author Thomas Calmant
+     */
+    protected class FolderSelectionListener implements SelectionListener {
 
-		@Override
-		public void widgetDefaultSelected(final SelectionEvent aEvent) {
-			// Update navigation buttons state
-			getWizard().getContainer().updateButtons();
-		}
+        /** Target text container */
+        private final Text pTarget;
 
-		@Override
-		public void widgetSelected(final SelectionEvent aEvent) {
+        /**
+         * Prepares the listener
+         * 
+         * @param aTextWidget
+         *            Widget that will contain the selected path
+         */
+        public FolderSelectionListener(final Text aTextWidget) {
 
-			// Pop up a directory selection dialog
-			DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.SAVE);
-			dialog.setMessage("Choose a folder");
-			dialog.setFilterPath(pTarget.getText());
+            pTarget = aTextWidget;
+        }
 
-			String text = dialog.open();
-			if (text != null) {
-				pTarget.setText(text);
+        @Override
+        public void widgetDefaultSelected(final SelectionEvent aEvent) {
 
-				// Update navigation buttons state
-				getWizard().getContainer().updateButtons();
-			}
-		}
-	}
+            // Update navigation buttons state
+            getWizard().getContainer().updateButtons();
+        }
 
-	/** Flag indicating if Dialog Settings are actually set */
-	public static final String SETTINGS_ARE_SET = "settingsSet";
+        @Override
+        public void widgetSelected(final SelectionEvent aEvent) {
 
-	/** Output folder setting */
-	public static final String SETTINGS_OUTPUT_FOLDER = "outputFolder";
+            // Pop up a directory selection dialog
+            final DirectoryDialog dialog = new DirectoryDialog(getShell(),
+                    SWT.SAVE);
+            dialog.setMessage("Choose a folder");
+            dialog.setFilterPath(pTarget.getText());
 
-	/** Use build.properties setting */
-	public static final String SETTINGS_USE_BUILDPROPERTIES = "useBuildProperties";
+            final String text = dialog.open();
+            if (text != null) {
+                pTarget.setText(text);
 
-	/** Simple event listener, for wizard buttons update */
-	private final EventListener pEventListener = new EventListener();
+                // Update navigation buttons state
+                getWizard().getContainer().updateButtons();
+            }
+        }
+    }
 
-	/** Initial project selection */
-	private final Collection<IProject> pInitialProjectsSelection = new HashSet<IProject>();
+    /**
+     * A selection listener for table check all/uncheck all buttons
+     * 
+     * @author Thomas Calmant
+     */
+    protected class TableCheckButtonEvent implements SelectionListener {
 
-	/** Output folder */
-	private Text pOutputFolder;
+        /** The selection flag to set */
+        private boolean pCheckFlag;
 
-	/** Wizard page root */
-	private Composite pPageRoot;
+        /** The associated table */
+        private Table pTable;
 
-	/** Projects selection table */
-	private Table pProjectsTable;
+        /**
+         * Sets up the event handler
+         * 
+         * @param aTable
+         *            The associated table
+         * @param aCheckFlag
+         *            The check box state to set to all items when selected
+         */
+        public TableCheckButtonEvent(final Table aTable,
+                final boolean aCheckFlag) {
 
-	/** Dialog settings */
-	private final IDialogSettings pSettings;
+            pTable = aTable;
+            pCheckFlag = aCheckFlag;
+        }
 
-	/** Use build.properties check box */
-	private Button pUseBuildProperties;
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org
+         * .eclipse.swt.events.SelectionEvent)
+         */
+        @Override
+        public void widgetDefaultSelected(final SelectionEvent aEvent) {
 
-	/**
-	 * Constructor
-	 * 
-	 * @param aPageName
-	 *            Wizard page name
-	 */
-	protected ExportPage(final String aPageName) {
+            // Update navigation buttons state
+            getWizard().getContainer().updateButtons();
+        }
 
-		super(aPageName, aPageName, ImageDescriptor.createFromFile(
-				Activator.class, "/icons/ipojo-small.png"));
-		pSettings = IPojoExporterPlugin.getDefault().getDialogSettings();
-	}
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse
+         * .swt.events.SelectionEvent)
+         */
+        @Override
+        public void widgetSelected(final SelectionEvent aEvent) {
 
-	/**
-	 * Adds a check box with the given label
-	 * 
-	 * @param aLabel
-	 *            The check box label
-	 * @return The created check box
-	 */
-	protected Button addCheckBox(final String aLabel) {
-		Button button = new Button(pPageRoot, SWT.BORDER | SWT.CHECK);
-		button.setText(aLabel);
-		return button;
-	}
+            // Change all items state
+            for (final TableItem item : pTable.getItems()) {
+                item.setChecked(pCheckFlag);
+            }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets
-	 * .Composite)
-	 */
-	@Override
-	public void createControl(final Composite aParent) {
+            // Update navigation buttons state
+            getWizard().getContainer().updateButtons();
+        }
+    }
 
-		// Set up the page root
-		pPageRoot = new Composite(aParent, SWT.NONE);
+    /** Flag indicating if Dialog Settings are actually set */
+    public static final String SETTINGS_ARE_SET = "settingsSet";
 
-		final GridLayout layout = new GridLayout(1, false);
-		layout.verticalSpacing = 10;
-		pPageRoot.setLayout(layout);
+    /** Output folder setting */
+    public static final String SETTINGS_OUTPUT_FOLDER = "outputFolder";
 
-		/* Project selection area */
-		final Group projectsGroup = new Group(pPageRoot, SWT.NONE);
-		projectsGroup.setText("Projects to export :");
-		projectsGroup
-				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    /** Use build.properties setting */
+    public static final String SETTINGS_USE_BUILDPROPERTIES = "useBuildProperties";
 
-		createProjectSelection(projectsGroup);
+    /** Simple event listener, for wizard buttons update */
+    private final EventListener pEventListener = new EventListener();
 
-		/* Export options */
-		final Group exportGroup = new Group(pPageRoot, SWT.NONE);
-		exportGroup.setText("Export options");
-		exportGroup.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
-				false));
+    /** Initial project selection */
+    private final Collection<IProject> pInitialProjectsSelection = new HashSet<IProject>();
 
-		createExportFields(exportGroup);
+    /** Output folder */
+    private Text pOutputFolder;
 
-		// Set the wizard page main control
-		setControl(pPageRoot);
-	}
+    /** Wizard page root */
+    private Composite pPageRoot;
 
-	/**
-	 * Prepares export options fields
-	 * 
-	 * @param aParent
-	 *            Parent widget
-	 */
-	private void createExportFields(final Composite aParent) {
+    /** Projects selection table */
+    private Table pProjectsTable;
 
-		aParent.setLayout(new GridLayout(2, false));
+    /** Dialog settings */
+    private final IDialogSettings pSettings;
 
-		// Use build.properties
-		pUseBuildProperties = new Button(aParent, SWT.BORDER | SWT.CHECK);
-		pUseBuildProperties.setText("Use build.properties");
-		pUseBuildProperties.addListener(SWT.Selection, pEventListener);
-		pUseBuildProperties.setLayoutData(new GridData(SWT.BEGINNING,
-				SWT.BOTTOM, true, false, 2, 1));
+    /** Use build.properties check box */
+    private Button pUseBuildProperties;
 
-		// Selected, by default
-		boolean checkUseBuildProperies = true;
-		if (pSettings.getBoolean(SETTINGS_ARE_SET)) {
-			// Settings have been set before, use them
-			checkUseBuildProperies = pSettings
-					.getBoolean(SETTINGS_USE_BUILDPROPERTIES);
-		}
+    /**
+     * Constructor
+     * 
+     * @param aPageName
+     *            Wizard page name
+     */
+    protected ExportPage(final String aPageName) {
 
-		pUseBuildProperties.setSelection(checkUseBuildProperies);
+        super(aPageName, aPageName, ImageDescriptor.createFromFile(
+                Activator.class, "/icons/ipojo-small.png"));
+        pSettings = IPojoExporterPlugin.getDefault().getDialogSettings();
+    }
 
-		// Output folder
-		pOutputFolder = new Text(aParent, SWT.BORDER);
-		pOutputFolder.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
-				false));
-		pOutputFolder.addListener(SWT.Modify, pEventListener);
+    /**
+     * Adds a check box with the given label
+     * 
+     * @param aLabel
+     *            The check box label
+     * @return The created check box
+     */
+    protected Button addCheckBox(final String aLabel) {
 
-		// Set the default text
-		final String settingsOutputFolder = pSettings
-				.get(SETTINGS_OUTPUT_FOLDER);
-		if (settingsOutputFolder != null) {
-			pOutputFolder.setText(settingsOutputFolder);
-		}
+        final Button button = new Button(pPageRoot, SWT.BORDER | SWT.CHECK);
+        button.setText(aLabel);
+        return button;
+    }
 
-		// Output folder button
-		Button chooseFolder = new Button(aParent, SWT.RIGHT);
-		chooseFolder.setText("Choose a folder");
-		chooseFolder.addSelectionListener(new FolderSelectionListener(
-				pOutputFolder));
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets
+     * .Composite)
+     */
+    @Override
+    public void createControl(final Composite aParent) {
 
-	/**
-	 * Creates the projects selection controls
-	 * 
-	 * @param aParent
-	 *            Parent widget
-	 */
-	private void createProjectSelection(final Composite aParent) {
+        // Set up the page root
+        pPageRoot = new Composite(aParent, SWT.NONE);
 
-		// Set a grid layout
-		aParent.setLayout(new GridLayout(1, false));
+        final GridLayout layout = new GridLayout(1, false);
+        layout.verticalSpacing = 10;
+        pPageRoot.setLayout(layout);
 
-		// Prepare the project image
-		final Image projectImage = PlatformUI.getWorkbench().getSharedImages()
-				.getImage(IDE.SharedImages.IMG_OBJ_PROJECT);
+        /* Project selection area */
+        final Group projectsGroup = new Group(pPageRoot, SWT.NONE);
+        projectsGroup.setText("Projects to export :");
+        projectsGroup
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		// Prepare the table
-		pProjectsTable = new Table(aParent, SWT.BORDER | SWT.CHECK
-				| SWT.H_SCROLL | SWT.V_SCROLL);
-		pProjectsTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-				true));
-		pProjectsTable.addListener(SWT.Selection, pEventListener);
+        createProjectSelection(projectsGroup);
 
-		// Fill it
-		for (IProject project : ResourcesPlugin.getWorkspace().getRoot()
-				.getProjects()) {
+        /* Export options */
+        final Group exportGroup = new Group(pPageRoot, SWT.NONE);
+        exportGroup.setText("Export options");
+        exportGroup.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+                false));
 
-			try {
-				if (project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
-					// Only Java projects are shown
-					final TableItem item = new TableItem(pProjectsTable,
-							SWT.NONE);
-					item.setText(project.getName());
-					item.setImage(projectImage);
-					item.setData(project);
+        createExportFields(exportGroup);
 
-					item.setChecked(pInitialProjectsSelection.contains(project));
-				}
+        // Set the wizard page main control
+        setControl(pPageRoot);
+    }
 
-			} catch (CoreException ex) {
-				IPojoExporterPlugin.logWarning("Can't test nature of "
-						+ project.getName(), ex);
-			}
-		}
-	}
+    /**
+     * Prepares export options fields
+     * 
+     * @param aParent
+     *            Parent widget
+     */
+    private void createExportFields(final Composite aParent) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.dialogs.DialogPage#getDescription()
-	 */
-	@Override
-	public String getDescription() {
-		return "iPOJO Bundle export configuration";
-	}
+        aParent.setLayout(new GridLayout(2, false));
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.dialogs.DialogPage#getMessage()
-	 */
-	@Override
-	public String getMessage() {
-		return "Select projects to export";
-	}
+        // Use build.properties
+        pUseBuildProperties = new Button(aParent, SWT.BORDER | SWT.CHECK);
+        pUseBuildProperties.setText("Use build.properties");
+        pUseBuildProperties.addListener(SWT.Selection, pEventListener);
+        pUseBuildProperties.setLayoutData(new GridData(SWT.BEGINNING,
+                SWT.BOTTOM, true, false, 2, 1));
 
-	/**
-	 * Retrieves the selected output folder
-	 * 
-	 * @return The output folder
-	 */
-	public String getOutputFolder() {
-		return pOutputFolder.getText();
-	}
+        // Selected, by default
+        boolean checkUseBuildProperies = true;
+        if (pSettings.getBoolean(SETTINGS_ARE_SET)) {
+            // Settings have been set before, use them
+            checkUseBuildProperies = pSettings
+                    .getBoolean(SETTINGS_USE_BUILDPROPERTIES);
+        }
 
-	/**
-	 * Retrieves the list of the projects to be exported (never null, only Java
-	 * projects)
-	 * 
-	 * @return The projects to be exported
-	 */
-	public IProject[] getSelectedProjects() {
+        pUseBuildProperties.setSelection(checkUseBuildProperies);
 
-		final TableItem[] tableItems = pProjectsTable.getItems();
-		final List<IProject> selectedProjects = new ArrayList<IProject>();
+        // Output folder
+        pOutputFolder = new Text(aParent, SWT.BORDER);
+        pOutputFolder.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+                false));
+        pOutputFolder.addListener(SWT.Modify, pEventListener);
 
-		for (TableItem item : tableItems) {
-			if (item.getChecked()) {
-				// Project is checked
-				final Object itemData = item.getData();
-				if (itemData instanceof IProject) {
-					selectedProjects.add((IProject) itemData);
-				}
-			}
-		}
+        // Set the default text
+        final String settingsOutputFolder = pSettings
+                .get(SETTINGS_OUTPUT_FOLDER);
+        if (settingsOutputFolder != null) {
+            pOutputFolder.setText(settingsOutputFolder);
+        }
 
-		return selectedProjects.toArray(new IProject[0]);
-	}
+        // Output folder button
+        final Button chooseFolder = new Button(aParent, SWT.RIGHT);
+        chooseFolder.setText("Choose a folder");
+        chooseFolder.addSelectionListener(new FolderSelectionListener(
+                pOutputFolder));
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.wizard.WizardPage#isPageComplete()
-	 */
-	@Override
-	public boolean isPageComplete() {
+    /**
+     * Creates the projects selection controls
+     * 
+     * @param aParent
+     *            Parent widget
+     */
+    private void createProjectSelection(final Composite aParent) {
 
-		return !pOutputFolder.getText().isEmpty()
-				&& getSelectedProjects().length != 0;
-	}
+        // Set a grid layout
+        aParent.setLayout(new GridLayout(2, false));
 
-	/**
-	 * Saves the page settings
-	 */
-	public void save() {
+        // Prepare the project image
+        final Image projectImage = PlatformUI.getWorkbench().getSharedImages()
+                .getImage(IDE.SharedImages.IMG_OBJ_PROJECT);
 
-		// Store settings
-		pSettings.put(SETTINGS_USE_BUILDPROPERTIES, useBuildProperties());
-		pSettings.put(SETTINGS_OUTPUT_FOLDER, getOutputFolder());
+        // Prepare the table
+        pProjectsTable = new Table(aParent, SWT.BORDER | SWT.CHECK
+                | SWT.H_SCROLL | SWT.V_SCROLL);
+        pProjectsTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+                true, 2, 1));
+        pProjectsTable.addListener(SWT.Selection, pEventListener);
 
-		// We now have user settings
-		pSettings.put(SETTINGS_ARE_SET, true);
-	}
+        // Fill it
+        for (final IProject project : ResourcesPlugin.getWorkspace().getRoot()
+                .getProjects()) {
 
-	/**
-	 * Sets the initial project selection, that will be used during the project
-	 * table creation
-	 * 
-	 * @param aSelectedProjects
-	 *            Pre-selected projects
-	 */
-	public void setSelectedProjects(final Collection<IProject> aSelectedProjects) {
+            try {
+                if (project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
+                    // Only Java projects are shown
+                    final TableItem item = new TableItem(pProjectsTable,
+                            SWT.NONE);
+                    item.setText(project.getName());
+                    item.setImage(projectImage);
+                    item.setData(project);
 
-		pInitialProjectsSelection.clear();
-		pInitialProjectsSelection.addAll(aSelectedProjects);
-	}
+                    item.setChecked(pInitialProjectsSelection.contains(project));
+                }
 
-	/**
-	 * "Use build.properties" check box state
-	 * 
-	 * @return True if selected
-	 */
-	public boolean useBuildProperties() {
+            } catch (final CoreException ex) {
+                IPojoExporterPlugin.logWarning("Can't test nature of "
+                        + project.getName(), ex);
+            }
+        }
 
-		return pUseBuildProperties.getSelection();
-	}
+        // Prepare the selection buttons
+        final Button selectAllButton = new Button(aParent, SWT.PUSH);
+        selectAllButton.setText("Select All");
+        selectAllButton.addSelectionListener(new TableCheckButtonEvent(
+                pProjectsTable, true));
+        selectAllButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+                false));
+
+        final Button unselectAllButton = new Button(aParent, SWT.PUSH);
+        unselectAllButton.setText("Deselect All");
+        unselectAllButton.addSelectionListener(new TableCheckButtonEvent(
+                pProjectsTable, false));
+        unselectAllButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+                false));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.DialogPage#getDescription()
+     */
+    @Override
+    public String getDescription() {
+
+        return "iPOJO Bundle export configuration";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.DialogPage#getMessage()
+     */
+    @Override
+    public String getMessage() {
+
+        return "Select projects to export";
+    }
+
+    /**
+     * Retrieves the selected output folder
+     * 
+     * @return The output folder
+     */
+    public String getOutputFolder() {
+
+        return pOutputFolder.getText();
+    }
+
+    /**
+     * Retrieves the list of the projects to be exported (never null, only Java
+     * projects)
+     * 
+     * @return The projects to be exported
+     */
+    public IProject[] getSelectedProjects() {
+
+        final TableItem[] tableItems = pProjectsTable.getItems();
+        final List<IProject> selectedProjects = new ArrayList<IProject>();
+
+        for (final TableItem item : tableItems) {
+            if (item.getChecked()) {
+                // Project is checked
+                final Object itemData = item.getData();
+                if (itemData instanceof IProject) {
+                    selectedProjects.add((IProject) itemData);
+                }
+            }
+        }
+
+        return selectedProjects.toArray(new IProject[0]);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.wizard.WizardPage#isPageComplete()
+     */
+    @Override
+    public boolean isPageComplete() {
+
+        return !pOutputFolder.getText().isEmpty()
+                && getSelectedProjects().length != 0;
+    }
+
+    /**
+     * Saves the page settings
+     */
+    public void save() {
+
+        // Store settings
+        pSettings.put(SETTINGS_USE_BUILDPROPERTIES, useBuildProperties());
+        pSettings.put(SETTINGS_OUTPUT_FOLDER, getOutputFolder());
+
+        // We now have user settings
+        pSettings.put(SETTINGS_ARE_SET, true);
+    }
+
+    /**
+     * Sets the initial project selection, that will be used during the project
+     * table creation
+     * 
+     * @param aSelectedProjects
+     *            Pre-selected projects
+     */
+    public void setSelectedProjects(final Collection<IProject> aSelectedProjects) {
+
+        pInitialProjectsSelection.clear();
+        pInitialProjectsSelection.addAll(aSelectedProjects);
+    }
+
+    /**
+     * "Use build.properties" check box state
+     * 
+     * @return True if selected
+     */
+    public boolean useBuildProperties() {
+
+        return pUseBuildProperties.getSelection();
+    }
 }
