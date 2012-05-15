@@ -476,7 +476,10 @@ public class ExportPage extends WizardPage {
     public void setSelectedProjects(final Collection<IProject> aSelectedProjects) {
 
         pInitialProjectsSelection.clear();
-        pInitialProjectsSelection.addAll(aSelectedProjects);
+
+        if (aSelectedProjects != null) {
+            pInitialProjectsSelection.addAll(aSelectedProjects);
+        }
     }
 
     /**
