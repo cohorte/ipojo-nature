@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 OW2 Chameleon
+ * Copyright 2012 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -90,14 +91,14 @@ public final class Utilities {
 			throws CoreException {
 
 		// Create the folder
-		IFolder metaInf = aProject.getFolder(META_INF_FOLDER);
+		final IFolder metaInf = aProject.getFolder(META_INF_FOLDER);
 		if (!metaInf.exists()) {
 			metaInf.create(true, false, null);
 		}
 
 		// Prepare the input
-		ByteArrayOutputStream manifestOutstream = new ByteArrayOutputStream();
-		Manifest emptyManifest = new Manifest();
+		final ByteArrayOutputStream manifestOutstream = new ByteArrayOutputStream();
+		final Manifest emptyManifest = new Manifest();
 
 		// To be valid, a manifest must contain a Manifest-Version attribute
 		emptyManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
@@ -106,14 +107,14 @@ public final class Utilities {
 		try {
 			emptyManifest.write(manifestOutstream);
 
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			// Ignore, this may never happen
 			Activator.logWarning(aProject,
 					"Unable to prepare the new Manifest content", ex);
 		}
 
 		// Create the file
-		IFile manifestIFile = metaInf.getFile(MANIFEST_NAME);
+		final IFile manifestIFile = metaInf.getFile(MANIFEST_NAME);
 		manifestIFile.create(
 				new ByteArrayInputStream(manifestOutstream.toByteArray()),
 				true, null);
@@ -143,7 +144,7 @@ public final class Utilities {
 		try {
 			members = aRoot.members();
 
-		} catch (CoreException ex) {
+		} catch (final CoreException ex) {
 			Activator.logError(aRoot.getProject(), "Error searching for file '"
 					+ aFileName + "'", ex);
 			return null;
@@ -153,7 +154,7 @@ public final class Utilities {
 			return null;
 		}
 
-		for (IResource resource : members) {
+		for (final IResource resource : members) {
 
 			if (resource.getName().equalsIgnoreCase(aFileName)) {
 				if (resource.getType() == IResource.FILE) {
@@ -161,7 +162,7 @@ public final class Utilities {
 				}
 
 			} else if (resource.getType() == IResource.FOLDER) {
-				IFile found = findFile((IContainer) resource, aFileName);
+				final IFile found = findFile((IContainer) resource, aFileName);
 				if (found != null) {
 					return found;
 				}
@@ -188,9 +189,9 @@ public final class Utilities {
 		try {
 			return new Manifest(manifestFile.getContents(true));
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// Propagate the error
-			IStatus exceptionStatus = new Status(IStatus.WARNING,
+			final IStatus exceptionStatus = new Status(IStatus.WARNING,
 					Activator.PLUGIN_ID, "Couldn't read the manifest content",
 					e);
 			throw new CoreException(exceptionStatus);
@@ -241,7 +242,7 @@ public final class Utilities {
 		try {
 			result = aResource.getPersistentProperty(METADATA_FILE_PROPERTY);
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Activator.logError(aResource.getProject(),
 					"Error reading a resource property", e);
 		}
@@ -281,7 +282,7 @@ public final class Utilities {
 		try {
 			return metadataFile.getContents(true);
 
-		} catch (CoreException ex) {
+		} catch (final CoreException ex) {
 			// Error opening file
 			Activator.logError(aProject,
 					"Can't read the contents of the metadata file", ex);
@@ -315,7 +316,7 @@ public final class Utilities {
 				expandedLocation = varMan
 						.performStringSubstitution(specifiedMetadataLocation);
 
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				// Ignore error
 				expandedLocation = "";
 			}
@@ -348,7 +349,7 @@ public final class Utilities {
 		try {
 			return new FileInputStream(metadataFile);
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// File is not accessible
 			Activator.logError(aProject, "Error opening metadata file : '"
 					+ metadataFile.getAbsolutePath() + "'", e);
@@ -368,9 +369,9 @@ public final class Utilities {
 	public byte[] inputStreamToBytes(final InputStream aInputStream)
 			throws IOException {
 
-		final ArrayList<Byte> fileBytes = new ArrayList<Byte>();
+		final List<Byte> fileBytes = new ArrayList<Byte>();
 
-		byte[] buffer = new byte[8192];
+		final byte[] buffer = new byte[8192];
 		int readBytes = -1;
 		do {
 			// Fill the buffer
@@ -384,9 +385,9 @@ public final class Utilities {
 		} while (readBytes != -1);
 
 		// Convert the array
-		byte[] result = new byte[fileBytes.size()];
+		final byte[] result = new byte[fileBytes.size()];
 		int i = 0;
-		for (Byte readByte : fileBytes) {
+		for (final Byte readByte : fileBytes) {
 			result[i++] = readByte;
 		}
 
@@ -404,7 +405,7 @@ public final class Utilities {
 
 		try {
 			return aProject.hasNature(JavaCore.NATURE_ID);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			Activator.logError(aProject, "Error retrieving project nature", ex);
 			return false;
 		}
@@ -424,11 +425,11 @@ public final class Utilities {
 		synchronized (aManifest) {
 
 			// Prepare the sorted attributes object
-			SortedAttributes sortedAttributes = new SortedAttributes(
+			final SortedAttributes sortedAttributes = new SortedAttributes(
 					aManifest.getMainAttributes());
 
 			// Prepare the sorted entry
-			TreeMap<String, Attributes> sortedEntries = new TreeMap<String, Attributes>(
+			final TreeMap<String, Attributes> sortedEntries = new TreeMap<String, Attributes>(
 					aManifest.getEntries());
 
 			try {
@@ -443,7 +444,7 @@ public final class Utilities {
 					sAttrField = Manifest.class.getDeclaredField("attr");
 					sAttrField.setAccessible(true);
 				}
-			} catch (NoSuchFieldException ex) {
+			} catch (final NoSuchFieldException ex) {
 				Activator.logError(aProject,
 						"Can't find the Manifest attribute", ex);
 				return;
@@ -454,11 +455,11 @@ public final class Utilities {
 				sEntriesField.set(aManifest, sortedEntries);
 				sAttrField.set(aManifest, sortedAttributes);
 
-			} catch (IllegalArgumentException e) {
+			} catch (final IllegalArgumentException e) {
 				Activator.logError(aProject, "Bad type of Manifest attribute",
 						e);
 
-			} catch (IllegalAccessException e) {
+			} catch (final IllegalAccessException e) {
 				Activator.logError(aProject,
 						"Bad access to Manifest attribute", e);
 			}
@@ -475,7 +476,7 @@ public final class Utilities {
 	 */
 	public void mkdirs(final IContainer aContainer) throws CoreException {
 
-		IContainer parent = aContainer.getParent();
+		final IContainer parent = aContainer.getParent();
 		if (parent instanceof IFolder) {
 			mkdirs(parent);
 		}
@@ -505,7 +506,7 @@ public final class Utilities {
 		try {
 			aManifest.write(byteOutStream);
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// Should never happen
 			throw new CoreException(new Status(IStatus.ERROR,
 					Activator.PLUGIN_ID, "Can't write the manifest in memory",
@@ -554,7 +555,7 @@ public final class Utilities {
 					metadataPath);
 			return true;
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Activator.logError(aResource.getProject(),
 					"Error setting a resource property", e);
 

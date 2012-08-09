@@ -1,13 +1,21 @@
-/**
- * File:   PathSelectorGroup.java
- * Author: Thomas Calmant
- * Date:   23 août 2011
+/*
+ * Copyright 2012 OW2 Chameleon
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.ow2.chameleon.eclipse.ipojo.ui.properties;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.swt.SWT;
@@ -70,7 +78,7 @@ public class FileSelectorGroupListener implements SelectionListener {
 		}
 		dialog.setFilterPath(basePath);
 
-		String text = dialog.open();
+		final String text = dialog.open();
 		if (text != null) {
 			pPathWidget.setText(text);
 		}
@@ -82,11 +90,11 @@ public class FileSelectorGroupListener implements SelectionListener {
 	 */
 	private void handleVariablesSelected() {
 
-		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(
+		final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(
 				pShell);
 		dialog.open();
 
-		String variable = dialog.getVariableExpression();
+		final String variable = dialog.getVariableExpression();
 		if (variable != null) {
 			pPathWidget.insert(variable);
 		}
@@ -104,7 +112,7 @@ public class FileSelectorGroupListener implements SelectionListener {
 				IResource.FILE);
 		containerDialog.open();
 
-		Object[] resource = containerDialog.getResult();
+		final Object[] resource = containerDialog.getResult();
 		String text = null;
 		if (resource != null && resource.length > 0) {
 			text = newVariableExpression("workspace_loc",
@@ -120,7 +128,8 @@ public class FileSelectorGroupListener implements SelectionListener {
 	 * Returns a new variable expression with the given variable and the given
 	 * argument.
 	 * 
-	 * @see IStringVariableManager#generateVariableExpression(String, String)
+	 * @see org.eclipse.core.variables.IStringVariableManager#generateVariableExpression(String,
+	 *      String)
 	 */
 	protected String newVariableExpression(final String aVarName,
 			final String aArgument) {

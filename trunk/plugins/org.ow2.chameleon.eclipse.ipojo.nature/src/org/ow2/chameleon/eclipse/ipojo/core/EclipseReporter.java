@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 OW2 Chameleon
+ * Copyright 2012 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -91,7 +91,7 @@ public class EclipseReporter implements Reporter {
 
 		if (!pErrorsList.isEmpty()) {
 			// Print errors first
-			for (String error : pErrorsList) {
+			for (final String error : pErrorsList) {
 				message.append("- ").append(error).append("\n");
 			}
 
@@ -100,7 +100,7 @@ public class EclipseReporter implements Reporter {
 
 		if (!pWarningsList.isEmpty()) {
 			// Print warnings
-			for (String warning : pWarningsList) {
+			for (final String warning : pWarningsList) {
 				message.append("- ").append(warning).append("\n");
 			}
 		}
@@ -128,16 +128,13 @@ public class EclipseReporter implements Reporter {
 	 */
 	protected Object[] getMessageArguments(final Object... aFormatArgs) {
 
-		if (aFormatArgs != null && aFormatArgs.length > 0) {
-
-			if (aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
-				// Source throwable found
-				return Arrays.copyOf(aFormatArgs, aFormatArgs.length - 1);
-			}
+		if (aFormatArgs != null && aFormatArgs.length > 0
+				&& aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
+			// Source throwable found
+			return Arrays.copyOf(aFormatArgs, aFormatArgs.length - 1);
 		}
 
 		return aFormatArgs;
-
 	}
 
 	/**
@@ -149,11 +146,9 @@ public class EclipseReporter implements Reporter {
 	 */
 	protected Throwable getThrowable(final Object... aFormatArgs) {
 
-		if (aFormatArgs != null && aFormatArgs.length > 0) {
-
-			if (aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
-				return (Throwable) aFormatArgs[aFormatArgs.length - 1];
-			}
+		if (aFormatArgs != null && aFormatArgs.length > 0
+				&& aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
+			return (Throwable) aFormatArgs[aFormatArgs.length - 1];
 		}
 
 		return null;

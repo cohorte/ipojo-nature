@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 OW2 Chameleon
+ * Copyright 2012 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionDelegate;
@@ -57,7 +56,9 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 	}
 
 	/**
-	 * @see IActionDelegate#run(IAction)
+	 * Performs the given action
+	 * 
+	 * @see org.eclipse.ui.IActionDelegate#run(IAction)
 	 */
 	@Override
 	public void run(final IAction action) {
@@ -69,8 +70,8 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 		}
 
 		// Search for manifest
-		IFile manifestIFile = (IFile) pSelection.getFirstElement();
-		IProject project = manifestIFile.getProject();
+		final IFile manifestIFile = (IFile) pSelection.getFirstElement();
+		final IProject project = manifestIFile.getProject();
 
 		try {
 			final IStatus result = pManifestUpdater.updateManifest(project,
@@ -81,7 +82,7 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 				StatusManager.getManager().handle(result, StatusManager.SHOW);
 			}
 
-		} catch (CoreException ex) {
+		} catch (final CoreException ex) {
 			MessageDialog.openError(pShell, "iPOJO Updater Error",
 					"Error while updating the Manifest : " + ex);
 
@@ -91,6 +92,8 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 	}
 
 	/**
+	 * Called when a selection has been changed
+	 * 
 	 * @see ActionDelegate#selectionChanged(IAction, ISelection)
 	 */
 	@Override
@@ -100,6 +103,7 @@ public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 
 		if (selection instanceof TreeSelection) {
 			pSelection = (TreeSelection) selection;
+
 		} else {
 			pSelection = null;
 		}

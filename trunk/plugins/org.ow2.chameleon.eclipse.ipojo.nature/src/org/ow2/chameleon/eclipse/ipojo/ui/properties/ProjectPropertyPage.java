@@ -1,3 +1,17 @@
+/*
+ * Copyright 2012 OW2 Chameleon
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ow2.chameleon.eclipse.ipojo.ui.properties;
 
 import org.eclipse.core.resources.IResource;
@@ -12,20 +26,23 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.ow2.chameleon.eclipse.ipojo.core.Utilities;
 
+/**
+ * Project property page for iPOJO projects.
+ * 
+ * Allows to change the metadata.xml file to use for manipulation.
+ * 
+ * @author Thomas Calmant
+ */
 public class ProjectPropertyPage extends PropertyPage {
 
 	/** Metadata file path field */
 	private Text pMetadataPath;
 
-	/** Property page root container */
-	private Composite pPageRoot;
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Creates the content of the property page
 	 * 
-	 * @see
-	 * org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse
-	 * .swt.widgets.Composite)
+	 * @see org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse
+	 *      .swt.widgets.Composite)
 	 */
 	@Override
 	protected Control createContents(final Composite aParent) {
@@ -35,14 +52,14 @@ public class ProjectPropertyPage extends PropertyPage {
 				IResource.class);
 
 		// Set up the root container
-		pPageRoot = new Composite(aParent, SWT.NULL);
+		final Composite pageRoot = new Composite(aParent, SWT.NULL);
 
 		final GridLayout layout = new GridLayout(1, false);
 		layout.verticalSpacing = 10;
-		pPageRoot.setLayout(layout);
+		pageRoot.setLayout(layout);
 
 		// Use a group (better visual aspect)
-		final Group metadataGroup = new Group(pPageRoot, SWT.BORDER);
+		final Group metadataGroup = new Group(pageRoot, SWT.BORDER);
 		metadataGroup.setText("Metadata XML file");
 		metadataGroup
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -60,7 +77,7 @@ public class ProjectPropertyPage extends PropertyPage {
 		// Add the path selector
 		createPathSelectionGroup(metadataGroup, pMetadataPath, resource);
 
-		return pPageRoot;
+		return pageRoot;
 	}
 
 	/**
@@ -116,6 +133,11 @@ public class ProjectPropertyPage extends PropertyPage {
 		variablesLocationButton.addSelectionListener(listener);
 	}
 
+	/**
+	 * Called when the properties must be reset to default values
+	 * 
+	 * @see org.eclipse.jface.preference.PreferencePage#performDefaults()
+	 */
 	@Override
 	protected void performDefaults() {
 
@@ -124,8 +146,8 @@ public class ProjectPropertyPage extends PropertyPage {
 		super.performDefaults();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Called when the modifications must be applied
 	 * 
 	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
 	 */

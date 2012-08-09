@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 OW2 Chameleon
+ * Copyright 2012 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -83,7 +83,7 @@ public class EclipseResourceStore implements ResourceStore {
 		pWorkspaceRoot = pProject.getWorkspace().getRoot();
 
 		// Get the output location
-		IJavaProject pJavaProject = (IJavaProject) aProject
+		final IJavaProject pJavaProject = (IJavaProject) aProject
 				.getNature(JavaCore.NATURE_ID);
 
 		pOutputLocation = pJavaProject.getOutputLocation();
@@ -100,10 +100,11 @@ public class EclipseResourceStore implements ResourceStore {
 	public void accept(final ResourceVisitor aVisitor) {
 
 		try {
-			IFolder outputFolder = pWorkspaceRoot.getFolder(pOutputLocation);
+			final IFolder outputFolder = pWorkspaceRoot
+					.getFolder(pOutputLocation);
 
 			// Count files
-			int nbFiles = countFiles(outputFolder);
+			final int nbFiles = countFiles(outputFolder);
 
 			// Prepare the read monitor
 			pNbStoredMetadata = 0;
@@ -114,7 +115,7 @@ public class EclipseResourceStore implements ResourceStore {
 			// Visit the folder
 			visitFolder(outputFolder, aVisitor);
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Activator.logError(pProject,
 					"Can't visit the binary output folder", e);
 		}
@@ -142,7 +143,7 @@ public class EclipseResourceStore implements ResourceStore {
 		int nbMembers = 0;
 
 		try {
-			for (IResource member : aContainer.members()) {
+			for (final IResource member : aContainer.members()) {
 
 				if (member instanceof IContainer) {
 					nbMembers += countFiles((IContainer) member);
@@ -152,7 +153,7 @@ public class EclipseResourceStore implements ResourceStore {
 				}
 			}
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Activator.logError(pProject, "Error counting members", e);
 		}
 
@@ -187,8 +188,8 @@ public class EclipseResourceStore implements ResourceStore {
 		try {
 			Utilities.INSTANCE.setManifestContent(pProject, updateManifest);
 
-		} catch (CoreException ex) {
-			ex.printStackTrace();
+		} catch (final CoreException ex) {
+			Activator.logError(pProject, "Error writing the manifest file", ex);
 			throw new IOException("Can't write the manifest file", ex);
 		}
 	}
@@ -203,13 +204,14 @@ public class EclipseResourceStore implements ResourceStore {
 	public byte[] read(final String aPath) throws IOException {
 
 		// Compute the file path
-		IFile file = pWorkspaceRoot.getFile(pOutputLocation.append(aPath));
+		final IFile file = pWorkspaceRoot
+				.getFile(pOutputLocation.append(aPath));
 
 		try {
 			// Return its content
 			return Utilities.INSTANCE.inputStreamToBytes(file.getContents());
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			throw new IOException("An error occurred while reading the file '"
 					+ file + "'", e);
 		}
@@ -263,7 +265,7 @@ public class EclipseResourceStore implements ResourceStore {
 			return;
 		}
 
-		for (IResource resource : aContainer.members()) {
+		for (final IResource resource : aContainer.members()) {
 
 			if (resource instanceof IContainer) {
 				// Recursive visit
@@ -271,7 +273,7 @@ public class EclipseResourceStore implements ResourceStore {
 
 			} else if (resource instanceof IFile) {
 				// Make a relative path
-				IPath path = resource.getFullPath();
+				final IPath path = resource.getFullPath();
 				aVisitor.visit(path.makeRelativeTo(pOutputLocation).toString());
 
 				// File handled
@@ -297,10 +299,11 @@ public class EclipseResourceStore implements ResourceStore {
 		}
 
 		// Compute the file path
-		IFile file = pWorkspaceRoot.getFile(pOutputLocation.append(aPath));
+		final IFile file = pWorkspaceRoot
+				.getFile(pOutputLocation.append(aPath));
 
 		// Prepare the input stream
-		ByteArrayInputStream byteStream = new ByteArrayInputStream(
+		final ByteArrayInputStream byteStream = new ByteArrayInputStream(
 				aResourceContent);
 
 		if (!file.exists()) {
@@ -309,7 +312,7 @@ public class EclipseResourceStore implements ResourceStore {
 				Utilities.INSTANCE.mkdirs(file.getParent());
 				file.create(byteStream, true, null);
 
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				throw new IOException("Could not create the file '" + file
 						+ "'", e);
 			}
@@ -319,7 +322,7 @@ public class EclipseResourceStore implements ResourceStore {
 			try {
 				file.setContents(byteStream, IResource.FORCE, null);
 
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				throw new IOException("Couldn't set the file content '" + file
 						+ "'", e);
 			}

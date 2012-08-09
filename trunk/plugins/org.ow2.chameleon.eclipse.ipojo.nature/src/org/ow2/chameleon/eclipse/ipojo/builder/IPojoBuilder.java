@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 OW2 Chameleon
+ * Copyright 2012 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 package org.ow2.chameleon.eclipse.ipojo.builder;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 		try {
 			pManifestUpdater.removeManifestEntry(getProject());
 
-		} catch (CoreException ex) {
+		} catch (final CoreException ex) {
 			Activator
 					.logError(
 							getProject(),
@@ -168,13 +169,13 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 *            Class files list
 	 * @return Class files to update
 	 */
-	protected ArrayList<IResource> filterLists(
-			final ArrayList<IResource> aJavaSourceList,
-			final ArrayList<IResource> aJavaClassList) {
+	protected List<IResource> filterLists(
+			final List<IResource> aJavaSourceList,
+			final List<IResource> aJavaClassList) {
 
 		final ArrayList<IResource> selectedClasses = new ArrayList<IResource>();
 
-		for (IResource javaClass : aJavaClassList) {
+		for (final IResource javaClass : aJavaClassList) {
 			if (sourceChanged(javaClass, aJavaSourceList)) {
 				selectedClasses.add(javaClass);
 			}
@@ -199,15 +200,14 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 		try {
 			members = aContainer.members();
-		} catch (CoreException e) {
-			Activator.logError(aContainer.getProject(),
-					"Error listing members in : "
-							+ aContainer.getFullPath().toOSString(), e);
-			e.printStackTrace();
+		} catch (final CoreException e) {
+			Activator.logError(aContainer.getProject(), MessageFormat.format(
+					"Error listing members in : {0}", aContainer.getFullPath()
+							.toOSString()), e);
 			return;
 		}
 
-		for (IResource member : members) {
+		for (final IResource member : members) {
 			if (member.getType() == IResource.FOLDER) {
 				getAllClassFiles((IContainer) member, aClassFileList);
 
@@ -239,7 +239,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 */
 	protected IPath getProjectOutputPath() throws CoreException {
 
-		IJavaProject javaProject = (IJavaProject) getProject().getNature(
+		final IJavaProject javaProject = (IJavaProject) getProject().getNature(
 				JavaCore.NATURE_ID);
 		return javaProject.getOutputLocation();
 	}
@@ -276,7 +276,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 				lastProjectManipulation = 0;
 			}
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			// Error reading property
 			lastProjectManipulation = 0;
 		}
@@ -304,7 +304,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 		boolean metadataModified = false;
 
 		// Test resource name
-		String resourceName = aDeltaRoot.getResource().getName();
+		final String resourceName = aDeltaRoot.getResource().getName();
 
 		if (resourceName.endsWith(".java")) {
 			// Test Java source file
@@ -320,12 +320,12 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 
 		} else {
 			// Test sub directories, if any
-			IResourceDelta[] subdeltas = aDeltaRoot
+			final IResourceDelta[] subdeltas = aDeltaRoot
 					.getAffectedChildren(IResourceDelta.ADDED
 							| IResourceDelta.CHANGED);
 
 			if (subdeltas != null && subdeltas.length > 0) {
-				for (IResourceDelta subdelta : subdeltas) {
+				for (final IResourceDelta subdelta : subdeltas) {
 					metadataModified |= loadResourceDelta(subdelta,
 							aJavaResourcesList, aJavaClasslist);
 				}
@@ -345,7 +345,7 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 	 * @return True if the corresponding .java file is in the list
 	 */
 	protected boolean sourceChanged(final IResource javaClass,
-			final ArrayList<IResource> aJavaSourceList) {
+			final List<IResource> aJavaSourceList) {
 
 		String sourceName;
 		try {
@@ -365,14 +365,13 @@ public class IPojoBuilder extends IncrementalProjectBuilder {
 			sourceName = sourceName.substring(0, end);
 			sourceName += ".java";
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Activator.logError(javaClass.getProject(),
 					"Error working on file name", e);
-			e.printStackTrace();
 			return true;
 		}
 
-		for (IResource javaSource : aJavaSourceList) {
+		for (final IResource javaSource : aJavaSourceList) {
 			if (javaSource.getFullPath().toString().contains(sourceName)) {
 				return true;
 			}
