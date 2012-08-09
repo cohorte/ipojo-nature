@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,6 +43,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.framework.Constants;
+import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.core.Utilities;
 import org.ow2.chameleon.eclipse.ipojo.exporter.IPojoExporterPlugin;
 
@@ -93,9 +95,9 @@ public class BundleExporter {
 		aJarStream.putNextEntry(entry);
 
 		// 8 kb buffer
-		byte[] buffer = new byte[8192];
+		final byte[] buffer = new byte[8192];
 		while (true) {
-			int read = sourceStream.read(buffer);
+			final int read = sourceStream.read(buffer);
 			if (read <= 0) {
 				// EOF (or error, ...)
 				break;
@@ -150,10 +152,10 @@ public class BundleExporter {
 					buildPropertiesFound = readBuildProperties(aProject,
 							jarEntriesMapping);
 
-				} catch (IOException e) {
-					IPojoExporterPlugin.logWarning(
-							"Can't read the build.properties file of : "
-									+ aProject.getName(), e);
+				} catch (final IOException e) {
+					IPojoExporterPlugin.logWarning(MessageFormat.format(
+							"Can't read the build.properties file of : {0}",
+							aProject.getName()), e);
 				}
 
 			}
@@ -170,7 +172,8 @@ public class BundleExporter {
 
 		// Make the JAR file
 		try {
-			byte[] jarContent = makeJar(projectManifest, jarEntriesMapping);
+			final byte[] jarContent = makeJar(projectManifest,
+					jarEntriesMapping);
 
 			// Prepare the output file
 			final File outputJarFile = new File(pJarOutputFolder,
@@ -189,17 +192,17 @@ public class BundleExporter {
 			final IFile[] eclipseFiles = pWorkspaceRoot
 					.findFilesForLocationURI(outputJarFile.toURI());
 			if (eclipseFiles != null) {
-				for (IFile eclipseFile : eclipseFiles) {
+				for (final IFile eclipseFile : eclipseFiles) {
 					eclipseFile.refreshLocal(IResource.DEPTH_ONE, aMonitor);
 				}
 			}
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 
 			throw new CoreException(new Status(IStatus.ERROR,
-					IPojoExporterPlugin.PLUGIN_ID,
-					"Error writing JAR file for '" + aProject.getName() + "'",
-					e));
+					IPojoExporterPlugin.PLUGIN_ID, MessageFormat.format(
+							"Error writing JAR file for {0}",
+							aProject.getName()), e));
 		}
 	}
 
@@ -251,7 +254,8 @@ public class BundleExporter {
 				aManifest);
 
 		// Add all found files
-		for (Entry<IFile, String> jarEntry : aJarContentsMapping.entrySet()) {
+		for (final Entry<IFile, String> jarEntry : aJarContentsMapping
+				.entrySet()) {
 			addFile(jarStream, jarEntry.getKey(), jarEntry.getValue());
 		}
 
@@ -281,8 +285,10 @@ public class BundleExporter {
 			// Look for any file in this folder
 			visitFolder(outputLocation, outputFolder, aJarEntriesMapping);
 
-		} catch (JavaModelException e) {
-			e.printStackTrace();
+		} catch (final JavaModelException e) {
+			IPojoExporterPlugin.logWarning(MessageFormat.format(
+					"Error reading the project model of {0}", aJavaProject
+							.getProject().getName()), e);
 		}
 	}
 
@@ -315,15 +321,18 @@ public class BundleExporter {
 		final String outputFolderStr = buildProperties
 				.getProperty(IExporterConstants.BUILD_PROPERTIES_KEY_OUTPUT);
 		if (outputFolderStr == null || outputFolderStr.isEmpty()) {
-			// Invalid build.properties
-			return false;
+			// No output folder given...
+			Activator.logWarning(aProject,
+					"No output folder indicated in 'build.properties'.", null);
+
+		} else {
+			// Visit the indicated folder
+			final IFolder outputFolder = aProject.getFolder(outputFolderStr);
+			final IPath outputFolderPath = outputFolder.getFullPath();
+
+			// Visit the output folder
+			visitFolder(outputFolderPath, outputFolder, aJarEntriesMapping);
 		}
-
-		final IFolder outputFolder = aProject.getFolder(outputFolderStr);
-		final IPath outputFolderPath = outputFolder.getFullPath();
-
-		// Visit the output folder
-		visitFolder(outputFolderPath, outputFolder, aJarEntriesMapping);
 
 		/* Included files / folders */
 		final String[] binaryIncludes = buildProperties.getProperty(
@@ -333,7 +342,7 @@ public class BundleExporter {
 		// Project path
 		final IPath projectPath = aProject.getFullPath();
 
-		for (String includedStr : binaryIncludes) {
+		for (final String includedStr : binaryIncludes) {
 
 			if (includedStr.equals(".")) {
 				// Ignore project folder import
@@ -361,7 +370,7 @@ public class BundleExporter {
 				} else {
 					// Find the previous file definition
 					IFile previous = null;
-					for (Entry<IFile, String> entry : aJarEntriesMapping
+					for (final Entry<IFile, String> entry : aJarEntriesMapping
 							.entrySet()) {
 
 						if (jarEntry.equals(entry.getValue())) {
@@ -380,10 +389,11 @@ public class BundleExporter {
 
 						IPojoExporterPlugin
 								.logWarning(
-										String.format(
-												"JAR file entry '%s' defined twice, in '%s' and '%s'.\nUsing '%s'.",
-												jarEntry, previousStr,
-												currentStr, previousStr), null);
+										MessageFormat
+												.format("JAR file entry '{0}' defined twice, in '{1}' and '{2}'.\nUsing '{3}'.",
+														jarEntry, previousStr,
+														currentStr, previousStr),
+										null);
 					}
 				}
 			}
@@ -399,6 +409,7 @@ public class BundleExporter {
 	 *            The output folder
 	 */
 	public void setOutputFolder(final String aFolder) {
+
 		pJarOutputFolder = aFolder;
 	}
 
@@ -431,7 +442,15 @@ public class BundleExporter {
 	protected void visitFolder(final IPath aBasePath, final IFolder aFolder,
 			final Map<IFile, String> aJarEntriesMapping) throws CoreException {
 
-		for (IResource resource : aFolder.members()) {
+		if (!aFolder.exists()) {
+			// Nothing to do here...
+			IPojoExporterPlugin.logWarning(MessageFormat.format(
+					"Folder '{0}' doesn't exist.", aFolder.getFullPath()
+							.toOSString()), null);
+			return;
+		}
+
+		for (final IResource resource : aFolder.members()) {
 
 			if (resource instanceof IFolder) {
 				// Recursively visit the folder
