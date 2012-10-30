@@ -64,13 +64,13 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 
 		synchronized (pProjectsToCompile) {
 
-			for (IProject project : pProjectsToCompile) {
+			for (final IProject project : pProjectsToCompile) {
 
 				try {
 					// Manipulate the project
 					updateManifest(project);
 
-				} catch (CoreException ex) {
+				} catch (final CoreException ex) {
 					Activator.logError(project, "Error manipulating project",
 							ex);
 				}
@@ -94,7 +94,7 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 
 		synchronized (pProjectsToCompile) {
 
-			for (BuildContext file : aFiles) {
+			for (final BuildContext file : aFiles) {
 				// Prepare the list of projects to compile
 				pProjectsToCompile.add(file.getFile().getProject());
 			}
@@ -115,7 +115,7 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 		try {
 			pManifestUpdater.removeManifestEntry(project);
 
-		} catch (CoreException ex) {
+		} catch (final CoreException ex) {
 			Activator.logError(project, "Error cleaning project", ex);
 		}
 	}
@@ -132,11 +132,15 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 	public boolean isActive(final IJavaProject aJavaProject) {
 
 		final IProject project = aJavaProject.getProject();
+		if (!project.isAccessible()) {
+			// Project not open
+			return false;
+		}
 
 		try {
 			return project.hasNature(IPojoNature.NATURE_ID);
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			// Error ?
 			Activator.logError(project,
 					"Error testing nature of " + project.getName(), e);
@@ -157,7 +161,7 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 	 */
 	protected void updateManifest(final IProject aProject) throws CoreException {
 
-		IProgressMonitor monitor = new NullProgressMonitor();
+		final IProgressMonitor monitor = new NullProgressMonitor();
 
 		// Do the job
 		final IStatus result = pManifestUpdater.updateManifest(aProject,
