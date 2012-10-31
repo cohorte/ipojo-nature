@@ -325,6 +325,11 @@ public class BundleExporter {
 			Activator.logWarning(aProject,
 					"No output folder indicated in 'build.properties'.", null);
 
+			// Use the one given in the project properties
+			final IJavaProject javaProject = (IJavaProject) aProject
+					.getNature(JavaCore.NATURE_ID);
+			prepareProjectFilesList(javaProject, aJarEntriesMapping);
+
 		} else {
 			// Visit the indicated folder
 			final IFolder outputFolder = aProject.getFolder(outputFolderStr);
