@@ -9,6 +9,9 @@
    <feature url="features/org.ow2.chameleon.eclipse.ipojo.nature_1.0.1.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.nature" version="1.0.1.qualifier">
       <category name="ipojo"/>
    </feature>
+   <feature url="features/org.ow2.chameleon.eclipse.ipojo.m2e_1.0.1.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.m2e" version="1.0.1.qualifier">
+      <category name="ipojo"/>
+   </feature>
    <category-def name="ipojo" label="iPOJO Updater Plugin">
       <description>
          iPOJO Updater plugin. An OW2 Chameleon project initiated by isandlaTech.
