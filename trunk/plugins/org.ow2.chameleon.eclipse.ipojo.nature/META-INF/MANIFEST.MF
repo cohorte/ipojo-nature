@@ -17,5 +17,6 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.ow2.chameleon.eclipse.ipojo.nature;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.ow2.chameleon.eclipse.ipojo,
+ org.ow2.chameleon.eclipse.ipojo.builder,
  org.ow2.chameleon.eclipse.ipojo.core
 

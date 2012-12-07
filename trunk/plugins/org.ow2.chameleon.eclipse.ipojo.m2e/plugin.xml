@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.m2e.core.projectConfigurators">
+      <configurator
+            class="org.ow2.chameleon.eclipse.ipojo.m2e.IPojoProjectConfigurator"
+            id="org.ow2.chameleon.eclipse.ipojo.m2e.configurator"
+            name="IPojo Project Configurator"
+            secondaryTo="maven-bundle-plugin">
+      </configurator>
+   </extension>
+   <extension
+         id="m2e-ipojo-mapping"
+         point="org.eclipse.m2e.core.lifecycleMappingMetadataSource">
+   </extension>
+
+</plugin>

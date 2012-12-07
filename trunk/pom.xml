@@ -9,15 +9,15 @@
     <packaging>pom</packaging>
 
     <properties>
-        <tycho-version>0.14.0</tycho-version>
+        <tycho-version>0.16.0</tycho-version>
     </properties>
 
     <repositories>
         <!-- configure p2 repository to resolve against -->
         <repository>
-            <id>helios</id>
+            <id>juno</id>
             <layout>p2</layout>
-            <url>http://download.eclipse.org/releases/helios/</url>
+            <url>http://download.eclipse.org/releases/juno/</url>
         </repository>
     </repositories>
 
@@ -73,6 +73,9 @@
         <module>plugins/org.ow2.chameleon.eclipse.ipojo.exporter</module>
         <module>plugins/org.ow2.chameleon.eclipse.ipojo.classpath</module>
         <module>features/org.ow2.chameleon.eclipse.ipojo.nature.feature</module>
+
+        <module>plugins/org.ow2.chameleon.eclipse.ipojo.m2e</module>
+        <module>features/org.ow2.chameleon.eclipse.ipojo.m2e.feature</module>
 
         <module>update-site</module>
     </modules>

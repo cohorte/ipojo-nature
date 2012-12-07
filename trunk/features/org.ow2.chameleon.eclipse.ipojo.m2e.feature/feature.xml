@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.ow2.chameleon.eclipse.ipojo.nature.feature"
-      label="OW2 Chameleon :: iPOJO Project Nature"
+      id="org.ow2.chameleon.eclipse.ipojo.m2e.feature"
+      label="OW2 Chameleon :: iPOJO M2E Configurator"
       version="1.0.1.qualifier"
       provider-name="OW2 Chameleon">
 
    <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
-      This plugin adds an iPOJO builder updating with an iPOJO manipulator
-Manifest.mf and .class files incrementally.
+      This plugin adds an iPOJO builder to M2E projects that use the iPojo Maven
+  Plugin or the iPojo BND plugin through Maven Bundle Plugin.
    </description>
 
    <copyright url="http://wiki.chameleon.ow2.org/">
@@ -250,7 +250,7 @@ limitations under the License.
    </license>
 
    <url>
-      <update label="OW2 Chameleon Update Site" url="http://chameleon.ow2.org/eclipse/"/>
+      <update label="isandlaTech Update Site" url="http://forge.isandlatech.com:3080/eclipse"/>
       <discovery label="isandlaTech.com" url="http://www.isandlatech.com/"/>
       <discovery label="iPOJO Web Site" url="http://felix.apache.org/site/apache-felix-ipojo.html"/>
    </url>
@@ -259,29 +259,12 @@ limitations under the License.
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.jdt.core" version="3.6.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help"/>
-      <import plugin="org.ow2.chameleon.eclipse.ipojo.dependencies" version="1.8.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.ow2.chameleon.eclipse.ipojo.nature" version="1.0.1" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jdt.core" version="3.6.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
-         id="org.ow2.chameleon.eclipse.ipojo.nature"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.ow2.chameleon.eclipse.ipojo.exporter"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.ow2.chameleon.eclipse.ipojo.classpath"
+         id="org.ow2.chameleon.eclipse.ipojo.m2e"
          download-size="0"
          install-size="0"
          version="0.0.0"
