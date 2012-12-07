@@ -10,5 +10,5 @@
 	</parent>
 	<artifactId>org.ow2.chameleon.eclipse.ipojo.updatesite</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
-	<packaging>eclipse-update-site</packaging>
+	<packaging>eclipse-repository</packaging>
 </project>
