@@ -46,139 +46,135 @@ import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
  */
 public class IPojoCompilationParticipant extends CompilationParticipant {
 
-	/** iPOJO Manifest updater */
-	private final ManifestUpdater pManifestUpdater = new ManifestUpdater();
+    /** iPOJO Manifest updater */
+    private final ManifestUpdater pManifestUpdater = new ManifestUpdater();
 
-	/** Projects to be compiled */
-	private final Set<IProject> pProjectsToCompile = new HashSet<IProject>();
+    /** Projects to be compiled */
+    private final Set<IProject> pProjectsToCompile = new HashSet<IProject>();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.jdt.core.compiler.CompilationParticipant#buildFinished(org
-	 * .eclipse.jdt.core.IJavaProject)
-	 */
-	@Override
-	public void buildFinished(final IJavaProject aProject) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jdt.core.compiler.CompilationParticipant#buildFinished(org
+     * .eclipse.jdt.core.IJavaProject)
+     */
+    @Override
+    public void buildFinished(final IJavaProject aProject) {
 
-		synchronized (pProjectsToCompile) {
+        synchronized (pProjectsToCompile) {
 
-			for (final IProject project : pProjectsToCompile) {
+            for (final IProject project : pProjectsToCompile) {
 
-				try {
-					// Manipulate the project
-					updateManifest(project);
+                try {
+                    // Manipulate the project
+                    updateManifest(project);
 
-				} catch (final CoreException ex) {
-					Activator.logError(project, "Error manipulating project",
-							ex);
-				}
-			}
+                } catch (final CoreException ex) {
+                    Activator.logError(project, "Error manipulating project",
+                            ex);
+                }
+            }
 
-			// Clear the projects list
-			pProjectsToCompile.clear();
-		}
-	}
+            // Clear the projects list
+            pProjectsToCompile.clear();
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.jdt.core.compiler.CompilationParticipant#buildStarting(org
-	 * .eclipse.jdt.core.compiler.BuildContext[], boolean)
-	 */
-	@Override
-	public void buildStarting(final BuildContext[] aFiles,
-			final boolean aIsBatch) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jdt.core.compiler.CompilationParticipant#buildStarting(org
+     * .eclipse.jdt.core.compiler.BuildContext[], boolean)
+     */
+    @Override
+    public void buildStarting(final BuildContext[] aFiles,
+            final boolean aIsBatch) {
 
-		synchronized (pProjectsToCompile) {
+        synchronized (pProjectsToCompile) {
 
-			for (final BuildContext file : aFiles) {
-				// Prepare the list of projects to compile
-				pProjectsToCompile.add(file.getFile().getProject());
-			}
-		}
-	}
+            for (final BuildContext file : aFiles) {
+                // Prepare the list of projects to compile
+                pProjectsToCompile.add(file.getFile().getProject());
+            }
+        }
+    }
 
-	/**
-	 * Removes the iPOJO entry in the project Manifest.
-	 * 
-	 * @see org.eclipse.jdt.core.compiler.CompilationParticipant#cleanStarting(org
-	 *      .eclipse.jdt.core.IJavaProject)
-	 */
-	@Override
-	public void cleanStarting(final IJavaProject aProject) {
+    /**
+     * Removes the iPOJO entry in the project Manifest.
+     * 
+     * @see org.eclipse.jdt.core.compiler.CompilationParticipant#cleanStarting(org
+     *      .eclipse.jdt.core.IJavaProject)
+     */
+    @Override
+    public void cleanStarting(final IJavaProject aProject) {
 
-		final IProject project = aProject.getProject();
+        final IProject project = aProject.getProject();
 
-		try {
-			pManifestUpdater.removeManifestEntry(project);
+        try {
+            pManifestUpdater.removeManifestEntry(project);
 
-		} catch (final CoreException ex) {
-			Activator.logError(project, "Error cleaning project", ex);
-		}
-	}
+        } catch (final CoreException ex) {
+            Activator.logError(project, "Error cleaning project", ex);
+        }
+    }
 
-	/**
-	 * Activates the participant if the built project has the IPojo nature
-	 * 
-	 * @see org.eclipse.jdt.core.compiler.CompilationParticipant#isActive(org.eclipse
-	 *      .jdt.core.IJavaProject)
-	 * 
-	 * @return True if aProject has the IPojo nature
-	 */
-	@Override
-	public boolean isActive(final IJavaProject aJavaProject) {
+    /**
+     * Activates the participant if the built project has the IPojo nature
+     * 
+     * @see org.eclipse.jdt.core.compiler.CompilationParticipant#isActive(org.eclipse
+     *      .jdt.core.IJavaProject)
+     * 
+     * @return True if aProject has the IPojo nature
+     */
+    @Override
+    public boolean isActive(final IJavaProject aJavaProject) {
 
-		final IProject project = aJavaProject.getProject();
-		if (!project.isAccessible()) {
-			// Project not open
-			return false;
-		}
+        final IProject project = aJavaProject.getProject();
+        if (!project.isAccessible()) {
+            // Project not open
+            return false;
+        }
 
-		try {
-			return project.hasNature(IPojoNature.NATURE_ID);
+        try {
+            return project.hasNature(IPojoNature.NATURE_ID);
 
-		} catch (final CoreException e) {
-			// Error ?
-			Activator.logError(project,
-					"Error testing nature of " + project.getName(), e);
-		}
+        } catch (final CoreException e) {
+            // Error ?
+            Activator.logError(project,
+                    "Error testing nature of " + project.getName(), e);
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Calls {@link ManifestUpdater#updateManifest(IProject)} on the current
-	 * project
-	 * 
-	 * @param aProject
-	 *            Project to manipulate
-	 * 
-	 * @throws CoreException
-	 *             An error occurred during manipulation
-	 */
-	protected void updateManifest(final IProject aProject) throws CoreException {
+    /**
+     * Calls {@link ManifestUpdater#updateManifest(IProject)} on the current
+     * project
+     * 
+     * @param aProject
+     *            Project to manipulate
+     * 
+     * @throws CoreException
+     *             An error occurred during manipulation
+     */
+    protected void updateManifest(final IProject aProject) throws CoreException {
 
-		final IProgressMonitor monitor = new NullProgressMonitor();
+        final IProgressMonitor monitor = new NullProgressMonitor();
 
-		// Do the job
-		final IStatus result = pManifestUpdater.updateManifest(aProject,
-				monitor);
+        // Do the job
+        final IStatus result = pManifestUpdater.updateManifest(aProject,
+                monitor);
 
-		// Store the manipulation time
-		aProject.setSessionProperty(IPojoBuilder.PROJECT_LAST_MANIPULATION,
-				Long.valueOf(System.currentTimeMillis()));
+        // Log the result
+        if (result.isOK()) {
+            // No problem : full success
+            Activator.logInfo(aProject, "Manipulation done");
 
-		// Log the result
-		if (result.isOK()) {
-			// No problem : full success
-			Activator.logInfo(aProject, "Manipulation done");
-
-		} else {
-			// Errors have already been logged, so just pop a dialog
-			StatusManager.getManager().handle(result, StatusManager.SHOW);
-		}
-	}
+        } else {
+            // Errors have already been logged, so just pop a dialog
+            StatusManager.getManager().handle(result, StatusManager.SHOW);
+        }
+    }
 }

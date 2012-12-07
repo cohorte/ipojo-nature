@@ -33,7 +33,6 @@
  </objectContribution>
 </extension>
 
-<!--
 <extension
       id="org.ow2.chameleon.eclipse.ipojo.ipojoBuilder"
       name="iPOJO Manipulator"
@@ -45,7 +44,6 @@
       </run>
    </builder>
 </extension>
--->
 
 <extension
       id="org.ow2.chameleon.eclipse.ipojo.iPojoNature"
@@ -56,11 +54,9 @@
             class="org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature">
       </run>
    </runtime>
-   <!--
    <builder
          id="org.ow2.chameleon.eclipse.ipojo.ipojoBuilder">
    </builder>
-   -->
 </extension>
 <extension
       point="org.eclipse.help.toc">
