@@ -25,6 +25,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -55,19 +57,43 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	private ISelection pSelection;
 
 	/**
+	 * Creates a copy of the given entry with a new access rule
+	 * 
+	 * @param aEntry
+	 *            A class path entry (container)
+	 * @param aNewAccessRule
+	 *            A new access rule
+	 * @return The new container entry
+	 */
+	private IClasspathEntry addAccessRule(final IClasspathEntry aEntry,
+			final IAccessRule aNewAccessRule) {
+
+		// Update access rules array
+		final IAccessRule[] currentRules = aEntry.getAccessRules();
+		final IAccessRule[] newRules = new IAccessRule[currentRules.length + 1];
+
+		System.arraycopy(currentRules, 0, newRules, 0, currentRules.length);
+		newRules[newRules.length - 1] = aNewAccessRule;
+
+		// Create a new container entry
+		return JavaCore.newContainerEntry(aEntry.getPath(), newRules,
+				aEntry.getExtraAttributes(), aEntry.isExported());
+	}
+
+	/**
 	 * Adds the annotations class path container to the project build path
 	 * 
 	 * @param aProject
 	 *            Project to be modified
 	 */
-	protected void addAnnotationsLibrary(final IProject aProject) {
+	private void addAnnotationsLibrary(final IProject aProject) {
 
 		// Get the Java nature
 		final IJavaProject javaProject;
 		try {
 			javaProject = (IJavaProject) aProject.getNature(JavaCore.NATURE_ID);
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Activator.logError(aProject, "Can't get the Java nature", e);
 			return;
 		}
@@ -77,34 +103,93 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 		try {
 			currentEntries = javaProject.getRawClasspath();
 
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			Activator.logError(aProject, "Error reading project classpath", e);
 			return;
 		}
 
-		for (IClasspathEntry entry : currentEntries) {
+		// Flag to indicate if the annotations container must be added
+		boolean addAnnotations = true;
 
-			if (IClasspathConstants.ANNOTATIONS_CONTAINER_PATH.equals(entry
-					.getPath())) {
-				// The annotation container is already here.
-				return;
+		// ID of the modified class path entry, if any
+		int newPdeEntryIdx = -1;
+		IClasspathEntry newPdeEntry = null;
+
+		// Loop on project class path entries
+		int idx = 0;
+		for (final IClasspathEntry entry : currentEntries) {
+
+			if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+				if (IClasspathConstants.ANNOTATIONS_CONTAINER_PATH.equals(entry
+						.getPath())) {
+					// The annotation container is already here.
+					addAnnotations = false;
+
+				} else if (IClasspathConstants.PDE_CONTAINER_PATH.equals(entry
+						.getPath())) {
+					// Found the PDE container
+
+					// Flag to activate the access rule creation
+					boolean needsRule = true;
+
+					// Check if the access rule has already been set
+					for (final IAccessRule accessRule : entry.getAccessRules()) {
+						if (IClasspathConstants.ANNOTATIONS_ACCESS_PATTERN
+								.equals(accessRule.getPattern())) {
+							// iPOJO annotations access pattern already set
+							needsRule = false;
+							break;
+						}
+					}
+
+					if (needsRule) {
+						// Replace the container by a new one
+						newPdeEntryIdx = idx;
+						newPdeEntry = addAccessRule(
+								entry,
+								JavaCore.newAccessRule(
+										IClasspathConstants.ANNOTATIONS_ACCESS_PATTERN,
+										IAccessRule.K_ACCESSIBLE));
+					}
+				}
 			}
+
+			idx++;
+		}
+
+		if (!addAnnotations && newPdeEntry == null) {
+			// Nothing to do
+			return;
 		}
 
 		// Set up the new class path array
-		final IClasspathEntry[] newEntries = new IClasspathEntry[currentEntries.length + 1];
+		final IClasspathEntry[] newEntries;
+
+		if (addAnnotations) {
+			newEntries = new IClasspathEntry[currentEntries.length + 1];
+
+			// Add the new annotations at the tail
+			newEntries[currentEntries.length] = JavaCore
+					.newContainerEntry(IClasspathConstants.ANNOTATIONS_CONTAINER_PATH);
+
+		} else {
+			newEntries = new IClasspathEntry[currentEntries.length];
+		}
+
+		// Copy previous value
 		System.arraycopy(currentEntries, 0, newEntries, 0,
 				currentEntries.length);
 
-		// Add the new entry
-		newEntries[currentEntries.length] = JavaCore
-				.newContainerEntry(IClasspathConstants.ANNOTATIONS_CONTAINER_PATH);
+		// Replace the PDE entry, if any
+		if (newPdeEntry != null) {
+			newEntries[newPdeEntryIdx] = newPdeEntry;
+		}
 
 		// Set the project class path
 		try {
 			javaProject.setRawClasspath(newEntries, null);
 
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			Activator.logError(aProject,
 					"Error setting up the new project class path", e);
 		}
@@ -116,7 +201,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * @param aProject
 	 *            Project where the metadata.xml file must be created
 	 */
-	protected void createMetadataTemplate(final IProject aProject) {
+	private void createMetadataTemplate(final IProject aProject) {
 
 		// Get the metadata.xml Eclipse file
 		final IFile metadataFile = aProject.getFile("/metadata.xml");
@@ -133,7 +218,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 		try {
 			metadataFile.create(inStream, true, null);
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Activator.logError(aProject,
 					"Error creating the metadata.xml file", e);
 		}
@@ -152,14 +237,14 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * 
 	 * @return True if the selection returned at least one project
 	 */
-	protected boolean getProjectsToToggle(
+	private boolean getProjectsToToggle(
 			final Collection<IProject> aSelectedProjects,
 			final Collection<IProject> aToConfigure,
 			final Collection<IProject> aToDeconfigure) {
 
 		boolean atLeastOneValid = false;
 
-		for (IProject project : aSelectedProjects) {
+		for (final IProject project : aSelectedProjects) {
 
 			try {
 				if (project.hasNature(IPojoNature.NATURE_ID)) {
@@ -175,13 +260,168 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 					atLeastOneValid = true;
 				}
 
-			} catch (CoreException ex) {
+			} catch (final CoreException ex) {
 				// Just log the error...
 				Activator.logError(project, "Error testing nature", ex);
 			}
 		}
 
 		return atLeastOneValid;
+	}
+
+	/**
+	 * Creates a copy of the given entry without the given access rule
+	 * 
+	 * @param aEntry
+	 *            A class path entry (container)
+	 * @param aPath
+	 *            An access rule path
+	 * @return The new container entry
+	 */
+	private IClasspathEntry removeAccessRule(final IClasspathEntry aEntry,
+			final IPath aPath) {
+
+		// Update the access rules array
+		final IAccessRule[] currentRules = aEntry.getAccessRules();
+		final List<IAccessRule> newRules = new ArrayList<IAccessRule>(
+				currentRules.length);
+
+		// Filter access rules
+		for (final IAccessRule rule : currentRules) {
+			if (!aPath.equals(rule.getPattern())) {
+				newRules.add(rule);
+			}
+		}
+
+		// Convert the list to an array
+		final IAccessRule[] newRulesArray = newRules
+				.toArray(new IAccessRule[newRules.size()]);
+
+		// Create a new container entry
+		return JavaCore.newContainerEntry(aEntry.getPath(), newRulesArray,
+				aEntry.getExtraAttributes(), aEntry.isExported());
+	}
+
+	/**
+	 * Removes the annotations container from the project build path (opposite
+	 * of {@link #addAnnotationsLibrary(IProject)}
+	 * 
+	 * @param aProject
+	 *            A java project
+	 */
+	private void removeAnnotationsLibrary(final IProject aProject) {
+		// Get the Java nature
+		final IJavaProject javaProject;
+		try {
+			javaProject = (IJavaProject) aProject.getNature(JavaCore.NATURE_ID);
+
+		} catch (final CoreException e) {
+			Activator.logError(aProject, "Can't get the Java nature", e);
+			return;
+		}
+
+		// Get current entries
+		final IClasspathEntry[] currentEntries;
+		try {
+			currentEntries = javaProject.getRawClasspath();
+
+		} catch (final JavaModelException e) {
+			Activator.logError(aProject, "Error reading project classpath", e);
+			return;
+		}
+
+		// Flag to indicate if the annotations container must be added
+		boolean removeAnnotations = false;
+		int annotationsEntryIdx = -1;
+
+		// ID of the modified class path entry, if any
+		int newPdeEntryIdx = -1;
+		IClasspathEntry newPdeEntry = null;
+
+		// Loop on project class path entries
+		int idx = 0;
+		for (final IClasspathEntry entry : currentEntries) {
+
+			if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+				if (IClasspathConstants.ANNOTATIONS_CONTAINER_PATH.equals(entry
+						.getPath())) {
+					// The annotation container is here.
+					removeAnnotations = true;
+					annotationsEntryIdx = idx;
+
+				} else if (IClasspathConstants.PDE_CONTAINER_PATH.equals(entry
+						.getPath())) {
+					// Found the PDE container
+
+					// Flag to activate the access rule creation
+					boolean removeRule = false;
+
+					// Check if the access rule has already been set
+					for (final IAccessRule accessRule : entry.getAccessRules()) {
+						if (IClasspathConstants.ANNOTATIONS_ACCESS_PATTERN
+								.equals(accessRule.getPattern())) {
+							// iPOJO annotations access pattern is set
+							removeRule = true;
+							System.out.println("Found access rule");
+							break;
+						}
+					}
+
+					if (removeRule) {
+						// Replace the container by a new one
+						newPdeEntryIdx = idx;
+						newPdeEntry = removeAccessRule(entry,
+								IClasspathConstants.ANNOTATIONS_ACCESS_PATTERN);
+					}
+				}
+			}
+
+			idx++;
+		}
+
+		if (!removeAnnotations && newPdeEntry == null) {
+			// Nothing to do
+			return;
+		}
+
+		// Set up the new class path array
+		final IClasspathEntry[] newEntries;
+
+		if (removeAnnotations) {
+			// Copy the array, ignoring the annotations container
+			newEntries = new IClasspathEntry[currentEntries.length - 1];
+			for (int i = 0, j = 0; i < currentEntries.length - 1; i++) {
+				if (i != annotationsEntryIdx) {
+					newEntries[j++] = currentEntries[i];
+				}
+			}
+
+		} else {
+			// Copy previous value
+			newEntries = new IClasspathEntry[currentEntries.length];
+			System.arraycopy(currentEntries, 0, newEntries, 0,
+					currentEntries.length);
+		}
+
+		// Replace the PDE entry, if any
+		if (newPdeEntry != null) {
+
+			if (newPdeEntryIdx > annotationsEntryIdx) {
+				// We removed the annotation entry...
+				newPdeEntryIdx--;
+			}
+
+			newEntries[newPdeEntryIdx] = newPdeEntry;
+		}
+
+		// Set the project class path
+		try {
+			javaProject.setRawClasspath(newEntries, null);
+
+		} catch (final JavaModelException e) {
+			Activator.logError(aProject,
+					"Error setting up the new project class path", e);
+		}
 	}
 
 	/*
@@ -197,7 +437,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 
 		if (pSelection instanceof IStructuredSelection) {
 
-			for (Iterator<?> it = ((IStructuredSelection) pSelection)
+			for (final Iterator<?> it = ((IStructuredSelection) pSelection)
 					.iterator(); it.hasNext();) {
 
 				final Object element = it.next();
@@ -279,7 +519,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * @param aProjects
 	 *            Projects to configure.
 	 */
-	protected void toggleProjectsNature(final boolean aSetNature,
+	private void toggleProjectsNature(final boolean aSetNature,
 			final Collection<IProject> aProjects) {
 
 		// Default options
@@ -327,7 +567,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 		}
 		errorBuilder.append(" iPOJO nature to :\n");
 
-		for (IProject project : aProjects) {
+		for (final IProject project : aProjects) {
 
 			try {
 				// Set the nature
@@ -351,11 +591,14 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 					// Remove the nature
 					pNature.deconfigure();
 
+					// Remove the annotation container
+					removeAnnotationsLibrary(project);
+
 					// Clean up the manifest
 					manifestUpdater.removeManifestEntry(project);
 				}
 
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				// Log the error
 				final StringBuilder builder = new StringBuilder("Can't ");
 				if (aSetNature) {
@@ -377,11 +620,11 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 		}
 
 		// Refresh modified projects
-		for (IProject project : aProjects) {
+		for (final IProject project : aProjects) {
 			try {
 				project.refreshLocal(IResource.DEPTH_ONE, null);
 
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				// Just log...
 				Activator.logWarning(project, "Error refreshing project.", e);
 			}

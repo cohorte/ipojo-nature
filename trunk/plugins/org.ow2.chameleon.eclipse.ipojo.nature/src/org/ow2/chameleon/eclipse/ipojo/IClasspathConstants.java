@@ -24,10 +24,20 @@ import org.eclipse.core.runtime.Path;
  */
 public interface IClasspathConstants {
 
+	/** Annotations access rules file pattern */
+	IPath ANNOTATIONS_ACCESS_PATTERN = new Path(
+			IClasspathConstants.ANNOTATIONS_ACCESS_PATTERN_STR);
+
+	/** Annotations access rules file pattern string */
+	String ANNOTATIONS_ACCESS_PATTERN_STR = "org/apache/felix/ipojo/**";
+
 	/** The class path container path object */
 	IPath ANNOTATIONS_CONTAINER_PATH = new Path(
 			IClasspathConstants.ANNOTATIONS_CONTAINER_PATH_STR);
 
-	/** The class path container path */
+	/** The iPOJO annotations class path container path */
 	String ANNOTATIONS_CONTAINER_PATH_STR = "org.ow2.chameleon.ipojo.CLASSPATH_CONTAINER";
+
+	/** Path of the PDE "Plug-in Dependencies" container path object */
+	IPath PDE_CONTAINER_PATH = new Path("org.eclipse.pde.core.requiredPlugins");
 }
