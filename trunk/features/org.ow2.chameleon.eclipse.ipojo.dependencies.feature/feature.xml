@@ -2,7 +2,7 @@
 <feature
       id="org.ow2.chameleon.eclipse.ipojo.dependencies.feature"
       label="OW2 Chameleon :: iPOJO Nature Dependencies"
-      version="1.9.0.qualifier"
+      version="1.10.0.qualifier"
       provider-name="OW2 Chameleon">
 
    <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
