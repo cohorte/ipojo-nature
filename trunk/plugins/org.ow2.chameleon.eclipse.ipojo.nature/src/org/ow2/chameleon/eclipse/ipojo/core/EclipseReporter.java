@@ -176,7 +176,7 @@ public class EclipseReporter implements Reporter {
 		final String formattedMessage = String.format(aMessage,
 				getMessageArguments(aFormatArgs));
 
-		pErrorsList.add(formattedMessage);
+		// Just log it
 		Activator.logInfo(pProject, formattedMessage);
 	}
 
