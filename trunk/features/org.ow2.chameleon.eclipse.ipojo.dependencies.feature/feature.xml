@@ -2,17 +2,16 @@
 <feature
       id="org.ow2.chameleon.eclipse.ipojo.dependencies.feature"
       label="OW2 Chameleon :: iPOJO Nature Dependencies"
-      version="1.10.0.qualifier"
+      version="1.10.1.qualifier"
       provider-name="OW2 Chameleon">
 
    <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
-      This feature embed the dependencies of the iPOJO
-builder plugin by isandlaTech.
-It includes iPOJO Core 1.8.0 and iPOJO Manipulator 1.9.0-SNAPSHOT.
+      This feature embed the dependencies of the iPOJO Nature plugin by isandlaTech.
+It includes iPOJO Core, iPOJO Annotations and iPOJO Manipulator 1.10.1.
    </description>
 
    <copyright url="http://wiki.chameleon.ow2.org/">
-      Copyright 2009-2011 OW2 Chameleon http://wiki.chameleon.ow2.org
+      Copyright 2009-2013 OW2 Chameleon http://wiki.chameleon.ow2.org
 I. Included Software
 This product includes software developed at
 The OW2 Consortium (http://www.ow2.org/).
@@ -250,6 +249,7 @@ limitations under the License.
       <update label="OW2 Chameleon Update Site" url="http://chameleon.ow2.org/eclipse/"/>
       <discovery label="isandlaTech.com" url="http://www.isandlatech.com"/>
       <discovery label="iPOJO Web Site" url="http://felix.apache.org/site/apache-felix-ipojo.html"/>
+      <discovery label="Git Repository" url="http://gitorious.ow2.org/ow2-chameleon/eclipse-ipojo-builder"/>
    </url>
 
    <requires>
