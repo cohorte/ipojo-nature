@@ -2,25 +2,25 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OW2 Chameleon :: iPOJO Nature Dependencies
 Bundle-SymbolicName: org.ow2.chameleon.eclipse.ipojo.dependencies
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.10.1.qualifier
 Bundle-Vendor: OW2 Chameleon
 Require-Bundle: javax.xml,
  org.objectweb.asm,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: org.apache.felix.ipojo.annotations-1.10.0.jar,
- org.apache.felix.ipojo-1.10.0.jar,
- org.apache.felix.ipojo.manipulator-1.10.0.jar
-Export-Package: org.apache.felix.ipojo;version="1.10.0",
- org.apache.felix.ipojo.annotations;version="1.10.0",
- org.apache.felix.ipojo.manipulation;version="1.10.0",
- org.apache.felix.ipojo.manipulator;version="1.10.0",
- org.apache.felix.ipojo.manipulator.metadata;version="1.10.0",
- org.apache.felix.ipojo.manipulator.render;version="1.10.0",
- org.apache.felix.ipojo.manipulator.store;version="1.10.0",
- org.apache.felix.ipojo.manipulator.store.builder;version="1.10.0",
- org.apache.felix.ipojo.manipulator.util;version="1.10.0",
- org.apache.felix.ipojo.manipulator.visitor;version="1.10.0",
- org.apache.felix.ipojo.manipulator.visitor.check;version="1.10.0",
- org.apache.felix.ipojo.manipulator.visitor.writer;version="1.10.0",
- org.apache.felix.ipojo.metadata;version="1.10.0"
+Bundle-ClassPath: org.apache.felix.ipojo-1.10.1.jar,
+ org.apache.felix.ipojo.annotations-1.10.1.jar,
+ org.apache.felix.ipojo.manipulator-1.10.1.jar
+Export-Package: org.apache.felix.ipojo;version="1.10.1",
+ org.apache.felix.ipojo.annotations;version="1.10.1",
+ org.apache.felix.ipojo.manipulation;version="1.10.1",
+ org.apache.felix.ipojo.manipulator;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.metadata;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.render;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.store;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.store.builder;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.util;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.visitor;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.visitor.check;version="1.10.1",
+ org.apache.felix.ipojo.manipulator.visitor.writer;version="1.10.1",
+ org.apache.felix.ipojo.metadata;version="1.10.1"
