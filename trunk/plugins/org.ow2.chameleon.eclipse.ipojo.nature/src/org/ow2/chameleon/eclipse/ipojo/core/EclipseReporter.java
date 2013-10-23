@@ -31,181 +31,184 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
  */
 public class EclipseReporter implements Reporter {
 
-	/** Errors list */
-	private final List<String> pErrorsList = new LinkedList<String>();
+    /** Errors list */
+    private final List<String> pErrorsList = new LinkedList<String>();
 
-	/** Manipulated project */
-	private final IProject pProject;
+    /** Manipulated project */
+    private final IProject pProject;
 
-	/** Warning list */
-	private final List<String> pWarningsList = new LinkedList<String>();
+    /** Warning list */
+    private final List<String> pWarningsList = new LinkedList<String>();
 
-	/**
-	 * Sets up the reporter
-	 * 
-	 * @param aProject
-	 *            Manipulated project
-	 */
-	public EclipseReporter(final IProject aProject) {
-		pProject = aProject;
-	}
+    /**
+     * Sets up the reporter
+     * 
+     * @param aProject
+     *            Manipulated project
+     */
+    public EclipseReporter(final IProject aProject) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.felix.ipojo.manipulator.Reporter#error(java.lang.String,
-	 * java.lang.Object[])
-	 */
-	@Override
-	public void error(final String aMessage, final Object... aFormatArgs) {
+        pProject = aProject;
+    }
 
-		final Throwable throwable = getThrowable(aFormatArgs);
-		final String formattedMessage = String.format(aMessage,
-				getMessageArguments(aFormatArgs));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.felix.ipojo.manipulator.Reporter#error(java.lang.String,
+     * java.lang.Object[])
+     */
+    @Override
+    public void error(final String aMessage, final Object... aFormatArgs) {
 
-		pErrorsList.add(formattedMessage);
-		Activator.logError(pProject, formattedMessage, throwable);
-	}
+        final Throwable throwable = getThrowable(aFormatArgs);
+        final String formattedMessage = String.format(aMessage,
+                getMessageArguments(aFormatArgs));
 
-	/**
-	 * Prepares an Eclipse IStatus object to represent the current errors and
-	 * warnings stored. Returns an "OK" status if no errors nor warnings were
-	 * stored
-	 * 
-	 * @return An Eclipse IStatus
-	 */
-	public IStatus getEclipseStatus() {
+        pErrorsList.add(formattedMessage);
+        Activator.logError(pProject, formattedMessage, throwable);
+    }
 
-		// Compute the severity level
-		int severity = IStatus.OK;
-		if (!pErrorsList.isEmpty()) {
-			severity = IStatus.ERROR;
+    /**
+     * Prepares an Eclipse IStatus object to represent the current errors and
+     * warnings stored. Returns an "OK" status if no errors nor warnings were
+     * stored
+     * 
+     * @return An Eclipse IStatus
+     */
+    public IStatus getEclipseStatus() {
 
-		} else if (!pWarningsList.isEmpty()) {
-			severity = IStatus.WARNING;
-		}
+        // Compute the severity level
+        int severity = IStatus.OK;
+        if (!pErrorsList.isEmpty()) {
+            severity = IStatus.ERROR;
 
-		// Prepare the message
-		final StringBuilder message = new StringBuilder();
-		message.append(pProject.getName()).append(" :\n");
+        } else if (!pWarningsList.isEmpty()) {
+            severity = IStatus.WARNING;
+        }
 
-		if (!pErrorsList.isEmpty()) {
-			// Print errors first
-			for (final String error : pErrorsList) {
-				message.append("- ").append(error).append("\n");
-			}
+        // Prepare the message
+        final StringBuilder message = new StringBuilder();
+        message.append(pProject.getName()).append(" :\n");
 
-			message.append("\n");
-		}
+        if (!pErrorsList.isEmpty()) {
+            // Print errors first
+            for (final String error : pErrorsList) {
+                message.append("- ").append(error).append("\n");
+            }
 
-		if (!pWarningsList.isEmpty()) {
-			// Print warnings
-			for (final String warning : pWarningsList) {
-				message.append("- ").append(warning).append("\n");
-			}
-		}
+            message.append("\n");
+        }
 
-		return new Status(severity, Activator.PLUGIN_ID, message.toString());
-	}
+        if (!pWarningsList.isEmpty()) {
+            // Print warnings
+            for (final String warning : pWarningsList) {
+                message.append("- ").append(warning).append("\n");
+            }
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.felix.ipojo.manipulator.Reporter#getErrors()
-	 */
-	@Override
-	public List<String> getErrors() {
-		return pErrorsList;
-	}
+        return new Status(severity, Activator.PLUGIN_ID, message.toString());
+    }
 
-	/**
-	 * Retrieves the message format arguments, removing the last object of the
-	 * array if it's a Throwable.
-	 * 
-	 * @param aFormatArgs
-	 *            Message arguments
-	 * @return The given array without the last argument if it was a Throwable.
-	 */
-	protected Object[] getMessageArguments(final Object... aFormatArgs) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.felix.ipojo.manipulator.Reporter#getErrors()
+     */
+    @Override
+    public List<String> getErrors() {
 
-		if (aFormatArgs != null && aFormatArgs.length > 0
-				&& aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
-			// Source throwable found
-			return Arrays.copyOf(aFormatArgs, aFormatArgs.length - 1);
-		}
+        return pErrorsList;
+    }
 
-		return aFormatArgs;
-	}
+    /**
+     * Retrieves the message format arguments, removing the last object of the
+     * array if it's a Throwable.
+     * 
+     * @param aFormatArgs
+     *            Message arguments
+     * @return The given array without the last argument if it was a Throwable.
+     */
+    protected Object[] getMessageArguments(final Object... aFormatArgs) {
 
-	/**
-	 * Retrieves the throwable associated to the arguments, null if not found
-	 * 
-	 * @param aFormatArgs
-	 *            Message arguments
-	 * @return The found throwable, null if not found
-	 */
-	protected Throwable getThrowable(final Object... aFormatArgs) {
+        if (aFormatArgs != null && aFormatArgs.length > 0
+                && aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
+            // Source throwable found
+            return Arrays.copyOf(aFormatArgs, aFormatArgs.length - 1);
+        }
 
-		if (aFormatArgs != null && aFormatArgs.length > 0
-				&& aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
-			return (Throwable) aFormatArgs[aFormatArgs.length - 1];
-		}
+        return aFormatArgs;
+    }
 
-		return null;
-	}
+    /**
+     * Retrieves the throwable associated to the arguments, null if not found
+     * 
+     * @param aFormatArgs
+     *            Message arguments
+     * @return The found throwable, null if not found
+     */
+    protected Throwable getThrowable(final Object... aFormatArgs) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.felix.ipojo.manipulator.Reporter#getWarnings()
-	 */
-	@Override
-	public List<String> getWarnings() {
-		return pWarningsList;
-	}
+        if (aFormatArgs != null && aFormatArgs.length > 0
+                && aFormatArgs[aFormatArgs.length - 1] instanceof Throwable) {
+            return (Throwable) aFormatArgs[aFormatArgs.length - 1];
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.felix.ipojo.manipulator.Reporter#info(java.lang.String,
-	 * java.lang.Object[])
-	 */
-	@Override
-	public void info(final String aMessage, final Object... aFormatArgs) {
+        return null;
+    }
 
-		final String formattedMessage = String.format(aMessage,
-				getMessageArguments(aFormatArgs));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.felix.ipojo.manipulator.Reporter#getWarnings()
+     */
+    @Override
+    public List<String> getWarnings() {
 
-		// Just log it
-		Activator.logInfo(pProject, formattedMessage);
-	}
+        return pWarningsList;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.felix.ipojo.manipulator.Reporter#trace(java.lang.String,
-	 * java.lang.Object[])
-	 */
-	@Override
-	public void trace(final String aMessage, final Object... aFormatArgs) {
-		// There is no TRACE level in Eclipse, consider it as INFO
-		info(aMessage, aFormatArgs);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.felix.ipojo.manipulator.Reporter#info(java.lang.String,
+     * java.lang.Object[])
+     */
+    @Override
+    public void info(final String aMessage, final Object... aFormatArgs) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.felix.ipojo.manipulator.Reporter#warn(java.lang.String,
-	 * java.lang.Object[])
-	 */
-	@Override
-	public void warn(final String aMessage, final Object... aFormatArgs) {
+        // Just log it
+        Activator.logInfo(pProject,
+                String.format(aMessage, getMessageArguments(aFormatArgs)));
+    }
 
-		final Throwable throwable = getThrowable(aFormatArgs);
-		final String formattedMessage = String.format(aMessage,
-				getMessageArguments(aFormatArgs));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.felix.ipojo.manipulator.Reporter#trace(java.lang.String,
+     * java.lang.Object[])
+     */
+    @Override
+    public void trace(final String aMessage, final Object... aFormatArgs) {
 
-		pWarningsList.add(formattedMessage);
-		Activator.logWarning(pProject, formattedMessage, throwable);
-	}
+        // Just trace it
+        Activator.logTrace(pProject,
+                String.format(aMessage, getMessageArguments(aFormatArgs)));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.felix.ipojo.manipulator.Reporter#warn(java.lang.String,
+     * java.lang.Object[])
+     */
+    @Override
+    public void warn(final String aMessage, final Object... aFormatArgs) {
+
+        final Throwable throwable = getThrowable(aFormatArgs);
+        final String formattedMessage = String.format(aMessage,
+                getMessageArguments(aFormatArgs));
+
+        pWarningsList.add(formattedMessage);
+        Activator.logWarning(pProject, formattedMessage, throwable);
+    }
 }

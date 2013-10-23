@@ -38,83 +38,86 @@ import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
  */
 public class UpdateMF extends ActionDelegate implements IObjectActionDelegate {
 
-	/** iPOJO Manifest updater */
-	private final ManifestUpdater pManifestUpdater;
+    /** iPOJO Manifest updater */
+    private final ManifestUpdater pManifestUpdater;
 
-	/** Current file selection */
-	private TreeSelection pSelection;
+    /** Current file selection */
+    private TreeSelection pSelection;
 
-	/** Parent pShell (for dialogs) */
-	private Shell pShell;
+    /** Parent pShell (for dialogs) */
+    private Shell pShell;
 
-	/**
-	 * Constructor for Manifest Update action.
-	 */
-	public UpdateMF() {
-		super();
-		pManifestUpdater = new ManifestUpdater();
-	}
+    /**
+     * Constructor for Manifest Update action.
+     */
+    public UpdateMF() {
 
-	/**
-	 * Performs the given action
-	 * 
-	 * @see org.eclipse.ui.IActionDelegate#run(IAction)
-	 */
-	@Override
-	public void run(final IAction action) {
+        super();
+        pManifestUpdater = new ManifestUpdater();
+    }
 
-		if (pSelection.size() == 0
-				|| !(pSelection.getFirstElement() instanceof IFile)) {
-			Activator.logInfo(null, "No file selected");
-			return;
-		}
+    /**
+     * Performs the given action
+     * 
+     * @see org.eclipse.ui.IActionDelegate#run(IAction)
+     */
+    @Override
+    public void run(final IAction action) {
 
-		// Search for manifest
-		final IFile manifestIFile = (IFile) pSelection.getFirstElement();
-		final IProject project = manifestIFile.getProject();
+        if (pSelection.size() == 0
+                || !(pSelection.getFirstElement() instanceof IFile)) {
+            Activator.logWarning(null, "No file selected");
+            return;
+        }
 
-		try {
-			final IStatus result = pManifestUpdater.updateManifest(project,
-					null);
+        // Search for manifest
+        final IFile manifestIFile = (IFile) pSelection.getFirstElement();
+        final IProject project = manifestIFile.getProject();
 
-			if (!result.isOK()) {
-				// Errors have already been logged, so just pop a dialog
-				StatusManager.getManager().handle(result, StatusManager.SHOW);
-			}
+        try {
+            final IStatus result = pManifestUpdater.updateManifest(project,
+                    null);
 
-		} catch (final CoreException ex) {
-			MessageDialog.openError(pShell, "iPOJO Updater Error",
-					"Error while updating the Manifest : " + ex);
+            if (!result.isOK()) {
+                // Errors have already been logged, so just pop a dialog
+                StatusManager.getManager().handle(result, StatusManager.SHOW);
+            }
 
-			Activator.logError(project, "iPOJO update Manifest action error",
-					ex);
-		}
-	}
+        } catch (final CoreException ex) {
+            MessageDialog.openError(pShell, "iPOJO Updater Error",
+                    "Error while updating the Manifest : " + ex);
 
-	/**
-	 * Called when a selection has been changed
-	 * 
-	 * @see ActionDelegate#selectionChanged(IAction, ISelection)
-	 */
-	@Override
-	public void selectionChanged(final IAction action,
-			final ISelection selection) {
-		super.selectionChanged(action, selection);
+            Activator.logError(project, "iPOJO update Manifest action error",
+                    ex);
+        }
+    }
 
-		if (selection instanceof TreeSelection) {
-			pSelection = (TreeSelection) selection;
+    /**
+     * Called when a selection has been changed
+     * 
+     * @see ActionDelegate#selectionChanged(IAction, ISelection)
+     */
+    @Override
+    public void selectionChanged(final IAction action,
+            final ISelection selection) {
 
-		} else {
-			pSelection = null;
-		}
-	}
+        super.selectionChanged(action, selection);
 
-	/**
-	 * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
-	 */
-	@Override
-	public void setActivePart(final IAction action,
-			final IWorkbenchPart targetPart) {
-		pShell = targetPart.getSite().getShell();
-	}
+        if (selection instanceof TreeSelection) {
+            pSelection = (TreeSelection) selection;
+
+        } else {
+            pSelection = null;
+        }
+    }
+
+    /**
+     * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
+     */
+    @Override
+    public void setActivePart(final IAction action,
+            final IWorkbenchPart targetPart) {
+
+        pShell = targetPart.getSite().getShell();
+    }
 }

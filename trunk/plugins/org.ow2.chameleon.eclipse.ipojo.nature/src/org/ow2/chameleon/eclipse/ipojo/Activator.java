@@ -16,6 +16,7 @@ package org.ow2.chameleon.eclipse.ipojo;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -29,142 +30,210 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin {
 
-	/** The plug-in ID */
-	public static final String PLUGIN_ID = "org.ow2.chameleon.eclipse.ipojo.nature"; //$NON-NLS-1$
+    /** Log info messages */
+    public static final String LOG_INFO = Activator.PLUGIN_ID + "/log/info";
 
-	/** The shared instance */
-	private static Activator pPluginInstance;
+    /** Log trace messages */
+    public static final String LOG_TRACES = Activator.PLUGIN_ID + "/log/traces";
 
-	/**
-	 * Returns an image descriptor for the image file at the given plug-in
-	 * relative path
-	 * 
-	 * @param path
-	 *            the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(final String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}
+    /** The plug-in ID */
+    public static final String PLUGIN_ID = "org.ow2.chameleon.eclipse.ipojo.nature"; //$NON-NLS-1$
 
-	/**
-	 * Return the log prefix ("projectName :") or an empty string aProject is
-	 * null
-	 * 
-	 * @param aProject
-	 *            Current manipulated project
-	 * @return The log prefix
-	 */
-	protected static String getLogPrefix(final IProject aProject) {
+    /** The shared instance */
+    private static Activator pPluginInstance;
 
-		if (aProject != null) {
-			return aProject.getName() + ": ";
-		}
+    /**
+     * Checks if information messages must be logged
+     * 
+     * @return True if information messages are activated
+     * @see <a
+     *      href="http://wiki.eclipse.org/FAQ_How_do_I_use_the_platform_debug_tracing_facility%3F">How
+     *      do I use the platform debug tracing facility?</a>
+     */
+    public static boolean areInfoOn() {
 
-		return "";
-	}
+        return "true".equalsIgnoreCase(Platform.getDebugOption(LOG_INFO));
+    }
 
-	/**
-	 * Returns the shared instance
-	 * 
-	 * @return the shared instance
-	 */
-	public static Activator getPluginInstance() {
-		return pPluginInstance;
-	}
+    /**
+     * Checks if trace messages must be logged
+     * 
+     * @return True if trace messages are activated
+     * @see <a
+     *      href="http://wiki.eclipse.org/FAQ_How_do_I_use_the_platform_debug_tracing_facility%3F">How
+     *      do I use the platform debug tracing facility?</a>
+     */
+    public static boolean areTracesOn() {
 
-	/**
-	 * Logs an exception
-	 * 
-	 * @param aProject
-	 *            Current manipulated project
-	 * @param aMessage
-	 *            Context description
-	 * @param aThrowable
-	 *            Exception caught
-	 */
-	public static void logError(final IProject aProject, final String aMessage,
-			final Throwable aThrowable) {
+        return "true".equalsIgnoreCase(Platform.getDebugOption(LOG_TRACES));
+    }
 
-		StatusManager.getManager().handle(
-				new Status(IStatus.ERROR, PLUGIN_ID, getLogPrefix(aProject)
-						+ aMessage, aThrowable));
-	}
+    /**
+     * Returns an image descriptor for the image file at the given plug-in
+     * relative path
+     * 
+     * @param path
+     *            the path
+     * @return the image descriptor
+     */
+    public static ImageDescriptor getImageDescriptor(final String path) {
 
-	/**
-	 * Logs an information
-	 * 
-	 * @param aProject
-	 *            Current manipulated project
-	 * @param aMessage
-	 *            Message to log
-	 */
-	public static void logInfo(final IProject aProject, final String aMessage) {
+        return imageDescriptorFromPlugin(PLUGIN_ID, path);
+    }
 
-		StatusManager.getManager().handle(
-				new Status(IStatus.INFO, PLUGIN_ID, getLogPrefix(aProject)
-						+ aMessage));
-	}
+    /**
+     * Return the log prefix ("projectName :") or an empty string aProject is
+     * null
+     * 
+     * @param aProject
+     *            Current manipulated project
+     * @return The log prefix
+     */
+    protected static String getLogPrefix(final IProject aProject) {
 
-	/**
-	 * Logs an ignored exception
-	 * 
-	 * @param aProject
-	 *            Current manipulated project
-	 * @param aMessage
-	 *            Context description
-	 * @param aThrowable
-	 *            Exception to log
-	 */
-	public static void logWarning(final IProject aProject,
-			final String aMessage, final Throwable aThrowable) {
+        if (aProject != null) {
+            return aProject.getName() + ": ";
+        }
 
-		StatusManager.getManager().handle(
-				new Status(IStatus.WARNING, PLUGIN_ID, getLogPrefix(aProject)
-						+ aMessage, aThrowable));
-	}
+        return "";
+    }
 
-	/**
-	 * Shows an error in the UI (doesn't log it)
-	 * 
-	 * @param aProject
-	 *            Erroneous project (can be null)
-	 * @param aMessage
-	 *            Error message
-	 * @param aThrowable
-	 *            Exception to show (can be null)
-	 */
-	public static void showError(final IProject aProject,
-			final String aMessage, final Throwable aThrowable) {
+    /**
+     * Returns the shared instance
+     * 
+     * @return the shared instance
+     */
+    public static Activator getPluginInstance() {
 
-		StatusManager.getManager().handle(
-				new Status(IStatus.ERROR, PLUGIN_ID, getLogPrefix(aProject)
-						+ aMessage, aThrowable), StatusManager.SHOW);
-	}
+        return pPluginInstance;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-	 * )
-	 */
-	@Override
-	public void start(final BundleContext context) throws Exception {
-		super.start(context);
-		pPluginInstance = this;
-	}
+    /**
+     * Logs an exception
+     * 
+     * @param aProject
+     *            Current manipulated project
+     * @param aMessage
+     *            Context description
+     * @param aThrowable
+     *            Exception caught
+     */
+    public static void logError(final IProject aProject, final String aMessage,
+            final Throwable aThrowable) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-	 * )
-	 */
-	@Override
-	public void stop(final BundleContext context) throws Exception {
-		pPluginInstance = null;
-		super.stop(context);
-	}
+        StatusManager.getManager().handle(
+                new Status(IStatus.ERROR, PLUGIN_ID, getLogPrefix(aProject)
+                        + aMessage, aThrowable));
+    }
+
+    /**
+     * Logs an information
+     * 
+     * @param aProject
+     *            Current manipulated project
+     * @param aMessage
+     *            Message to log
+     */
+    public static void logInfo(final IProject aProject, final String aMessage) {
+
+        if (areInfoOn()) {
+            StatusManager.getManager().handle(
+                    new Status(IStatus.INFO, PLUGIN_ID, getLogPrefix(aProject)
+                            + aMessage));
+        }
+    }
+
+    /**
+     * Logs a trace
+     * 
+     * @param aProject
+     *            Current manipulated project
+     * @param aMessage
+     *            Message to log
+     */
+    public static void logTrace(final IProject aProject, final String aMessage) {
+
+        if (areTracesOn()) {
+            StatusManager.getManager().handle(
+                    new Status(IStatus.INFO, PLUGIN_ID, getLogPrefix(aProject)
+                            + aMessage));
+        }
+    }
+
+    /**
+     * Logs a warning
+     * 
+     * @param aProject
+     *            Current manipulated project
+     * @param aMessage
+     *            Context description
+     */
+    public static void logWarning(final IProject aProject, final String aMessage) {
+
+        logWarning(aProject, aMessage, null);
+    }
+
+    /**
+     * Logs an handled exception
+     * 
+     * @param aProject
+     *            Current manipulated project
+     * @param aMessage
+     *            Context description
+     * @param aThrowable
+     *            Exception to log
+     */
+    public static void logWarning(final IProject aProject,
+            final String aMessage, final Throwable aThrowable) {
+
+        StatusManager.getManager().handle(
+                new Status(IStatus.WARNING, PLUGIN_ID, getLogPrefix(aProject)
+                        + aMessage, aThrowable));
+    }
+
+    /**
+     * Shows an error in the UI (doesn't log it)
+     * 
+     * @param aProject
+     *            Erroneous project (can be null)
+     * @param aMessage
+     *            Error message
+     * @param aThrowable
+     *            Exception to show (can be null)
+     */
+    public static void showError(final IProject aProject,
+            final String aMessage, final Throwable aThrowable) {
+
+        StatusManager.getManager().handle(
+                new Status(IStatus.ERROR, PLUGIN_ID, getLogPrefix(aProject)
+                        + aMessage, aThrowable), StatusManager.SHOW);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+     * )
+     */
+    @Override
+    public void start(final BundleContext context) throws Exception {
+
+        super.start(context);
+        pPluginInstance = this;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
+     * )
+     */
+    @Override
+    public void stop(final BundleContext context) throws Exception {
+
+        pPluginInstance = null;
+        super.stop(context);
+    }
 }

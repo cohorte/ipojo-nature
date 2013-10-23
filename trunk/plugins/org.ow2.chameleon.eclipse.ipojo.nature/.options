@@ -1,0 +1,3 @@
+org.ow2.chameleon.eclipse.ipojo.nature/debug=false
+org.ow2.chameleon.eclipse.ipojo.nature/log/info=false
+org.ow2.chameleon.eclipse.ipojo.nature/log/traces=false
