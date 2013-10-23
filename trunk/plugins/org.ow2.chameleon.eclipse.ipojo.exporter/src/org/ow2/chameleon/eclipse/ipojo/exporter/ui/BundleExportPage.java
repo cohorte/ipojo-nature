@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 OW2 Chameleon
+ * Copyright 2013 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,7 +34,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
@@ -51,7 +50,7 @@ import org.ow2.chameleon.eclipse.ipojo.exporter.IPojoExporterPlugin;
  * 
  * @author Thomas Calmant
  */
-public class ExportPage extends WizardPage {
+public class BundleExportPage extends WizardPage {
 
     /**
      * Listener that updates the wizard buttons
@@ -76,53 +75,6 @@ public class ExportPage extends WizardPage {
     }
 
     /**
-     * Folder selection button listener
-     * 
-     * @author Thomas Calmant
-     */
-    protected class FolderSelectionListener implements SelectionListener {
-
-        /** Target text container */
-        private final Text pTarget;
-
-        /**
-         * Prepares the listener
-         * 
-         * @param aTextWidget
-         *            Widget that will contain the selected path
-         */
-        public FolderSelectionListener(final Text aTextWidget) {
-
-            pTarget = aTextWidget;
-        }
-
-        @Override
-        public void widgetDefaultSelected(final SelectionEvent aEvent) {
-
-            // Update navigation buttons state
-            getWizard().getContainer().updateButtons();
-        }
-
-        @Override
-        public void widgetSelected(final SelectionEvent aEvent) {
-
-            // Pop up a directory selection dialog
-            final DirectoryDialog dialog = new DirectoryDialog(getShell(),
-                    SWT.SAVE);
-            dialog.setMessage("Choose a folder");
-            dialog.setFilterPath(pTarget.getText());
-
-            final String text = dialog.open();
-            if (text != null) {
-                pTarget.setText(text);
-
-                // Update navigation buttons state
-                getWizard().getContainer().updateButtons();
-            }
-        }
-    }
-
-    /**
      * A selection listener for table check all/uncheck all buttons
      * 
      * @author Thomas Calmant
@@ -130,10 +82,10 @@ public class ExportPage extends WizardPage {
     protected class TableCheckButtonEvent implements SelectionListener {
 
         /** The selection flag to set */
-        private boolean pCheckFlag;
+        private final boolean pCheckFlag;
 
         /** The associated table */
-        private Table pTable;
+        private final Table pTable;
 
         /**
          * Sets up the event handler
@@ -220,7 +172,7 @@ public class ExportPage extends WizardPage {
      * @param aPageName
      *            Wizard page name
      */
-    protected ExportPage(final String aPageName) {
+    protected BundleExportPage(final String aPageName) {
 
         super(aPageName, aPageName, ImageDescriptor.createFromFile(
                 Activator.class, "/icons/ipojo-small.png"));
@@ -321,7 +273,7 @@ public class ExportPage extends WizardPage {
         // Output folder button
         final Button chooseFolder = new Button(aParent, SWT.RIGHT);
         chooseFolder.setText("Choose a folder");
-        chooseFolder.addSelectionListener(new FolderSelectionListener(
+        chooseFolder.addSelectionListener(new FolderSelector(this,
                 pOutputFolder));
     }
 

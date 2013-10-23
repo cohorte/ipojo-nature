@@ -8,12 +8,19 @@
             class="org.ow2.chameleon.eclipse.ipojo.exporter.ui.IPojoExportWizard"
             icon="icons/nature_marker.png"
             id="org.ow2.chameleon.eclipse.ipojo.exporter.bundle"
-            name="iPOJO Bundle">
+            name="iPOJO Bundles">
       </wizard>
       <category
             id="org.ow2.chameleon.eclipse.ipojo.exporter.category"
             name="iPOJO Bundles">
       </category>
+      <wizard
+            category="org.ow2.chameleon.eclipse.ipojo.exporter.category"
+            class="org.ow2.chameleon.eclipse.ipojo.exporter.ui.IPojoCoreJarExportWizard"
+            icon="icons/nature_marker.png"
+            id="org.ow2.chameleon.eclipse.ipojo.exporter.core"
+            name="iPOJO Core JAR file">
+      </wizard>
    </extension>
 
 </plugin>

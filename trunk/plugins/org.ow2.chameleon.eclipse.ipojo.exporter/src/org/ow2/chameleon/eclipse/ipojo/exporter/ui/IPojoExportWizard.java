@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 OW2 Chameleon
+ * Copyright 2013 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,7 +41,7 @@ public class IPojoExportWizard extends Wizard implements IExportWizard {
     private final BundleExporter pExporter = new BundleExporter();
 
     /** Export configuration page */
-    private ExportPage pExportPage;
+    private BundleExportPage pExportPage;
 
     /*
      * (non-Javadoc)
@@ -95,7 +95,7 @@ public class IPojoExportWizard extends Wizard implements IExportWizard {
         setWindowTitle("iPOJO Bundle export wizard");
 
         // Prepare the export page
-        pExportPage = new ExportPage("iPOJO Bundle Export");
+        pExportPage = new BundleExportPage("iPOJO Bundle Export");
 
         // Get all selected projects
         final Set<IProject> selectedProjects = new HashSet<IProject>();
