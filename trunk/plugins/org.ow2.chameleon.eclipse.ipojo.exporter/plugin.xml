@@ -5,7 +5,7 @@
          point="org.eclipse.ui.exportWizards">
       <wizard
             category="org.ow2.chameleon.eclipse.ipojo.exporter.category"
-            class="org.ow2.chameleon.eclipse.ipojo.exporter.ui.IPojoExportWizard"
+            class="org.ow2.chameleon.eclipse.ipojo.exporter.ui.IPojoBundleExportWizard"
             icon="icons/nature_marker.png"
             id="org.ow2.chameleon.eclipse.ipojo.exporter.bundle"
             name="iPOJO Bundles">
