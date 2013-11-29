@@ -16,7 +16,9 @@ package org.ow2.chameleon.eclipse.ipojo.m2e;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.resources.IProject;
@@ -25,7 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.m2e.core.project.IMavenProjectFacade;
 import org.eclipse.m2e.core.project.configurator.AbstractProjectConfigurator;
 import org.eclipse.m2e.core.project.configurator.ProjectConfigurationRequest;
-import org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature;
+import org.ow2.chameleon.eclipse.ipojo.core.ProjectUtilities;
 
 /**
  * Sets up the iPOJO Nature to Maven projects using the iPOJO manipulation
@@ -35,230 +37,254 @@ import org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature;
  */
 public class IPojoProjectConfigurator extends AbstractProjectConfigurator {
 
-    /** Bundle packager artifact ID */
-    public static final String BUNDLE_MOJO_ARTIFACT_ID = "maven-bundle-plugin";
+	/** The iPOJO annotations artifact ID */
+	private static final String ANNOTATIONS_ARTIFACT_ID = "";
 
-    /** Bundle packager group ID */
-    public static final String BUNDLE_MOJO_GROUP_ID = "org.apache.felix";
+	/** The iPOJO annotations group ID */
+	private static final String ANNOTATIONS_GROUP_ID = "org.apache.felix";
 
-    /** iPOJO manipulation Bnd plugin ID */
-    public static final String IPOJO_BND_PLUGIN_ID = "org.apache.felix.ipojo.bnd.PojoizationPlugin";
+	/** Bundle packager artifact ID */
+	public static final String BUNDLE_MOJO_ARTIFACT_ID = "maven-bundle-plugin";
 
-    /** iPOJO manipulator artifact ID */
-    public static final String IPOJO_MOJO_ARTIFACT_ID = "maven-ipojo-plugin";
+	/** Bundle packager group ID */
+	public static final String BUNDLE_MOJO_GROUP_ID = "org.apache.felix";
 
-    /** iPOJO manipulator group ID */
-    public static final String IPOJO_MOJO_GROUP_ID = "org.apache.felix";
+	/** iPOJO manipulation Bnd plugin ID */
+	public static final String IPOJO_BND_PLUGIN_ID = "org.apache.felix.ipojo.bnd.PojoizationPlugin";
 
-    private static final String MAVEN_BUNDLE_INCLUDE_TAG = "_include";
+	/** iPOJO manipulator artifact ID */
+	public static final String IPOJO_MOJO_ARTIFACT_ID = "maven-ipojo-plugin";
 
-    private static final String MAVEN_BUNDLE_INSTRUCTION_PLUGIN = "_plugin";
+	/** iPOJO manipulator group ID */
+	public static final String IPOJO_MOJO_GROUP_ID = "org.apache.felix";
 
-    private static final String MAVEN_BUNDLE_INSTRUCTIONS_TAG = "instructions";
+	private static final String MAVEN_BUNDLE_INCLUDE_TAG = "_include";
 
-    /**
-     * Adds the iPOJO Nature to the given project
-     * 
-     * @param project
-     *            A project
-     * @param monitor
-     *            The progression monitor
-     * @throws CoreException
-     *             Invalid project operation
-     */
-    public void addIPojoNature(final IProject project,
-            final IProgressMonitor monitor) throws CoreException {
+	private static final String MAVEN_BUNDLE_INSTRUCTION_PLUGIN = "_plugin";
 
-        final IPojoNature nature = new IPojoNature();
-        nature.setProject(project);
-        nature.configure();
-    }
+	private static final String MAVEN_BUNDLE_INSTRUCTIONS_TAG = "instructions";
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.m2e.core.project.configurator.AbstractProjectConfigurator
-     * #configure
-     * (org.eclipse.m2e.core.project.configurator.ProjectConfigurationRequest,
-     * org.eclipse.core.runtime.IProgressMonitor)
-     */
-    @Override
-    public void configure(final ProjectConfigurationRequest request,
-            final IProgressMonitor monitor) throws CoreException {
+	/** Project manipulation utility bean */
+	private final ProjectUtilities pUtilities = new ProjectUtilities();
 
-        final IMavenProjectFacade facade = request.getMavenProjectFacade();
-        final IProject project = request.getProject();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.m2e.core.project.configurator.AbstractProjectConfigurator
+	 * #configure
+	 * (org.eclipse.m2e.core.project.configurator.ProjectConfigurationRequest,
+	 * org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	@Override
+	public void configure(final ProjectConfigurationRequest request,
+			final IProgressMonitor monitor) throws CoreException {
 
-        if (isIPojoMavenProject(facade, monitor)) {
-            addIPojoNature(project, monitor);
-        }
-    }
+		final IMavenProjectFacade facade = request.getMavenProjectFacade();
+		final IProject project = request.getProject();
 
-    /**
-     * Tests if the project uses the Bnd iPojo plugin
-     * 
-     * @param facade
-     *            A Maven project facade
-     * @param plugin
-     *            A project plug-in
-     * @return True if the project uses the Bnd iPOJO plugin
-     */
-    private boolean hasIpojoBndPlugin(final IMavenProjectFacade facade,
-            final Plugin plugin) {
+		if (isIPojoMavenProject(facade, monitor)) {
+			// iPOJO Project -> Add the iPOJO Nature
+			pUtilities.addNature(project);
 
-        final Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
-        final Xpp3Dom instructions = configuration
-                .getChild(MAVEN_BUNDLE_INSTRUCTIONS_TAG);
-        if (instructions != null) {
-            final Xpp3Dom[] plugins = instructions
-                    .getChildren(MAVEN_BUNDLE_INSTRUCTION_PLUGIN);
-            if (plugins != null) {
-                // Looking for the bnd ipojo plugin in the instructions
-                for (final Xpp3Dom p : plugins) {
-                    final String val = p.getValue();
-                    if (val != null && val.startsWith(IPOJO_BND_PLUGIN_ID)) {
-                        return true;
-                    }
-                }
-            }
-            // We don't have the bnd ipojo plugin defined in the POM, let's
-            // have a look in bnd files
-            final Xpp3Dom[] includes = instructions
-                    .getChildren(MAVEN_BUNDLE_INCLUDE_TAG);
-            if (includes != null) {
-                for (final Xpp3Dom i : includes) {
-                    final String fileName = i.getValue();
-                    if (usesBndPlugin(facade.getPomFile(), fileName)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+			if (usesAnnotations(facade, monitor)) {
+				// Also add iPOJO annotations
+				pUtilities.addAnnotations(project);
+			}
+		}
+	}
 
-    /**
-     * Tests if the given Maven project uses the iPOJO plugin
-     * 
-     * @param facade
-     *            A Maven project facade
-     * @param monitor
-     *            The progression monitor
-     * @return True if the project uses iPOJO
-     * @throws CoreException
-     *             Error reading project information
-     */
-    public boolean isIPojoMavenProject(final IMavenProjectFacade facade,
-            final IProgressMonitor monitor) throws CoreException {
+	/**
+	 * Tests if the project uses the Bnd iPojo plugin
+	 * 
+	 * @param facade
+	 *            A Maven project facade
+	 * @param plugin
+	 *            A project plug-in
+	 * @return True if the project uses the Bnd iPOJO plugin
+	 */
+	private boolean hasIpojoBndPlugin(final IMavenProjectFacade facade,
+			final Plugin plugin) {
 
-        final List<Plugin> plugins = facade.getMavenProject(monitor)
-                .getBuildPlugins();
-        if (plugins != null) {
-            for (final Plugin plugin : plugins) {
-                if (isIPojoMavenProject(facade, plugin)
-                        && !plugin.getExecutions().isEmpty()) {
-                    return true;
-                }
-            }
-        }
+		final Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
+		final Xpp3Dom instructions = configuration
+				.getChild(MAVEN_BUNDLE_INSTRUCTIONS_TAG);
+		if (instructions != null) {
+			final Xpp3Dom[] plugins = instructions
+					.getChildren(MAVEN_BUNDLE_INSTRUCTION_PLUGIN);
+			if (plugins != null) {
+				// Looking for the bnd ipojo plugin in the instructions
+				for (final Xpp3Dom p : plugins) {
+					final String val = p.getValue();
+					if (val != null && val.startsWith(IPOJO_BND_PLUGIN_ID)) {
+						return true;
+					}
+				}
+			}
+			// We don't have the bnd ipojo plugin defined in the POM, let's
+			// have a look in bnd files
+			final Xpp3Dom[] includes = instructions
+					.getChildren(MAVEN_BUNDLE_INCLUDE_TAG);
+			if (includes != null) {
+				for (final Xpp3Dom i : includes) {
+					final String fileName = i.getValue();
+					if (usesBndPlugin(facade.getPomFile(), fileName)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
-        return false;
-    }
+	/**
+	 * Tests if the given Maven project uses the iPOJO plugin
+	 * 
+	 * @param facade
+	 *            A Maven project facade
+	 * @param monitor
+	 *            The progression monitor
+	 * @return True if the project uses iPOJO
+	 * @throws CoreException
+	 *             Error reading project information
+	 */
+	public boolean isIPojoMavenProject(final IMavenProjectFacade facade,
+			final IProgressMonitor monitor) throws CoreException {
 
-    /**
-     * Tests if the given plugin is the iPOJO one
-     * 
-     * @param facade
-     *            A Maven project facade
-     * @param plugin
-     *            A Maven plugin
-     * @return True if the given plugin is the iPOJO manipulator
-     */
-    public boolean isIPojoMavenProject(final IMavenProjectFacade facade,
-            final Plugin plugin) {
+		final List<Plugin> plugins = facade.getMavenProject(monitor)
+				.getBuildPlugins();
+		if (plugins != null) {
+			for (final Plugin plugin : plugins) {
+				if (isIPojoMavenProject(facade, plugin)
+						&& !plugin.getExecutions().isEmpty()) {
+					return true;
+				}
+			}
+		}
 
-        return isMavenIPojoPluginMojo(plugin)
-                || (isMavenBundlePluginMojo(plugin) && hasIpojoBndPlugin(
-                        facade, plugin));
-    }
+		return false;
+	}
 
-    /**
-     * Tests if the given plugin information corresponds to the bundle packager
-     * 
-     * @param groupId
-     *            Plugin group ID
-     * @param artifactId
-     *            Plugin artifact ID
-     * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
-     *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
-     */
-    public boolean isMavenBundlePlugin(final String groupId,
-            final String artifactId) {
+	/**
+	 * Tests if the given plugin is the iPOJO one
+	 * 
+	 * @param facade
+	 *            A Maven project facade
+	 * @param plugin
+	 *            A Maven plugin
+	 * @return True if the given plugin is the iPOJO manipulator
+	 */
+	public boolean isIPojoMavenProject(final IMavenProjectFacade facade,
+			final Plugin plugin) {
 
-        return BUNDLE_MOJO_ARTIFACT_ID.equals(artifactId)
-                && BUNDLE_MOJO_GROUP_ID.equals(groupId);
-    }
+		return isMavenIPojoPluginMojo(plugin)
+				|| (isMavenBundlePluginMojo(plugin) && hasIpojoBndPlugin(
+						facade, plugin));
+	}
 
-    /**
-     * Tests if the given plugin is the bundle packager
-     * 
-     * @param plugin
-     *            A Maven plugin
-     * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
-     *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
-     */
-    public boolean isMavenBundlePluginMojo(final Plugin plugin) {
+	/**
+	 * Tests if the given plugin information corresponds to the bundle packager
+	 * 
+	 * @param groupId
+	 *            Plugin group ID
+	 * @param artifactId
+	 *            Plugin artifact ID
+	 * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
+	 *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
+	 */
+	public boolean isMavenBundlePlugin(final String groupId,
+			final String artifactId) {
 
-        return isMavenBundlePlugin(plugin.getGroupId(), plugin.getArtifactId());
-    }
+		return BUNDLE_MOJO_ARTIFACT_ID.equals(artifactId)
+				&& BUNDLE_MOJO_GROUP_ID.equals(groupId);
+	}
 
-    /**
-     * Tests if the given plugin information corresponds to the iPOJO
-     * manipulator
-     * 
-     * @param groupId
-     *            Plugin group ID
-     * @param artifactId
-     *            Plugin artifact ID
-     * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
-     *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
-     */
-    public boolean isMavenIPojoPlugin(final String groupId,
-            final String artifactId) {
+	/**
+	 * Tests if the given plugin is the bundle packager
+	 * 
+	 * @param plugin
+	 *            A Maven plugin
+	 * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
+	 *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
+	 */
+	public boolean isMavenBundlePluginMojo(final Plugin plugin) {
 
-        return IPOJO_MOJO_ARTIFACT_ID.equals(artifactId)
-                && IPOJO_MOJO_GROUP_ID.equals(groupId);
-    }
+		return isMavenBundlePlugin(plugin.getGroupId(), plugin.getArtifactId());
+	}
 
-    /**
-     * Tests if the given plugin information corresponds to the iPOJO
-     * manipulator
-     * 
-     * @param groupId
-     *            Plugin group ID
-     * @param artifactId
-     *            Plugin artifact ID
-     * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
-     *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
-     */
-    public boolean isMavenIPojoPluginMojo(final Plugin plugin) {
+	/**
+	 * Tests if the given plugin information corresponds to the iPOJO
+	 * manipulator
+	 * 
+	 * @param groupId
+	 *            Plugin group ID
+	 * @param artifactId
+	 *            Plugin artifact ID
+	 * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
+	 *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
+	 */
+	public boolean isMavenIPojoPlugin(final String groupId,
+			final String artifactId) {
 
-        return isMavenIPojoPlugin(plugin.getGroupId(), plugin.getArtifactId());
-    }
+		return IPOJO_MOJO_ARTIFACT_ID.equals(artifactId)
+				&& IPOJO_MOJO_GROUP_ID.equals(groupId);
+	}
 
-    /**
-     * Tests if the Bnd Ipojo Plugin is defined in a bnd descriptor.
-     * 
-     * <b>NOT IMPLEMENTENTED</b>
-     * 
-     * @param pomFile
-     * @param fileName
-     * @return
-     */
-    private boolean usesBndPlugin(final File pomFile, final String fileName) {
+	/**
+	 * Tests if the given plugin information corresponds to the iPOJO
+	 * manipulator
+	 * 
+	 * @param groupId
+	 *            Plugin group ID
+	 * @param artifactId
+	 *            Plugin artifact ID
+	 * @return True if the plugin is {@value #BUNDLE_MOJO_GROUP_ID}.
+	 *         {@value #BUNDLE_MOJO_ARTIFACT_ID}
+	 */
+	public boolean isMavenIPojoPluginMojo(final Plugin plugin) {
 
-        // If you need this feature, please implement it!
-        return false;
-    }
+		return isMavenIPojoPlugin(plugin.getGroupId(), plugin.getArtifactId());
+	}
+
+	/**
+	 * Tests if the project depends on iPOJO Annotations
+	 * 
+	 * @param aFacade
+	 *            A Maven project facade
+	 * @param aMonitor
+	 *            The progression monitor
+	 * @return True if the projects uses annotations
+	 * @throws CoreException
+	 *             Error reading Maven project
+	 */
+	public boolean usesAnnotations(final IMavenProjectFacade aFacade,
+			final IProgressMonitor aMonitor) throws CoreException {
+
+		final Set<Artifact> dependencies = aFacade.getMavenProject(aMonitor)
+				.getDependencyArtifacts();
+		for (final Artifact artifact : dependencies) {
+			if (ANNOTATIONS_GROUP_ID.equals(artifact.getGroupId())
+					&& ANNOTATIONS_ARTIFACT_ID.equals(artifact.getArtifactId())) {
+				// Found artifacts
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests if the Bnd Ipojo Plugin is defined in a bnd descriptor.
+	 * 
+	 * <b>NOT IMPLEMENTENTED</b>
+	 * 
+	 * @param pomFile
+	 * @param fileName
+	 * @return
+	 */
+	private boolean usesBndPlugin(final File pomFile, final String fileName) {
+
+		// If you need this feature, please implement it!
+		return false;
+	}
 }
