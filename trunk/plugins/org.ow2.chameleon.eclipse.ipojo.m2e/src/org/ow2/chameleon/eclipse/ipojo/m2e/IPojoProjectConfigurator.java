@@ -38,7 +38,7 @@ import org.ow2.chameleon.eclipse.ipojo.core.ProjectUtilities;
 public class IPojoProjectConfigurator extends AbstractProjectConfigurator {
 
 	/** The iPOJO annotations artifact ID */
-	private static final String ANNOTATIONS_ARTIFACT_ID = "";
+	private static final String ANNOTATIONS_ARTIFACT_ID = "org.apache.felix.ipojo.annotations";
 
 	/** The iPOJO annotations group ID */
 	private static final String ANNOTATIONS_GROUP_ID = "org.apache.felix";
