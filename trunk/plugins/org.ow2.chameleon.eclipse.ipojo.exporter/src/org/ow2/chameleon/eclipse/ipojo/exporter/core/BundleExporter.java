@@ -395,7 +395,7 @@ public class BundleExporter {
 						IPojoExporterPlugin
 								.logWarning(
 										MessageFormat
-												.format("JAR file entry '{0}' defined twice, in '{1}' and '{2}'.\nUsing '{3}'.",
+												.format("JAR file entry \"{0}\" defined twice, in \"{1}\" and \"{2}\".\nUsing \"{3}\".",
 														jarEntry, previousStr,
 														currentStr, previousStr),
 										null);
@@ -450,7 +450,7 @@ public class BundleExporter {
 		if (!aFolder.exists()) {
 			// Nothing to do here...
 			IPojoExporterPlugin.logWarning(MessageFormat.format(
-					"Folder '{0}' doesn't exist.", aFolder.getFullPath()
+					"Folder \"{0}\" doesn''t exist.", aFolder.getFullPath()
 							.toOSString()), null);
 			return;
 		}
