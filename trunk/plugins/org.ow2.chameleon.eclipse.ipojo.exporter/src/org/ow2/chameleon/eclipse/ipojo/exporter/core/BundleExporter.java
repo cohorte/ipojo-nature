@@ -219,13 +219,18 @@ public class BundleExporter {
 	public String getJarFileName(final IProject aProject,
 			final Manifest aManifest) {
 
-		// Try with the manifest content ...
+		// Try with the manifest content
 		String fileName = aManifest.getMainAttributes().getValue(
 				Constants.BUNDLE_SYMBOLICNAME);
 
 		if (fileName == null) {
-			// ... else, use the project
+			// Use the project if needed
 			fileName = aProject.getName();
+
+		} else {
+			// Filter the bundle name, i.e. remove the extra attributes like
+			// ;singleton:=true...
+			fileName = fileName.split(";")[0];
 		}
 
 		// Append the jar extension
