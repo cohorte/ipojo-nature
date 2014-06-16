@@ -9,7 +9,7 @@
    <feature url="features/org.ow2.chameleon.eclipse.ipojo.m2e.feature_1.0.1.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.m2e.feature" version="1.0.1.qualifier">
       <category name="ipojo-m2e"/>
    </feature>
-   <feature url="features/org.ow2.chameleon.eclipse.ipojo.dependencies.feature_1.11.0.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.dependencies.feature" version="1.11.0.qualifier">
+   <feature url="features/org.ow2.chameleon.eclipse.ipojo.dependencies.feature_1.12.0.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.dependencies.feature" version="1.12.0.qualifier">
       <category name="ipojo"/>
    </feature>
    <category-def name="ipojo" label="iPOJO Nature">
