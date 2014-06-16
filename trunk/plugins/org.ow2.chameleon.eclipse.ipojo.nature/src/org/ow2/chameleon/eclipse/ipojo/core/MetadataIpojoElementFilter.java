@@ -15,7 +15,7 @@
 package org.ow2.chameleon.eclipse.ipojo.core;
 
 import org.apache.felix.ipojo.InstanceManager;
-import org.apache.felix.ipojo.manipulation.MethodCreator;
+import org.apache.felix.ipojo.manipulation.ClassManipulator;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 
@@ -105,13 +105,13 @@ public class MetadataIpojoElementFilter implements
 		aBuilder.append(aPrefix);
 		aBuilder.append("Element {\n");
 
-		for (Attribute attr : aElement.getAttributes()) {
+		for (final Attribute attr : aElement.getAttributes()) {
 			aBuilder.append(prefix);
 			aBuilder.append(attr.getName()).append(" : " + attr.getValue());
 			aBuilder.append("\n");
 		}
 
-		for (Element elem : aElement.getElements()) {
+		for (final Element elem : aElement.getElements()) {
 			buildMetadataElementString(aBuilder, elem, prefix);
 		}
 
@@ -169,7 +169,7 @@ public class MetadataIpojoElementFilter implements
 		renameAttributes(aElement);
 
 		// Recursive thing
-		for (Element subElement : aElement.getElements()) {
+		for (final Element subElement : aElement.getElements()) {
 			/*
 			 * Do not worry about the method result : as the parent is not null,
 			 * sub elements can be removed
@@ -195,8 +195,8 @@ public class MetadataIpojoElementFilter implements
 			return false;
 		}
 
-		return aElementName.equals(MethodCreator.IM_FIELD)
-				|| aElementName.startsWith(MethodCreator.PREFIX);
+		return aElementName.equals(ClassManipulator.IM_FIELD)
+				|| aElementName.startsWith(ClassManipulator.PREFIX);
 	}
 
 	/**
@@ -263,7 +263,7 @@ public class MetadataIpojoElementFilter implements
 		}
 
 		// Test all sub-elements names
-		for (Element subElement : aParentElement.getElements()) {
+		for (final Element subElement : aParentElement.getElements()) {
 
 			if (subElement.getAttribute(ELEMENT_ATTRIBUTE_NAME).equals(
 					nameWithoutPrefix)) {
@@ -285,7 +285,7 @@ public class MetadataIpojoElementFilter implements
 	 */
 	protected String nameWithoutPrefix(final String aName) {
 
-		for (String prefix : IPOJO_PREFIXES) {
+		for (final String prefix : IPOJO_PREFIXES) {
 
 			// Test all known prefixes
 			if (aName.startsWith(prefix)) {
