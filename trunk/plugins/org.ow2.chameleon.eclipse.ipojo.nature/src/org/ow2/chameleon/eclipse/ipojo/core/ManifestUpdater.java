@@ -14,11 +14,8 @@
  */
 package org.ow2.chameleon.eclipse.ipojo.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -35,15 +32,11 @@ import org.apache.felix.ipojo.manipulator.visitor.check.CheckFieldConsistencyVis
 import org.apache.felix.ipojo.manipulator.visitor.writer.ManipulatedResourcesWriter;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
@@ -60,136 +53,23 @@ public class ManifestUpdater {
 	public static final String IPOJO_HEADER = "iPOJO-Components";
 
 	/**
-	 * Finds the project matching the given entry path
-	 * 
-	 * @param aRoot
-	 *            Workspace root
-	 * @param aPath
-	 *            Workspace-relative path
-	 * @return The Java project object or null
-	 */
-	private IJavaProject findProject(final IWorkspaceRoot aRoot,
-			final IPath aPath) {
-		final IResource resource = aRoot.findMember(aPath);
-		if (resource instanceof IProject) {
-			final IProject project = (IProject) resource;
-			return Utilities.INSTANCE.getJavaProject(project);
-		}
-
-		// Not a project
-		return null;
-	}
-
-	/**
-	 * Returns the file-system path to the output directory of the given project
-	 * 
-	 * @param aRoot
-	 *            Workspace root
-	 * @param aJavaProject
-	 *            Java project
-	 * @return The absolute path to the output directory, or null
-	 */
-	private String getProjectOutput(final IWorkspaceRoot aRoot,
-			final IJavaProject aJavaProject) {
-
-		try {
-			return aRoot.getFile(aJavaProject.getOutputLocation())
-					.getRawLocation().toOSString();
-
-		} catch (final JavaModelException e) {
-			// Something went wrong
-			return null;
-		}
-	}
-
-	/**
 	 * Prepares an iPOJO {@link Classpath} object
 	 * 
 	 * @param aProject
 	 *            An Eclipse project
 	 * @return The iPOJO classpath, or null if the class path can't be resolved
+	 * @throws JavaModelException
+	 *             Error reading project classpath
 	 */
-	protected Classpath prepareClasspath(final IProject aProject) {
-
-		// Get workspace root
-		final IWorkspaceRoot root = aProject.getWorkspace().getRoot();
+	protected Classpath prepareClasspath(final IProject aProject)
+			throws JavaModelException {
 
 		// Get the Java nature of the project
 		final IJavaProject javaProject = Utilities.INSTANCE
 				.getJavaProject(aProject);
 
-		// Class path URLs for iPOJO
-		final Collection<String> paths = new LinkedHashSet<String>();
-
-		// Add the current project output directory
-		final String projectOutput = getProjectOutput(root, javaProject);
-		if (projectOutput != null) {
-			paths.add(projectOutput);
-		}
-
-		// Get Java project classpath entries, resolved by Eclipse
-		IClasspathEntry[] classpathEntries;
-		try {
-			classpathEntries = javaProject.getResolvedClasspath(false);
-
-		} catch (final JavaModelException ex) {
-			Activator.logError(aProject, "Unresolved classpath: " + ex, ex);
-			return null;
-		}
-
-		/*
-		 * FIXME: Either use the raw classpath entries and filter CPE_CONTAINER
-		 * in order to ignore the JRE/JDK installation, or look for this
-		 * container to remove its path in the end.
-		 */
-
-		// Convert them into absolute paths
-		for (final IClasspathEntry entry : classpathEntries) {
-			String path = null;
-
-			switch (entry.getEntryKind()) {
-			case IClasspathEntry.CPE_CONTAINER:
-			case IClasspathEntry.CPE_SOURCE:
-				// Silently ignore
-				continue;
-
-			case IClasspathEntry.CPE_PROJECT:
-				// Refers to another project
-				final IJavaProject depProject = findProject(root,
-						entry.getPath());
-				if (depProject != null) {
-					path = getProjectOutput(root, depProject);
-					if (path == null) {
-						// Something went wrong
-						Activator.logError(aProject, "Bad Java project", null);
-					}
-				}
-				break;
-
-			case IClasspathEntry.CPE_LIBRARY:
-				// Refers to a library
-				final File classpathFile = entry.getPath().toFile();
-				if (classpathFile.exists()) {
-					if (!classpathFile.getName().equals("rt.jar")) {
-						// Accept everything except the JRE/JDK rt.jar file
-						path = classpathFile.getAbsolutePath();
-					}
-				}
-				break;
-
-			default:
-				// Ignore other kinds of entry
-				break;
-			}
-
-			if (path != null) {
-				// Avoid null pointer exception...
-				paths.add(path);
-			}
-		}
-
-		// iPOJO Classpath utility
-		return new Classpath(paths);
+		// Convert Eclipse classpath to iPOJO ones
+		return new Classpath(new ClasspathResolver().getClasspath(javaProject));
 	}
 
 	/**
@@ -385,10 +265,13 @@ public class ManifestUpdater {
 				.setProgressMonitor(pojoizationMonitor);
 
 		// Get the project class path
-		final Classpath ipojoClasspath = prepareClasspath(aProject);
-		if (ipojoClasspath == null) {
+		final Classpath ipojoClasspath;
+		try {
+			ipojoClasspath = prepareClasspath(aProject);
+
+		} catch (final JavaModelException ex) {
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-					"Project classpath can't be computed");
+					"Project classpath can't be computed", ex);
 		}
 
 		// Pojoization API
