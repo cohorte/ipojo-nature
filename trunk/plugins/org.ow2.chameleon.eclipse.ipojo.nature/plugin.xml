@@ -2,35 +2,74 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-<extension point="org.eclipse.ui.popupMenus"> 
-	<objectContribution
-       id="org.ow2.chameleon.eclipse.ipojo.popup.manifest"
-       nameFilter="MANIFEST.MF"
-       objectClass="org.eclipse.core.resources.IFile">
-		<action
-        class="org.ow2.chameleon.eclipse.ipojo.actions.UpdateMF"
-        icon="icons/menu_marker_16.png"
-        id="org.ow2.chameleon.eclipse.ipojo.manifest.update"
-        label="Update Manifest"
-        menubarPath="additions"> 
-		</action> 
-	</objectContribution>
-	
- <objectContribution
-       adaptable="true"
-       id="org.ow2.chameleon.eclipse.ipojo.nature.toggle"
-       nameFilter="*"
-       objectClass="org.eclipse.core.resources.IProject">
-    <action
-          class="org.ow2.chameleon.eclipse.ipojo.actions.ToggleNatureAction"
-          enablesFor="+"
-          icon="icons/menu_marker_16.png"
-          id="org.ow2.chameleon.eclipse.ipojo.nature.addRemoveNatureAction"
-          label="Add/Remove iPOJO Nature"
-          menubarPath="additions"
-          tooltip="Change the iPOJO Nature state">
-    </action>
- </objectContribution>
+<extension
+      point="org.eclipse.ui.commands">
+   <command
+         defaultHandler="org.ow2.chameleon.eclipse.ipojo.actions.UpdateManifestHandler"
+         id="org.ow2.chameleon.eclipse.ipojo.update_manifest"
+         name="Update Manifest">
+   </command>
+   <command
+         defaultHandler="org.ow2.chameleon.eclipse.ipojo.actions.ToggleNatureHandler"
+         id="org.ow2.chameleon.eclipse.ipojo.toggle_nature"
+         name="Add/Remove iPOJO Nature">
+   </command>
+</extension>
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:org.eclipse.ui.popup.any">
+      <command
+            commandId="org.ow2.chameleon.eclipse.ipojo.update_manifest"
+            icon="icons/menu_marker_16.png"
+            label="Update Manifest"
+            style="push"
+            tooltip="Forces an iPOJO manipulation">
+         <visibleWhen
+               checkEnabled="false">
+            <with
+                  variable="activeMenuSelection">
+               <iterate
+                     ifEmpty="false">
+                  <adapt
+                        type="org.eclipse.core.resources.IResource">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="MANIFEST.MF">
+                     </test>
+                  </adapt>
+               </iterate>
+            </with>
+         </visibleWhen>
+      </command>
+   </menuContribution>
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:org.eclipse.ui.popup.any">
+      <command
+            commandId="org.ow2.chameleon.eclipse.ipojo.toggle_nature"
+            icon="icons/menu_marker_16.png"
+            label="Add/Remove iPOJO Nature"
+            style="push"
+            tooltip="Change the iPOJO Nature state">
+         <visibleWhen
+               checkEnabled="false">
+            <with
+                  variable="activeMenuSelection">
+               <iterate
+                     ifEmpty="false">
+                  <adapt
+                        type="org.eclipse.core.resources.IResource">
+                     <instanceof
+                           value="org.eclipse.core.resources.IProject">
+                     </instanceof>
+                  </adapt>
+               </iterate>
+            </with>
+         </visibleWhen>
+      </command>
+   </menuContribution>
 </extension>
 
 <extension

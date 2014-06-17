@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 OW2 Chameleon
+ * Copyright 2014 OW2 Chameleon
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,22 +17,18 @@ package org.ow2.chameleon.eclipse.ipojo.actions;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IObjectActionDelegate;
-import org.eclipse.ui.IWorkbenchPart;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature;
 import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
@@ -43,13 +39,10 @@ import org.ow2.chameleon.eclipse.ipojo.core.ProjectUtilities;
  * 
  * @author Thomas Calmant
  */
-public class ToggleNatureAction implements IObjectActionDelegate {
+public class ToggleNatureHandler extends AbstractProjectActionHandler {
 
 	/** iPOJO Nature handler */
 	private final IPojoNature pNature = new IPojoNature();
-
-	/** Current selection */
-	private ISelection pSelection;
 
 	/**
 	 * Creates the template metadata.xml file
@@ -78,6 +71,42 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			Activator.logError(aProject,
 					"Error creating the metadata.xml file", e);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
+	 * ExecutionEvent)
+	 */
+	@Override
+	public Object execute(final ExecutionEvent aEvent)
+			throws ExecutionException {
+
+		// Get the selected projects
+		final Set<IProject> selectedProjects = getSelectedProjects(aEvent);
+
+		// Prepare configuration list
+		final List<IProject> toConfigure = new ArrayList<IProject>();
+		final List<IProject> toDeconfigure = new ArrayList<IProject>();
+
+		if (!getProjectsToToggle(selectedProjects, toConfigure, toDeconfigure)) {
+			// No projects to modify...
+			return null;
+		}
+
+		final boolean setNature = toConfigure.size() >= toDeconfigure.size();
+		if (setNature) {
+			// More projects to configure than to deconfigure
+			toggleProjectsNature(setNature, toConfigure);
+
+		} else {
+			// More projects to deconfigure
+			toggleProjectsNature(setNature, toDeconfigure);
+		}
+
+		return null;
 	}
 
 	/**
@@ -123,94 +152,6 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 		}
 
 		return atLeastOneValid;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
-	 */
-	@Override
-	public void run(final IAction aAction) {
-
-		// Prepare selection list
-		final List<IProject> selectedProjects = new ArrayList<IProject>();
-
-		if (pSelection instanceof IStructuredSelection) {
-
-			for (final Iterator<?> it = ((IStructuredSelection) pSelection)
-					.iterator(); it.hasNext();) {
-
-				final Object element = it.next();
-				IProject project = null;
-
-				if (element instanceof IProject) {
-					// Is the element a project ?
-					project = (IProject) element;
-
-				} else if (element instanceof IAdaptable) {
-					// Is the element adaptable to a project ?
-					project = (IProject) ((IAdaptable) element)
-							.getAdapter(IProject.class);
-				}
-
-				if (project != null && project.isOpen()) {
-					// Add the found project, if it's opened
-					selectedProjects.add(project);
-				}
-			}
-		}
-
-		if (selectedProjects.isEmpty()) {
-			// No valid project found, do nothing
-			return;
-		}
-
-		// Prepare configuration list
-		final List<IProject> toConfigure = new ArrayList<IProject>();
-		final List<IProject> toDeconfigure = new ArrayList<IProject>();
-
-		if (!getProjectsToToggle(selectedProjects, toConfigure, toDeconfigure)) {
-			// No projects to modify...
-			return;
-		}
-
-		final boolean setNature = toConfigure.size() >= toDeconfigure.size();
-		if (setNature) {
-			// More projects to configure than to deconfigure
-			toggleProjectsNature(setNature, toConfigure);
-
-		} else {
-			// More projects to deconfigure
-			toggleProjectsNature(setNature, toDeconfigure);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action
-	 * .IAction, org.eclipse.jface.viewers.ISelection)
-	 */
-	@Override
-	public void selectionChanged(final IAction aAction,
-			final ISelection aSelection) {
-
-		pSelection = aSelection;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.IObjectActionDelegate#setActivePart(org.eclipse.jface.
-	 * action.IAction, org.eclipse.ui.IWorkbenchPart)
-	 */
-	@Override
-	public void setActivePart(final IAction aAction,
-			final IWorkbenchPart aTargetPart) {
-		// Do nothing
 	}
 
 	/**
@@ -342,4 +283,5 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			Activator.showError(null, errorBuilder.toString(), null);
 		}
 	}
+
 }
