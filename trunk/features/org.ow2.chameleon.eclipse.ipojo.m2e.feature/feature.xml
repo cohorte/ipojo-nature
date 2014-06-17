@@ -2,7 +2,7 @@
 <feature
       id="org.ow2.chameleon.eclipse.ipojo.m2e.feature"
       label="OW2 Chameleon :: iPOJO M2E Configurator"
-      version="1.0.1.qualifier"
+      version="1.1.0.qualifier"
       provider-name="OW2 Chameleon">
 
    <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">

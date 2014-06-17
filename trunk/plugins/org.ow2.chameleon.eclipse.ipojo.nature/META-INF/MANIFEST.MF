@@ -11,13 +11,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.variables;bundle-version="3.2.400"
 Bundle-Vendor: OW2 Chameleon
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Name: OW2 Chameleon :: iPOJO Project Nature
 Bundle-Activator: org.ow2.chameleon.eclipse.ipojo.Activator
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.ow2.chameleon.eclipse.ipojo.nature;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.ow2.chameleon.eclipse.ipojo,
- org.ow2.chameleon.eclipse.ipojo.builder,
- org.ow2.chameleon.eclipse.ipojo.core
+Export-Package: org.ow2.chameleon.eclipse.ipojo;version="1.1.0",
+ org.ow2.chameleon.eclipse.ipojo.builder;version="1.1.0",
+ org.ow2.chameleon.eclipse.ipojo.core;version="1.1.0"
 
