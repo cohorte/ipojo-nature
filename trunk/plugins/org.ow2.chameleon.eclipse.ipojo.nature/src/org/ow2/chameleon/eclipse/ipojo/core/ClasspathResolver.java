@@ -38,178 +38,215 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
  */
 public class ClasspathResolver {
 
-	/**
-	 * Finds the project matching the given entry path
-	 * 
-	 * @param aRoot
-	 *            Workspace root
-	 * @param aPath
-	 *            Workspace-relative path
-	 * @return The Java project object or null
-	 */
-	public IJavaProject findProject(final IWorkspaceRoot aRoot,
-			final IPath aPath) {
+    /**
+     * Finds the project matching the given entry path
+     * 
+     * @param aRoot
+     *            Workspace root
+     * @param aPath
+     *            Workspace-relative path
+     * @return The Java project object or null
+     */
+    public IJavaProject findProject(final IWorkspaceRoot aRoot,
+            final IPath aPath) {
 
-		final IResource resource = aRoot.findMember(aPath);
-		if (resource instanceof IProject) {
-			// The path was leading to a project
-			return Utilities.INSTANCE.getJavaProject((IProject) resource);
+        final IResource resource = aRoot.findMember(aPath);
+        if (resource instanceof IProject) {
+            // The path was leading to a project
+            return Utilities.INSTANCE.getJavaProject((IProject) resource);
 
-		} else {
-			// The path was leading to a folder inside a project
-			final IProject project = resource.getProject();
-			if (project != null) {
-				return Utilities.INSTANCE.getJavaProject(project);
-			}
-		}
+        } else {
+            // The path was leading to a folder inside a project
+            final IProject project = resource.getProject();
+            if (project != null) {
+                return Utilities.INSTANCE.getJavaProject(project);
+            }
+        }
 
-		// Not a project
-		return null;
-	}
+        // Not a project
+        return null;
+    }
 
-	/**
-	 * Returns a set of file-system paths that corresponds the classpath of the
-	 * given project.
-	 * 
-	 * @param aJavaProject
-	 *            A JDT Java project
-	 * @return A set of paths
-	 * @throws JavaModelException
-	 *             An error occurred reading the project classpath
-	 */
-	public Set<String> getClasspath(final IJavaProject aJavaProject)
-			throws JavaModelException {
+    /**
+     * Returns a set of file-system paths that corresponds the classpath of the
+     * given project.
+     * 
+     * @param aJavaProject
+     *            A JDT Java project
+     * @return A set of paths
+     * @throws JavaModelException
+     *             An error occurred reading the project classpath
+     */
+    public Set<String> getClasspath(final IJavaProject aJavaProject)
+            throws JavaModelException {
 
-		return resolveEntries(aJavaProject.getRawClasspath(), aJavaProject,
-				aJavaProject.getProject().getWorkspace().getRoot());
-	}
+        return resolveEntries(aJavaProject.getRawClasspath(), aJavaProject,
+                aJavaProject.getProject().getWorkspace().getRoot());
+    }
 
-	/**
-	 * Resolves the paths of the given container entry
-	 * 
-	 * @param aEntry
-	 *            A classpath entry of {@link IClasspathEntry#CPE_CONTAINER}
-	 *            type
-	 * @param aJavaProject
-	 *            The resolved JDT Java project
-	 * @param aRoot
-	 *            The workspace root
-	 * @return The paths of the libraries and projects references in the
-	 *         container
-	 * @throws JavaModelException
-	 *             Error reading a project classpath
-	 */
-	protected Set<String> resolveContainer(final IClasspathEntry aEntry,
-			final IJavaProject aJavaProject, final IWorkspaceRoot aRoot)
-			throws JavaModelException {
+    /**
+     * Resolves the paths of the given container entry
+     * 
+     * @param aEntry
+     *            A classpath entry of {@link IClasspathEntry#CPE_CONTAINER}
+     *            type
+     * @param aJavaProject
+     *            The resolved JDT Java project
+     * @param aRoot
+     *            The workspace root
+     * @return The paths of the libraries and projects references in the
+     *         container
+     * @throws JavaModelException
+     *             Error reading a project classpath
+     */
+    protected Set<String> resolveContainer(final IClasspathEntry aEntry,
+            final IJavaProject aJavaProject, final IWorkspaceRoot aRoot)
+            throws JavaModelException {
 
-		final Set<String> results = new LinkedHashSet<String>();
-		if (!JavaRuntime.JRE_CONTAINER.equals(aEntry.getPath().segment(0))) {
-			// Ignore the JRE Container
-			final IClasspathContainer classpathContainer = JavaCore
-					.getClasspathContainer(aEntry.getPath(), aJavaProject);
+        final Set<String> results = new LinkedHashSet<String>();
+        if (!JavaRuntime.JRE_CONTAINER.equals(aEntry.getPath().segment(0))) {
+            // Ignore the JRE Container
+            final IClasspathContainer classpathContainer = JavaCore
+                    .getClasspathContainer(aEntry.getPath(), aJavaProject);
 
-			// Recursively resolve container entries
-			results.addAll(resolveEntries(
-					classpathContainer.getClasspathEntries(), aJavaProject,
-					aRoot));
-		}
+            // Recursively resolve container entries
+            results.addAll(resolveEntries(
+                    classpathContainer.getClasspathEntries(), aJavaProject,
+                    aRoot));
+        }
 
-		return results;
-	}
+        return results;
+    }
 
-	/**
-	 * Resolves the path of the given classpath entries
-	 * 
-	 * @param aClasspathEntries
-	 *            An array of classpath entries to resolve
-	 * @param aJavaProject
-	 *            The resolved JDT Java project
-	 * @param aRoot
-	 *            The workspace root
-	 * @return A set of paths
-	 * @throws JavaModelException
-	 *             Error reading a classpath entry
-	 */
-	protected Set<String> resolveEntries(
-			final IClasspathEntry[] aClasspathEntries,
-			final IJavaProject aJavaProject, final IWorkspaceRoot aRoot)
-			throws JavaModelException {
+    /**
+     * Resolves the path of the given classpath entries
+     * 
+     * @param aClasspathEntries
+     *            An array of classpath entries to resolve
+     * @param aJavaProject
+     *            The resolved JDT Java project
+     * @param aRoot
+     *            The workspace root
+     * @return A set of paths
+     * @throws JavaModelException
+     *             Error reading a classpath entry
+     */
+    protected Set<String> resolveEntries(
+            final IClasspathEntry[] aClasspathEntries,
+            final IJavaProject aJavaProject, final IWorkspaceRoot aRoot)
+            throws JavaModelException {
 
-		final Set<String> results = new LinkedHashSet<String>();
-		for (final IClasspathEntry entry : aClasspathEntries) {
+        final Set<String> results = new LinkedHashSet<String>();
+        for (final IClasspathEntry entry : aClasspathEntries) {
 
-			switch (entry.getEntryKind()) {
-			case IClasspathEntry.CPE_CONTAINER:
-				// Set of libraries and projects
-				results.addAll(resolveContainer(entry, aJavaProject, aRoot));
-				break;
+            switch (entry.getEntryKind()) {
+            case IClasspathEntry.CPE_CONTAINER:
+                // Set of libraries and projects
+                results.addAll(resolveContainer(entry, aJavaProject, aRoot));
+                break;
 
-			case IClasspathEntry.CPE_LIBRARY:
-				// JAR file
-				results.add(resolveLibrary(entry));
-				break;
+            case IClasspathEntry.CPE_LIBRARY:
+                // JAR file
+                results.add(resolveLibrary(entry));
+                break;
 
-			case IClasspathEntry.CPE_PROJECT:
-			case IClasspathEntry.CPE_SOURCE:
-				// Referenced project or source folder
-				results.add(resolveProject(entry, aRoot));
-				break;
+            case IClasspathEntry.CPE_PROJECT:
+            case IClasspathEntry.CPE_SOURCE:
+                // Referenced project or source folder
+                results.add(resolveProject(entry, aRoot));
+                break;
 
-			default:
-				// CPE_VARIABLE type is not handled
-				Activator.logWarning(aJavaProject.getProject(),
-						"Unhandled kind of classpath entry: " + entry);
-				break;
-			}
-		}
+            case IClasspathEntry.CPE_VARIABLE:
+                // Workspace variable
+                results.addAll(resolveVariable(entry, aJavaProject, aRoot));
+                break;
 
-		// Remove null from values (avoids checks in the for-loop)
-		results.remove(null);
+            default:
+                // Future cases...
+                Activator.logWarning(aJavaProject.getProject(),
+                        "Unhandled kind of classpath entry: " + entry);
+                break;
+            }
+        }
 
-		return results;
-	}
+        // Remove null from values (avoids checks in the for-loop)
+        results.remove(null);
 
-	/**
-	 * Resolves the path to the given library
-	 * 
-	 * @param aEntry
-	 *            A classpath entry of {@link IClasspathEntry#CPE_LIBRARY} type
-	 * @return
-	 */
-	protected String resolveLibrary(final IClasspathEntry aEntry) {
+        return results;
+    }
 
-		// Refers to a library
-		final File classpathFile = aEntry.getPath().toFile();
-		if (classpathFile.exists()) {
-			return classpathFile.getAbsolutePath();
-		}
+    /**
+     * Resolves the path to the given library
+     * 
+     * @param aEntry
+     *            A classpath entry of {@link IClasspathEntry#CPE_LIBRARY} type
+     * @return The path to the given library
+     */
+    protected String resolveLibrary(final IClasspathEntry aEntry) {
 
-		return null;
-	}
+        // Refers to a library
+        final File classpathFile = aEntry.getPath().toFile();
+        if (classpathFile.exists()) {
+            return classpathFile.getAbsolutePath();
+        }
 
-	/**
-	 * Resolves the path to the output location of the given project
-	 * 
-	 * @param aEntry
-	 *            A classpath entry of {@link IClasspathEntry#CPE_PROJECT} or
-	 *            {@link IClasspathEntry#CPE_SOURCE} types
-	 * @param aRoot
-	 *            The workspace root
-	 * @return The path to the output location of the project
-	 * @throws JavaModelException
-	 *             Error reading Java project description
-	 */
-	protected String resolveProject(final IClasspathEntry aEntry,
-			final IWorkspaceRoot aRoot) throws JavaModelException {
+        return null;
+    }
 
-		// Refers to another project
-		final IJavaProject javaProject = findProject(aRoot, aEntry.getPath());
-		if (javaProject != null) {
-			return aRoot.getFile(javaProject.getOutputLocation())
-					.getRawLocation().toOSString();
-		}
+    /**
+     * Resolves the path to the output location of the given project
+     * 
+     * @param aEntry
+     *            A classpath entry of {@link IClasspathEntry#CPE_PROJECT} or
+     *            {@link IClasspathEntry#CPE_SOURCE} types
+     * @param aRoot
+     *            The workspace root
+     * @return The path to the output location of the project
+     * @throws JavaModelException
+     *             Error reading Java project description
+     */
+    protected String resolveProject(final IClasspathEntry aEntry,
+            final IWorkspaceRoot aRoot) throws JavaModelException {
 
-		return null;
-	}
+        // Refers to another project
+        final IJavaProject javaProject = findProject(aRoot, aEntry.getPath());
+        if (javaProject != null) {
+            return aRoot.getFile(javaProject.getOutputLocation())
+                    .getRawLocation().toOSString();
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolves the path of the given variable classpath entry
+     * 
+     * @param aEntry
+     *            A classpath entry of {@link IClasspathEntry#CPE_VARIABLE} type
+     * @param aJavaProject
+     *            The resolved Java project
+     * @param aRoot
+     *            The workspace root
+     * @return The resolved path of the classpath entry or null
+     * @throws JavaModelException
+     *             Error recursively resolving the classpath entry
+     */
+    protected Set<String> resolveVariable(final IClasspathEntry aEntry,
+            final IJavaProject aJavaProject, final IWorkspaceRoot aRoot)
+            throws JavaModelException {
+
+        // Try to resolve the entry
+        final IClasspathEntry resolvedEntry = JavaCore
+                .getResolvedClasspathEntry(aEntry);
+        if (resolvedEntry == null) {
+            // Can't resolve it
+            Activator.logWarning(aJavaProject.getProject(),
+                    "Can't resolve variable classpath entry: " + aEntry);
+            return new LinkedHashSet<String>();
+        }
+
+        // Work with it
+        return resolveEntries(new IClasspathEntry[] { resolvedEntry },
+                aJavaProject, aRoot);
+    }
 }
