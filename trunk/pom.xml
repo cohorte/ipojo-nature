@@ -1,82 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ow2.chameleon.eclipse.ipojo</groupId>
-    <artifactId>org.ow2.chameleon.eclipse.ipojo.parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.ow2.chameleon.eclipse.ipojo</groupId>
+	<artifactId>org.ow2.chameleon.eclipse.ipojo.parent</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-    <properties>
-        <tycho-version>0.18.1</tycho-version>
-    </properties>
+	<properties>
+		<tycho-version>0.20.0</tycho-version>
+	</properties>
 
-    <repositories>
-        <!-- configure p2 repository to resolve against -->
-        <repository>
-            <id>juno</id>
-            <layout>p2</layout>
-            <url>http://download.eclipse.org/releases/juno/</url>
-        </repository>
-    </repositories>
+	<repositories>
+		<!-- configure p2 repository to resolve against -->
+		<repository>
+			<id>juno</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/juno/</url>
+		</repository>
+	</repositories>
 
-    <build>
-        <sourceDirectory>src</sourceDirectory>
-        <plugins>
-            <plugin>
-                <!-- enable tycho build extension -->
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>tycho-maven-plugin</artifactId>
-                <version>${tycho-version}</version>
-                <extensions>true</extensions>
-            </plugin>
-            <plugin>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>target-platform-configuration</artifactId>
-                <version>${tycho-version}</version>
-                <configuration>
-                    <resolver>p2</resolver>
-                </configuration>
-            </plugin>
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<!-- enable tycho build extension -->
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
 
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>sonar-maven-plugin</artifactId>
-              <version>2.0</version>
-            </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>2.0</version>
+			</plugin>
+		</plugins>
+	</build>
 
-<!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
--->
-        </plugins>
-    </build>
+	<modules>
+		<module>plugins/org.ow2.chameleon.eclipse.ipojo.dependencies</module>
+		<module>features/org.ow2.chameleon.eclipse.ipojo.dependencies.feature</module>
 
-    <modules>
-        <module>plugins/org.ow2.chameleon.eclipse.ipojo.dependencies</module>
-        <module>features/org.ow2.chameleon.eclipse.ipojo.dependencies.feature</module>
+		<module>plugins/org.ow2.chameleon.eclipse.ipojo.nature</module>
+		<module>plugins/org.ow2.chameleon.eclipse.ipojo.exporter</module>
+		<module>plugins/org.ow2.chameleon.eclipse.ipojo.classpath</module>
+		<module>features/org.ow2.chameleon.eclipse.ipojo.nature.feature</module>
 
-        <module>plugins/org.ow2.chameleon.eclipse.ipojo.nature</module>
-        <module>plugins/org.ow2.chameleon.eclipse.ipojo.exporter</module>
-        <module>plugins/org.ow2.chameleon.eclipse.ipojo.classpath</module>
-        <module>features/org.ow2.chameleon.eclipse.ipojo.nature.feature</module>
+		<module>plugins/org.ow2.chameleon.eclipse.ipojo.m2e</module>
+		<module>features/org.ow2.chameleon.eclipse.ipojo.m2e.feature</module>
 
-        <module>plugins/org.ow2.chameleon.eclipse.ipojo.m2e</module>
-        <module>features/org.ow2.chameleon.eclipse.ipojo.m2e.feature</module>
-
-        <module>update-site</module>
-    </modules>
+		<module>update-site</module>
+	</modules>
 </project>
