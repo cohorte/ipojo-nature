@@ -17,11 +17,14 @@ package org.ow2.chameleon.eclipse.ipojo.builder;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
@@ -66,13 +69,21 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
 
             for (final IProject project : pProjectsToCompile) {
 
-                try {
-                    // Manipulate the project
-                    updateManifest(project);
+                if (!hasCompilationErrorMarkers(project)) {
+                    try {
+                        // Manipulate the project
+                        updateManifest(project);
 
-                } catch (final CoreException ex) {
-                    Activator.logError(project, "Error manipulating project",
-                            ex);
+                    } catch (final CoreException ex) {
+                        Activator.logError(project,
+                                "Error manipulating the project", ex);
+                    }
+
+                } else {
+                    // Error marker found: avoid working on it
+                    Activator.logWarning(project,
+                            "Project manipulation canceled: "
+                                    + "project has errors");
                 }
             }
 
@@ -118,6 +129,40 @@ public class IPojoCompilationParticipant extends CompilationParticipant {
         } catch (final CoreException ex) {
             Activator.logError(project, "Error cleaning project", ex);
         }
+    }
+
+    /**
+     * Look for error markers in the given project.
+     * 
+     * Inspired from
+     * http://stackoverflow.com/questions/10944487/finding-number-of
+     * -errors-in-an-eclipse-project
+     * 
+     * @param aProject
+     *            Project to check for error markers
+     * @return True if the project has at least one error marker
+     */
+    protected boolean hasCompilationErrorMarkers(final IProject aProject) {
+
+        try {
+            // Find JDT markers
+            final IMarker[] markers = aProject.findMarkers(
+                    IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true,
+                    IResource.DEPTH_INFINITE);
+
+            for (final IMarker marker : markers) {
+                final Integer severityType = (Integer) marker
+                        .getAttribute(IMarker.SEVERITY);
+                if (severityType.intValue() == IMarker.SEVERITY_ERROR) {
+                    return true;
+                }
+            }
+        } catch (final CoreException ex) {
+            // Error looking for... errors
+        }
+
+        // No marker found
+        return false;
     }
 
     /**
