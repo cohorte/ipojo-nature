@@ -19,7 +19,7 @@
       point="org.eclipse.ui.menus">
    <menuContribution
          allPopups="false"
-         locationURI="popup:org.eclipse.ui.popup.any">
+         locationURI="popup:org.eclipse.ui.popup.any?before=additions">
       <command
             commandId="org.ow2.chameleon.eclipse.ipojo.update_manifest"
             icon="icons/menu_marker_16.png"
@@ -46,7 +46,7 @@
    </menuContribution>
    <menuContribution
          allPopups="false"
-         locationURI="popup:org.eclipse.ui.popup.any">
+         locationURI="popup:org.eclipse.ui.popup.any?before=additions">
       <command
             commandId="org.ow2.chameleon.eclipse.ipojo.toggle_nature"
             icon="icons/menu_marker_16.png"
