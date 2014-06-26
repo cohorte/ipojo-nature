@@ -72,7 +72,7 @@ public class AnnotationContainerInitializer extends
 		// The container
 		final AnnotationContainer annotationContainer = new AnnotationContainer();
 
-		if (annotationContainer.findAnnotationLibrary()) {
+		if (annotationContainer.hasAnnotationLibrary()) {
 			// JAR found : setup the project class path
 			JavaCore.setClasspathContainer(aContainerPath,
 					new IJavaProject[] { aProject },
