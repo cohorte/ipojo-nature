@@ -44,7 +44,7 @@ import org.ow2.chameleon.eclipse.ipojo.Activator;
 /**
  * New implementation of the manifest updater, using the new Manipulator
  * interfaces
- * 
+ *
  * @author Thomas Calmant
  */
 public class ManifestUpdater {
@@ -54,7 +54,7 @@ public class ManifestUpdater {
 
 	/**
 	 * Prepares an iPOJO {@link Classpath} object
-	 * 
+	 *
 	 * @param aProject
 	 *            An Eclipse project
 	 * @return The iPOJO classpath, or null if the class path can't be resolved
@@ -76,7 +76,7 @@ public class ManifestUpdater {
 	 * Prepares the manipulation visitor. Based on
 	 * org.apache.felix.ipojo.manipulator.Pojoization.createDefaultVisitorChain
 	 * (ManifestProvider,ResourceStore).
-	 * 
+	 *
 	 * @param aReporter
 	 *            Status reporter
 	 * @param aResourceStore
@@ -101,7 +101,7 @@ public class ManifestUpdater {
 	/**
 	 * Prepares a composite meta data provider (XML file if found, else an empty
 	 * provider). iPOJO automatically adds the annotation meta data provider.
-	 * 
+	 *
 	 * @param aProject
 	 *            Currently modified project
 	 * @param aReporter
@@ -133,7 +133,7 @@ public class ManifestUpdater {
 
 	/**
 	 * Prepares the resource store
-	 * 
+	 *
 	 * @param aProject
 	 *            Currently modified project
 	 * @return The resource store
@@ -162,7 +162,7 @@ public class ManifestUpdater {
 
 	/**
 	 * Removes the iPOJO-Component entry from the manifest file
-	 * 
+	 *
 	 * @param aProject
 	 *            Currently modified project
 	 * @throws CoreException
@@ -174,7 +174,7 @@ public class ManifestUpdater {
 		// Get the file
 		final IFile manifestFile = Utilities.INSTANCE.getManifestFile(aProject,
 				false);
-		if (!manifestFile.exists()) {
+		if (manifestFile == null || !manifestFile.exists()) {
 			// No manifest, do nothing
 			return;
 		}
@@ -207,14 +207,14 @@ public class ManifestUpdater {
 	/**
 	 * Applies a full iPOJO update on the project Manifest. Returns an IStatus
 	 * representing the result.
-	 * 
+	 *
 	 * @param aProject
 	 *            Eclipse Java project containing the Manifest
 	 * @param aMonitor
 	 *            Progress monitor
-	 * 
+	 *
 	 * @return Returns an Eclipse IStatus
-	 * 
+	 *
 	 * @throws CoreException
 	 *             An error occurred during file treatments
 	 */
