@@ -2,14 +2,15 @@
 <feature
       id="org.ow2.chameleon.eclipse.ipojo.dependencies.feature"
       label="OW2 Chameleon :: iPOJO Nature Dependencies"
-      version="1.12.0.qualifier"
+      version="1.12.1.qualifier"
       provider-name="OW2 Chameleon">
 
    <description url="http://wiki.chameleon.ow2.org/xwiki/bin/view/Main/">
       This feature embed the dependencies of the iPOJO Nature plugin
 by isandlaTech.
 It includes iPOJO Core, iPOJO Annotations and iPOJO Manipulator
-1.12.0.
+1.12.1.
+It also includes ObjectWeb ASM 5.0.4.
    </description>
 
    <copyright url="http://wiki.chameleon.ow2.org/">
@@ -256,7 +257,6 @@ limitations under the License.
 
    <requires>
       <import plugin="javax.xml"/>
-      <import plugin="org.objectweb.asm"/>
       <import plugin="org.eclipse.core.runtime"/>
    </requires>
 
