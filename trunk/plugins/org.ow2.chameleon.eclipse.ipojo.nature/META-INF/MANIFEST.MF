@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.variables;bundle-version="3.2.400"
 Bundle-Vendor: OW2 Chameleon
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Name: OW2 Chameleon :: iPOJO Project Nature
 Bundle-Activator: org.ow2.chameleon.eclipse.ipojo.Activator
 Bundle-ManifestVersion: 2
