@@ -44,7 +44,7 @@ public class AnnotationContainer implements IClasspathContainer {
 
 		if (pAnnotationLibraryPath == null) {
 			pAnnotationLibraryPath = new BundleClassFinder()
-			.getJarFile(Component.class);
+					.getJarFile(Component.class);
 		}
 
 		return pAnnotationLibraryPath;
@@ -52,7 +52,7 @@ public class AnnotationContainer implements IClasspathContainer {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.eclipse.jdt.core.IClasspathContainer#getClasspathEntries()
 	 */
 	@Override
@@ -78,7 +78,7 @@ public class AnnotationContainer implements IClasspathContainer {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.eclipse.jdt.core.IClasspathContainer#getDescription()
 	 */
 	@Override
@@ -89,7 +89,7 @@ public class AnnotationContainer implements IClasspathContainer {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.eclipse.jdt.core.IClasspathContainer#getKind()
 	 */
 	@Override
@@ -100,7 +100,7 @@ public class AnnotationContainer implements IClasspathContainer {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.eclipse.jdt.core.IClasspathContainer#getPath()
 	 */
 	@Override

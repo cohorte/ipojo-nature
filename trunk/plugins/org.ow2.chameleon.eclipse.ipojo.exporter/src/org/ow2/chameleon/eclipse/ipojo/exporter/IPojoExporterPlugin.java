@@ -26,90 +26,90 @@ import org.osgi.framework.BundleContext;
  */
 public class IPojoExporterPlugin extends AbstractUIPlugin {
 
-    /** The plug-in ID **/
-    public static final String PLUGIN_ID = "org.ow2.chameleon.eclipse.ipojo.exporter";
+	/** The plug-in ID **/
+	public static final String PLUGIN_ID = "org.ow2.chameleon.eclipse.ipojo.exporter";
 
-    /** The shared instance */
-    private static IPojoExporterPlugin sPlugin;
+	/** The shared instance */
+	private static IPojoExporterPlugin sPlugin;
 
-    /**
-     * Returns the shared instance
-     * 
-     * @return the shared instance
-     */
-    public static IPojoExporterPlugin getDefault() {
+	/**
+	 * Returns the shared instance
+	 * 
+	 * @return the shared instance
+	 */
+	public static IPojoExporterPlugin getDefault() {
 
-        return sPlugin;
-    }
+		return sPlugin;
+	}
 
-    /**
-     * Logs an exception
-     * 
-     * @param aMessage
-     *            Context description
-     * @param aThrowable
-     *            Exception caught
-     */
-    public static void logError(final String aMessage,
-            final Throwable aThrowable) {
+	/**
+	 * Logs an exception
+	 * 
+	 * @param aMessage
+	 *            Context description
+	 * @param aThrowable
+	 *            Exception caught
+	 */
+	public static void logError(final String aMessage,
+			final Throwable aThrowable) {
 
-        sPlugin.getLog().log(
-                new Status(IStatus.ERROR, PLUGIN_ID, aMessage, aThrowable));
-    }
+		sPlugin.getLog().log(
+				new Status(IStatus.ERROR, PLUGIN_ID, aMessage, aThrowable));
+	}
 
-    /**
-     * Logs an information
-     * 
-     * @param aProject
-     *            Current manipulated project
-     * @param aMessage
-     *            Message to log
-     */
-    public static void logInfo(final String aMessage) {
+	/**
+	 * Logs an information
+	 * 
+	 * @param aProject
+	 *            Current manipulated project
+	 * @param aMessage
+	 *            Message to log
+	 */
+	public static void logInfo(final String aMessage) {
 
-        sPlugin.getLog().log(new Status(IStatus.INFO, PLUGIN_ID, aMessage));
-    }
+		sPlugin.getLog().log(new Status(IStatus.INFO, PLUGIN_ID, aMessage));
+	}
 
-    /**
-     * Logs an ignored exception
-     * 
-     * @param aMessage
-     *            Context description
-     * @param aThrowable
-     *            Exception to log
-     */
-    public static void logWarning(final String aMessage,
-            final Throwable aThrowable) {
+	/**
+	 * Logs an ignored exception
+	 * 
+	 * @param aMessage
+	 *            Context description
+	 * @param aThrowable
+	 *            Exception to log
+	 */
+	public static void logWarning(final String aMessage,
+			final Throwable aThrowable) {
 
-        sPlugin.getLog().log(
-                new Status(IStatus.WARNING, PLUGIN_ID, aMessage, aThrowable));
-    }
+		sPlugin.getLog().log(
+				new Status(IStatus.WARNING, PLUGIN_ID, aMessage, aThrowable));
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
-     */
-    @Override
-    public void start(final BundleContext context) throws Exception {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+	 * )
+	 */
+	@Override
+	public void start(final BundleContext context) throws Exception {
 
-        super.start(context);
-        sPlugin = this;
-    }
+		super.start(context);
+		sPlugin = this;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-     * )
-     */
-    @Override
-    public void stop(final BundleContext context) throws Exception {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
+	 * )
+	 */
+	@Override
+	public void stop(final BundleContext context) throws Exception {
 
-        sPlugin = null;
-        super.stop(context);
-    }
+		sPlugin = null;
+		super.stop(context);
+	}
 }

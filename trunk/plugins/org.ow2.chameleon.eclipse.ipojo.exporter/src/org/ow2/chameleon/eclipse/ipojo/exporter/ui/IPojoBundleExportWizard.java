@@ -37,123 +37,123 @@ import org.ow2.chameleon.eclipse.ipojo.exporter.core.BundleExporter;
  */
 public class IPojoBundleExportWizard extends Wizard implements IExportWizard {
 
-    /** Bundle exporter */
-    private final BundleExporter pExporter = new BundleExporter();
+	/** Bundle exporter */
+	private final BundleExporter pExporter = new BundleExporter();
 
-    /** Export configuration page */
-    private BundleExportPage pExportPage;
+	/** Export configuration page */
+	private BundleExportPage pExportPage;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.wizard.Wizard#addPages()
-     */
-    @Override
-    public void addPages() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.wizard.Wizard#addPages()
+	 */
+	@Override
+	public void addPages() {
 
-        addPage(pExportPage);
-    }
+		addPage(pExportPage);
+	}
 
-    /**
-     * Tries to get the project of the given adaptable element, adapting it to
-     * an IRessource.
-     * 
-     * @param aAdaptable
-     *            An adaptable object
-     * @return The project containing the element, or null
-     */
-    private IProject getProject(final IAdaptable aAdaptable) {
+	/**
+	 * Tries to get the project of the given adaptable element, adapting it to
+	 * an IRessource.
+	 * 
+	 * @param aAdaptable
+	 *            An adaptable object
+	 * @return The project containing the element, or null
+	 */
+	private IProject getProject(final IAdaptable aAdaptable) {
 
-        if (aAdaptable == null) {
-            // Nothing to do here
-            return null;
-        }
+		if (aAdaptable == null) {
+			// Nothing to do here
+			return null;
+		}
 
-        // Try to adapt element to a resource
-        final IResource resource = (IResource) (aAdaptable)
-                .getAdapter(IResource.class);
+		// Try to adapt element to a resource
+		final IResource resource = (IResource) (aAdaptable)
+				.getAdapter(IResource.class);
 
-        if (resource != null) {
-            // Project found
-            return resource.getProject();
-        }
+		if (resource != null) {
+			// Project found
+			return resource.getProject();
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IWorkbenchWizard#init(org.eclipse.ui.IWorkbench,
-     * org.eclipse.jface.viewers.IStructuredSelection)
-     */
-    @Override
-    public void init(final IWorkbench aWorkbench,
-            final IStructuredSelection aSelection) {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ui.IWorkbenchWizard#init(org.eclipse.ui.IWorkbench,
+	 * org.eclipse.jface.viewers.IStructuredSelection)
+	 */
+	@Override
+	public void init(final IWorkbench aWorkbench,
+			final IStructuredSelection aSelection) {
 
-        // Prepare the wizard page
-        setWindowTitle("iPOJO Bundle export wizard");
+		// Prepare the wizard page
+		setWindowTitle("iPOJO Bundle export wizard");
 
-        // Prepare the export page
-        pExportPage = new BundleExportPage("iPOJO Bundle Export");
+		// Prepare the export page
+		pExportPage = new BundleExportPage("iPOJO Bundle Export");
 
-        // Get all selected projects
-        final Set<IProject> selectedProjects = new HashSet<IProject>();
-        for (final Object selectedObject : aSelection.toArray()) {
+		// Get all selected projects
+		final Set<IProject> selectedProjects = new HashSet<IProject>();
+		for (final Object selectedObject : aSelection.toArray()) {
 
-            if (selectedObject instanceof IResource) {
-                // Resource selected : add its parent project to the set
-                selectedProjects.add(((IResource) selectedObject).getProject());
+			if (selectedObject instanceof IResource) {
+				// Resource selected : add its parent project to the set
+				selectedProjects.add(((IResource) selectedObject).getProject());
 
-            } else if (selectedObject instanceof IWorkingSet) {
-                // Working set selected : add all projects it contains
-                for (final IAdaptable element : ((IWorkingSet) selectedObject)
-                        .getElements()) {
-                    final IProject project = getProject(element);
-                    if (project != null) {
-                        selectedProjects.add(project);
-                    }
-                }
+			} else if (selectedObject instanceof IWorkingSet) {
+				// Working set selected : add all projects it contains
+				for (final IAdaptable element : ((IWorkingSet) selectedObject)
+						.getElements()) {
+					final IProject project = getProject(element);
+					if (project != null) {
+						selectedProjects.add(project);
+					}
+				}
 
-            } else if (selectedObject instanceof IAdaptable) {
-                // Try with an adapter
-                final IProject project = getProject((IAdaptable) selectedObject);
-                if (project != null) {
-                    selectedProjects.add(project);
-                }
-            }
-        }
+			} else if (selectedObject instanceof IAdaptable) {
+				// Try with an adapter
+				final IProject project = getProject((IAdaptable) selectedObject);
+				if (project != null) {
+					selectedProjects.add(project);
+				}
+			}
+		}
 
-        // Set up the export page selection
-        pExportPage.setSelectedProjects(selectedProjects);
-    }
+		// Set up the export page selection
+		pExportPage.setSelectedProjects(selectedProjects);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.wizard.Wizard#performFinish()
-     */
-    @Override
-    public boolean performFinish() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
+	 */
+	@Override
+	public boolean performFinish() {
 
-        // Save page settings
-        pExportPage.save();
+		// Save page settings
+		pExportPage.save();
 
-        // Set up the exporter
-        pExporter.setUseBuildProperties(pExportPage.useBuildProperties());
-        pExporter.setOutputFolder(pExportPage.getOutputFolder());
+		// Set up the exporter
+		pExporter.setUseBuildProperties(pExportPage.useBuildProperties());
+		pExporter.setOutputFolder(pExportPage.getOutputFolder());
 
-        // Export each project
-        for (final IProject project : pExportPage.getSelectedProjects()) {
+		// Export each project
+		for (final IProject project : pExportPage.getSelectedProjects()) {
 
-            try {
-                pExporter.exportBundle(project, new NullProgressMonitor());
+			try {
+				pExporter.exportBundle(project, new NullProgressMonitor());
 
-            } catch (final CoreException e) {
-                IPojoExporterPlugin.logError("Error exporting bundle", e);
-            }
-        }
+			} catch (final CoreException e) {
+				IPojoExporterPlugin.logError("Error exporting bundle", e);
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

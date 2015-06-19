@@ -36,168 +36,168 @@ import org.ow2.chameleon.eclipse.ipojo.exporter.IPojoExporterPlugin;
  */
 public class CoreFileExportPage extends WizardPage {
 
-    /**
-     * Listener that updates the wizard buttons
-     * 
-     * @author Thomas Calmant
-     */
-    protected class EventListener implements Listener {
+	/**
+	 * Listener that updates the wizard buttons
+	 * 
+	 * @author Thomas Calmant
+	 */
+	protected class EventListener implements Listener {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.eclipse.swt.widgets.Listener#handleEvent(org.eclipse.swt.widgets
-         * .Event)
-         */
-        @Override
-        public void handleEvent(final Event aEvent) {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.eclipse.swt.widgets.Listener#handleEvent(org.eclipse.swt.widgets
+		 * .Event)
+		 */
+		@Override
+		public void handleEvent(final Event aEvent) {
 
-            // Update navigation buttons state
-            getWizard().getContainer().updateButtons();
-        }
-    }
+			// Update navigation buttons state
+			getWizard().getContainer().updateButtons();
+		}
+	}
 
-    /** Flag indicating if Dialog Settings are actually set */
-    public static final String SETTINGS_CORE_ARE_SET = "ipojo.core.settingsSet";
+	/** Flag indicating if Dialog Settings are actually set */
+	public static final String SETTINGS_CORE_ARE_SET = "ipojo.core.settingsSet";
 
-    /** Output folder setting */
-    public static final String SETTINGS_CORE_OUTPUT_FOLDER = "ipojo.core.outputFolder";
+	/** Output folder setting */
+	public static final String SETTINGS_CORE_OUTPUT_FOLDER = "ipojo.core.outputFolder";
 
-    /** Output folder */
-    private Text pOutputFolder;
+	/** Output folder */
+	private Text pOutputFolder;
 
-    /** Wizard page root */
-    private Composite pPageRoot;
+	/** Wizard page root */
+	private Composite pPageRoot;
 
-    /** Dialog settings */
-    private final IDialogSettings pSettings;
+	/** Dialog settings */
+	private final IDialogSettings pSettings;
 
-    /**
-     * Constructor
-     * 
-     * @param aPageName
-     *            Wizard page name
-     */
-    protected CoreFileExportPage(final String aPageName) {
+	/**
+	 * Constructor
+	 * 
+	 * @param aPageName
+	 *            Wizard page name
+	 */
+	protected CoreFileExportPage(final String aPageName) {
 
-        super(aPageName, aPageName, ImageDescriptor.createFromFile(
-                Activator.class, "/icons/ipojo-small.png"));
-        pSettings = IPojoExporterPlugin.getDefault().getDialogSettings();
-    }
+		super(aPageName, aPageName, ImageDescriptor.createFromFile(
+				Activator.class, "/icons/ipojo-small.png"));
+		pSettings = IPojoExporterPlugin.getDefault().getDialogSettings();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets
-     * .Composite)
-     */
-    @Override
-    public void createControl(final Composite aParent) {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets
+	 * .Composite)
+	 */
+	@Override
+	public void createControl(final Composite aParent) {
 
-        // Set up the page root
-        pPageRoot = new Composite(aParent, SWT.NONE);
+		// Set up the page root
+		pPageRoot = new Composite(aParent, SWT.NONE);
 
-        final GridLayout layout = new GridLayout(1, false);
-        layout.verticalSpacing = 10;
-        pPageRoot.setLayout(layout);
+		final GridLayout layout = new GridLayout(1, false);
+		layout.verticalSpacing = 10;
+		pPageRoot.setLayout(layout);
 
-        /* Export options */
-        final Group exportGroup = new Group(pPageRoot, SWT.NONE);
-        exportGroup.setText("Export options");
-        exportGroup.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
-                false));
+		/* Export options */
+		final Group exportGroup = new Group(pPageRoot, SWT.NONE);
+		exportGroup.setText("Export options");
+		exportGroup.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+				false));
 
-        createExportFields(exportGroup);
+		createExportFields(exportGroup);
 
-        // Set the wizard page main control
-        setControl(pPageRoot);
-    }
+		// Set the wizard page main control
+		setControl(pPageRoot);
+	}
 
-    /**
-     * Prepares export options fields
-     * 
-     * @param aParent
-     *            Parent widget
-     */
-    private void createExportFields(final Composite aParent) {
+	/**
+	 * Prepares export options fields
+	 * 
+	 * @param aParent
+	 *            Parent widget
+	 */
+	private void createExportFields(final Composite aParent) {
 
-        aParent.setLayout(new GridLayout(2, false));
+		aParent.setLayout(new GridLayout(2, false));
 
-        // Output folder
-        pOutputFolder = new Text(aParent, SWT.BORDER);
-        pOutputFolder.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
-                false));
-        pOutputFolder.addListener(SWT.Modify, new EventListener());
+		// Output folder
+		pOutputFolder = new Text(aParent, SWT.BORDER);
+		pOutputFolder.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+				false));
+		pOutputFolder.addListener(SWT.Modify, new EventListener());
 
-        // Set the default text
-        final String settingsOutputFolder = pSettings
-                .get(SETTINGS_CORE_OUTPUT_FOLDER);
-        if (settingsOutputFolder != null) {
-            pOutputFolder.setText(settingsOutputFolder);
-        }
+		// Set the default text
+		final String settingsOutputFolder = pSettings
+				.get(SETTINGS_CORE_OUTPUT_FOLDER);
+		if (settingsOutputFolder != null) {
+			pOutputFolder.setText(settingsOutputFolder);
+		}
 
-        // Output folder button
-        final Button chooseFolder = new Button(aParent, SWT.RIGHT);
-        chooseFolder.setText("Choose a folder");
-        chooseFolder.addSelectionListener(new FolderSelector(this,
-                pOutputFolder));
-    }
+		// Output folder button
+		final Button chooseFolder = new Button(aParent, SWT.RIGHT);
+		chooseFolder.setText("Choose a folder");
+		chooseFolder.addSelectionListener(new FolderSelector(this,
+				pOutputFolder));
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.DialogPage#getDescription()
-     */
-    @Override
-    public String getDescription() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.dialogs.DialogPage#getDescription()
+	 */
+	@Override
+	public String getDescription() {
 
-        return "iPOJO Core JAR file export configuration";
-    }
+		return "iPOJO Core JAR file export configuration";
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.DialogPage#getMessage()
-     */
-    @Override
-    public String getMessage() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.dialogs.DialogPage#getMessage()
+	 */
+	@Override
+	public String getMessage() {
 
-        return "Select the output folder";
-    }
+		return "Select the output folder";
+	}
 
-    /**
-     * Retrieves the selected output folder
-     * 
-     * @return The output folder
-     */
-    public String getOutputFolder() {
+	/**
+	 * Retrieves the selected output folder
+	 * 
+	 * @return The output folder
+	 */
+	public String getOutputFolder() {
 
-        return pOutputFolder.getText();
-    }
+		return pOutputFolder.getText();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.wizard.WizardPage#isPageComplete()
-     */
-    @Override
-    public boolean isPageComplete() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.wizard.WizardPage#isPageComplete()
+	 */
+	@Override
+	public boolean isPageComplete() {
 
-        return !pOutputFolder.getText().isEmpty();
-    }
+		return !pOutputFolder.getText().isEmpty();
+	}
 
-    /**
-     * Saves the page settings
-     */
-    public void save() {
+	/**
+	 * Saves the page settings
+	 */
+	public void save() {
 
-        // Store settings
-        pSettings.put(SETTINGS_CORE_OUTPUT_FOLDER, getOutputFolder());
+		// Store settings
+		pSettings.put(SETTINGS_CORE_OUTPUT_FOLDER, getOutputFolder());
 
-        // We now have user settings
-        pSettings.put(SETTINGS_CORE_ARE_SET, true);
-    }
+		// We now have user settings
+		pSettings.put(SETTINGS_CORE_ARE_SET, true);
+	}
 
 }

@@ -28,63 +28,63 @@ import org.eclipse.swt.widgets.Text;
  */
 class FolderSelector implements SelectionListener {
 
-    /** The associated wizard page */
-    private final WizardPage pPage;
+	/** The associated wizard page */
+	private final WizardPage pPage;
 
-    /** Target text container */
-    private final Text pTarget;
+	/** Target text container */
+	private final Text pTarget;
 
-    /**
-     * Sets up the folder selector
-     * 
-     * @param aWizard
-     *            Parent wizard page
-     * @param aTextWidget
-     *            Widget that will contain the selected path
-     */
-    public FolderSelector(final WizardPage aWizard, final Text aTextWidget) {
+	/**
+	 * Sets up the folder selector
+	 * 
+	 * @param aWizard
+	 *            Parent wizard page
+	 * @param aTextWidget
+	 *            Widget that will contain the selected path
+	 */
+	public FolderSelector(final WizardPage aWizard, final Text aTextWidget) {
 
-        pPage = aWizard;
-        pTarget = aTextWidget;
-    }
+		pPage = aWizard;
+		pTarget = aTextWidget;
+	}
 
-    /**
-     * Updates the navigation buttons
-     */
-    private void updateButtons() {
+	/**
+	 * Updates the navigation buttons
+	 */
+	private void updateButtons() {
 
-        pPage.getWizard().getContainer().updateButtons();
-    }
+		pPage.getWizard().getContainer().updateButtons();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse
-     * .swt.events.SelectionEvent)
-     */
-    @Override
-    public void widgetDefaultSelected(final SelectionEvent aEvent) {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse
+	 * .swt.events.SelectionEvent)
+	 */
+	@Override
+	public void widgetDefaultSelected(final SelectionEvent aEvent) {
 
-        // Update navigation buttons state
-        updateButtons();
-    }
+		// Update navigation buttons state
+		updateButtons();
+	}
 
-    @Override
-    public void widgetSelected(final SelectionEvent aEvent) {
+	@Override
+	public void widgetSelected(final SelectionEvent aEvent) {
 
-        // Pop up a directory selection dialog
-        final DirectoryDialog dialog = new DirectoryDialog(pPage.getShell(),
-                SWT.SAVE);
-        dialog.setMessage("Choose a folder");
-        dialog.setFilterPath(pTarget.getText());
+		// Pop up a directory selection dialog
+		final DirectoryDialog dialog = new DirectoryDialog(pPage.getShell(),
+				SWT.SAVE);
+		dialog.setMessage("Choose a folder");
+		dialog.setFilterPath(pTarget.getText());
 
-        final String text = dialog.open();
-        if (text != null) {
-            pTarget.setText(text);
+		final String text = dialog.open();
+		if (text != null) {
+			pTarget.setText(text);
 
-            // Update navigation buttons state
-            updateButtons();
-        }
-    }
+			// Update navigation buttons state
+			updateButtons();
+		}
+	}
 }
