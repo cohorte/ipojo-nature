@@ -40,7 +40,7 @@ public class ClasspathResolver {
 
 	/**
 	 * Finds the project matching the given entry path
-	 * 
+	 *
 	 * @param aRoot
 	 *            Workspace root
 	 * @param aPath
@@ -70,7 +70,7 @@ public class ClasspathResolver {
 	/**
 	 * Returns a set of file-system paths that corresponds the classpath of the
 	 * given project.
-	 * 
+	 *
 	 * @param aJavaProject
 	 *            A JDT Java project
 	 * @return A set of paths
@@ -86,7 +86,7 @@ public class ClasspathResolver {
 
 	/**
 	 * Resolves the paths of the given container entry
-	 * 
+	 *
 	 * @param aEntry
 	 *            A classpath entry of {@link IClasspathEntry#CPE_CONTAINER}
 	 *            type
@@ -120,7 +120,7 @@ public class ClasspathResolver {
 
 	/**
 	 * Resolves the path of the given classpath entries
-	 * 
+	 *
 	 * @param aClasspathEntries
 	 *            An array of classpath entries to resolve
 	 * @param aJavaProject
@@ -147,7 +147,7 @@ public class ClasspathResolver {
 
 			case IClasspathEntry.CPE_LIBRARY:
 				// JAR file
-				results.add(resolveLibrary(entry));
+				results.add(resolveLibrary(entry, aRoot));
 				break;
 
 			case IClasspathEntry.CPE_PROJECT:
@@ -177,25 +177,37 @@ public class ClasspathResolver {
 
 	/**
 	 * Resolves the path to the given library
-	 * 
+	 *
 	 * @param aEntry
 	 *            A classpath entry of {@link IClasspathEntry#CPE_LIBRARY} type
+	 * @param aRoot
+	 *            The workspace root
 	 * @return The path to the given library
 	 */
-	protected String resolveLibrary(final IClasspathEntry aEntry) {
+	protected String resolveLibrary(final IClasspathEntry aEntry,
+			final IWorkspaceRoot aRoot) {
 
-		// Refers to a library
-		final File classpathFile = aEntry.getPath().toFile();
-		if (classpathFile.exists()) {
-			return classpathFile.getAbsolutePath();
+		// Get workspace-based location
+		final IResource libResource = aRoot.findMember(aEntry.getPath());
+		if (libResource == null) {
+			// Not a local resource
+			final File classpathFile = aEntry.getPath().toFile();
+			if (classpathFile.exists()) {
+				return classpathFile.getAbsolutePath();
+			}
+
+		} else {
+			// Local resource
+			return libResource.getLocation().toString();
 		}
 
+		// Unknown file
 		return null;
 	}
 
 	/**
 	 * Resolves the path to the output location of the given project
-	 * 
+	 *
 	 * @param aEntry
 	 *            A classpath entry of {@link IClasspathEntry#CPE_PROJECT} or
 	 *            {@link IClasspathEntry#CPE_SOURCE} types
@@ -220,7 +232,7 @@ public class ClasspathResolver {
 
 	/**
 	 * Resolves the path of the given variable classpath entry
-	 * 
+	 *
 	 * @param aEntry
 	 *            A classpath entry of {@link IClasspathEntry#CPE_VARIABLE} type
 	 * @param aJavaProject
