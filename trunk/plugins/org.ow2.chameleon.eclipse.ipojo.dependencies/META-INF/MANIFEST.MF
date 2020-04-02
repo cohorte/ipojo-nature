@@ -7,9 +7,13 @@ Bundle-Vendor: OW2 Chameleon
 Require-Bundle: javax.xml,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: asm-all-5.0.4.jar,
- org.apache.felix.ipojo-1.12.1.jar,
- org.apache.felix.ipojo.manipulator-1.12.1.jar
+Bundle-ClassPath: org.apache.felix.ipojo-1.12.1.jar,
+ org.apache.felix.ipojo.manipulator-1.12.1.jar,
+ asm-8.0.jar,
+ asm-analysis-8.0.jar,
+ asm-commons-8.0.jar,
+ asm-tree-8.0.jar,
+ asm-util-8.0.jar
 Export-Package: org.apache.felix.ipojo;version="1.12.1",
  org.apache.felix.ipojo.annotations;version="1.12.1",
  org.apache.felix.ipojo.architecture;version="1.12.1",
@@ -24,16 +28,9 @@ Export-Package: org.apache.felix.ipojo;version="1.12.1",
  org.apache.felix.ipojo.manipulator.visitor.check;version="1.12.1",
  org.apache.felix.ipojo.manipulator.visitor.writer;version="1.12.1",
  org.apache.felix.ipojo.metadata;version="1.12.1",
- org.objectweb.asm;version="5.0.4",
- org.objectweb.asm.commons;version="5.0.4",
- org.objectweb.asm.signature;version="5.0.4",
- org.objectweb.asm.tree;version="5.0.4",
- org.objectweb.asm.tree.analysis;version="5.0.4",
- org.objectweb.asm.util;version="5.0.4",
- org.objectweb.asm.xml;version="5.0.4"
-Import-Package: org.objectweb.asm;version="5.0.3",
- org.objectweb.asm.commons;version="5.0.3",
- org.objectweb.asm.signature;version="5.0.3",
- org.objectweb.asm.tree;version="5.0.3",
- org.objectweb.asm.util;version="5.0.3",
- org.objectweb.asm.xml;version="5.0.3"
+ org.objectweb.asm;version="8.0.0",
+ org.objectweb.asm.commons;version="8.0.0",
+ org.objectweb.asm.signature;version="8.0.0",
+ org.objectweb.asm.tree;version="8.0.0",
+ org.objectweb.asm.tree.analysis;version="8.0.0",
+ org.objectweb.asm.util;version="8.0.0"
