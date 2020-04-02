@@ -40,9 +40,9 @@ Nature de projet
 Un builder est associé à un projet en passant par la notion de *nature*.
 Cette notion permet également d'associer un projet à des plugins.
 
-L'association d'un builder à un projet se fait à l'aide de la méthode 
+L'association d'un builder à un projet se fait à l'aide de la méthode
 *configure()*.
-   
+
 +-----------------------+-----------------------------------------+
 | **Point d'extension** | org.eclipse.core.resources.natures      |
 +-----------------------+-----------------------------------------+

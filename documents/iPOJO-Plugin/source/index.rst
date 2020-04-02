@@ -11,15 +11,20 @@ Contenu :
 .. toctree::
    :numbered:
    :maxdepth: 2
-   
-   eclipse/index
-   developer/index
-   user/index
+
+   eclipse/references
+   developer/plugin-fonctionnalites
+   user/plugin-description
+
+.. toctree::
+   :hidden:
+
+   glossaire
+
 
 Index et tables
 ###############
 
-* :doc:`content/glossaire`
+* :doc:`glossaire`
 * :ref:`genindex`
 * :ref:`search`
-
