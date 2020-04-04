@@ -2,7 +2,12 @@ This project must contain the iPOJO Core and the patched version of the iPOJO
 Manipulator. It has been created in order to have an Equinox 'plugin' version
 of the iPOJO Core and Manipulator JAR files.
 
-The constant-output.patch contains the patch to be applied on ipojo project
-group root in order to have a stable Manifest.mf file content.
-It uses TreeMap and LinkedHashMap instead of HashMap to conserve the Elements
-and Elements' attributes order over manipulations.
+Before iPOJO 1.8, we used to patch the iPOJO Manipulator in order to have a
+stable Manifest.mf file content. This behavior was then changed in the iPOJO
+project after issue FELIX-3131.
+See: https://issues.apache.org/jira/browse/FELIX-3131
+
+The "constant-output.patch" we used can be seen in the Git history of this
+project, at commit 3f42274af35a645368943f7bea210c0f5001e66c.
+It replaces a HashMap by a TreeMap to conserve the order of the Elements and
+their attributes over manipulations.
