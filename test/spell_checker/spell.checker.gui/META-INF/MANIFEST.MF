@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gui
+Bundle-SymbolicName: spell.checker.gui
+Bundle-Version: 1.0.0.qualifier
+Private-Package: spell.gui

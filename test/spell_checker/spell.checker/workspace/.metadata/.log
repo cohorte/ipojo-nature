@@ -1,0 +1,84 @@
+!SESSION 2020-04-05 16:14:44.189 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=14
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=fr_FR
+Command-line arguments:  -dev file:D:/Programmation/Eclipse/runtime-iPOJONatureTest/.metadata/.plugins/org.eclipse.pde.core/New_configuration/dev.properties -os win32 -ws win32 -arch x86_64 -consoleLog -console
+
+!ENTRY spell.checker.gui 4 0 2020-04-05 16:14:44.770
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: spell.checker.gui [1]
+  Unresolved requirement: Import-Package: org.apache.felix.ipojo; version="[1.12.1,2.0.0)"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1780)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY spell.checker 4 0 2020-04-05 16:14:44.771
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: spell.checker [3]
+  Unresolved requirement: Import-Package: org.apache.felix.ipojo; version="[1.12.1,2.0.0)"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1780)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY spell.english 4 0 2020-04-05 16:14:44.772
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: spell.english [4]
+  Unresolved requirement: Import-Package: org.apache.felix.ipojo; version="[1.12.1,2.0.0)"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1780)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.osgi 4 0 2020-04-05 16:14:45.227
+!MESSAGE Bundle initial@reference:file:D:/Programmation/Eclipse/runtime-iPOJONatureTest/spell.checker.gui/ was not resolved.
+
+!ENTRY org.eclipse.osgi 4 0 2020-04-05 16:14:45.227
+!MESSAGE Bundle initial@reference:file:D:/Programmation/Eclipse/runtime-iPOJONatureTest/spell.checker/ was not resolved.
+
+!ENTRY org.eclipse.osgi 4 0 2020-04-05 16:14:45.228
+!MESSAGE Bundle initial@reference:file:D:/Programmation/Eclipse/runtime-iPOJONatureTest/spell.english/ was not resolved.
+
+!ENTRY spell.checker 4 0 2020-04-05 16:14:57.632
+!MESSAGE [ERROR] spell.checker.SpellCheck : An interface or parent class cannot be loaded
+
+!ENTRY spell.english 4 0 2020-04-05 16:14:57.635
+!MESSAGE [ERROR] spell.english.EnglishDictionary : An interface or parent class cannot be loaded
+
+!ENTRY spell.checker.gui 4 0 2020-04-05 16:14:57.644
+!MESSAGE [ERROR] spell.gui.SpellCheckerGui : Cannot set the service specification of {field=checker} - reason: the class spell.services.SpellChecker cannot be loaded from the bundle 1
+
+!ENTRY spell.checker 4 0 2020-04-05 16:16:01.232
+!MESSAGE [ERROR] spell.checker.SpellCheck : An interface or parent class cannot be loaded
+
+!ENTRY spell.checker.gui 4 0 2020-04-05 16:16:03.893
+!MESSAGE [ERROR] spell.gui.SpellCheckerGui : Cannot set the service specification of {field=checker} - reason: the class spell.services.SpellChecker cannot be loaded from the bundle 1
+
+!ENTRY spell.checker 4 0 2020-04-05 16:16:08.259
+!MESSAGE [ERROR] spell.checker.SpellCheck : An interface or parent class cannot be loaded

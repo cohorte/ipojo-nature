@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Services
+Bundle-SymbolicName: spell.services
+Bundle-Version: 1.0.0.qualifier
+Export-Package: spell.services
