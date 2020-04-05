@@ -5,7 +5,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core;bundle-version="3.6.1",
  org.eclipse.jdt.launching;bundle-version="3.6.1",
  org.eclipse.help,
- org.ow2.chameleon.eclipse.ipojo.dependencies;bundle-version="1.12.0",
+ org.ow2.chameleon.eclipse.ipojo.dependencies;bundle-version="1.12.2",
  org.eclipse.ui.ide,
  org.eclipse.debug.ui,
  org.eclipse.core.variables;bundle-version="3.2.400"
@@ -20,4 +20,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.ow2.chameleon.eclipse.ipojo;version="1.1.0",
  org.ow2.chameleon.eclipse.ipojo.builder;version="1.1.0",
  org.ow2.chameleon.eclipse.ipojo.core;version="1.1.0"
-
+Import-Package:  org.objectweb.asm;version="8.0.1",
+ org.objectweb.asm.commons;version="8.0.1",
+ org.objectweb.asm.signature;version="8.0.1",
+ org.objectweb.asm.tree;version="8.0.1",
+ org.objectweb.asm.util;version="8.0.1"
