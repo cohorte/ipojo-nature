@@ -1,5 +1,9 @@
 package tests.ow2.chameleon.eclipse.ipojo.manifest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static tech.cohorte.pico.tooling.CCTLoggerUtils.logBanner;
 import static tech.cohorte.pico.tooling.CCTLoggerUtils.logInfo;
 import static tech.cohorte.pico.tooling.CCTLoggerUtils.logInfoBegin;
 import static tech.cohorte.pico.tooling.CCTLoggerUtils.logInfoEnd;
@@ -9,10 +13,13 @@ import static tech.cohorte.pico.tooling.CCTStringUtils.truncatedToString;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.Attributes;
+import java.util.logging.Level;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -21,7 +28,6 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.ow2.chameleon.eclipse.ipojo.core.ManifestManipulator;
 
-import junit.framework.TestCase;
 import tech.cohorte.pico.tooling.CCTExceptionUtils;
 import tech.cohorte.pico.tooling.CCTJulUtils;
 import tech.cohorte.pico.tooling.CCTLoggerUtils;
@@ -32,32 +38,57 @@ import tech.cohorte.pico.tooling.CCTTimer;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CTestManifestManipulator extends TestCase {
+public class CTestManifestManipulator {
 
-	static {
-		logInfo(CTestManifestManipulator.class, "<static>", "\n%s",
-				//
-				CCTJulUtils.dumpCurrentLogger(CCTLoggerUtils.getCurrentLogger()));
+	private static final int sNbTest = countNbTest(CTestManifestManipulator.class);
+
+	private static final AtomicInteger sSuccessCounter = new AtomicInteger(0);
+	private static final AtomicInteger sTestCounter = new AtomicInteger(0);
+
+	private static final String TESTNAME = CTestManifestManipulator.class.getSimpleName();
+
+	/**
+	 * @param aTestClass
+	 * @return the number of method having the annotation @Test
+	 */
+	private static int countNbTest(final Class<?> aTestClass) {
+
+		int wNbTest = 0;
+		for (Method wMethod : aTestClass.getMethods()) {
+			Test wTestAnnotation = wMethod.getAnnotation(Test.class);
+			if (wTestAnnotation != null) {
+				wNbTest++;
+			}
+		}
+		return wNbTest;
 	}
 
 	/**
 	 *
 	 */
 	@AfterClass
-	public static void destroy() {
+	public static void destroy() throws Exception {
+		String wMethod = getMethodName(1);
 
-		logInfo(CTestManifestManipulator.class, "destroy", "After all the tests of [%s]",
-				CTestManifestManipulator.class.getSimpleName());
+		logBanner(CTestManifestManipulator.class, wMethod, Level.INFO, "Test of [%s] done. Success=[%d/%d]", TESTNAME,
+				sSuccessCounter.get(), sNbTest);
 	}
 
 	/**
 	 *
 	 */
 	@BeforeClass
-	public static void initialize() {
+	public static void initialize() throws Exception {
+		String wMethod = getMethodName(1);
 
-		logInfo(CTestManifestManipulator.class, "initialize", "Before all the tests of [%s]",
-				CTestManifestManipulator.class.getSimpleName());
+		logBanner(CTestManifestManipulator.class, wMethod, Level.INFO, "Tests of [%s] Begin. NbTest=[%d]", TESTNAME,
+				sNbTest);
+
+		// dump the current logger
+		logInfo(CTestManifestManipulator.class, wMethod, "%s",
+				//
+				CCTJulUtils.dumpCurrentLogger(CCTLoggerUtils.getCurrentLogger()));
+
 	}
 
 	/**
@@ -133,7 +164,7 @@ public class CTestManifestManipulator extends TestCase {
 		String wMethod = getMethodName(1);
 		CCTTimer wTimer = CCTTimer.newStartedTimer();
 
-		logInfoBegin(this, wMethod);
+		logInfoBegin(this, wMethod, "test=[%d/%d)", sTestCounter.incrementAndGet(), sNbTest);
 
 		try {
 
@@ -168,7 +199,8 @@ public class CTestManifestManipulator extends TestCase {
 			String wIPojoAttributeValue = wManifestManipulator.getIPojoAttributeValue();
 			logInfo(this, wMethod, "Manifest.IPojoAttribute=[%s]", truncatedToString(wIPojoAttributeValue, 256));
 
-			logInfo(this, wMethod, "Done. duration=[%s]", wTimer.getDurationStrMicroSec());
+			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
+					wTimer.getDurationStrMicroSec());
 		}
 		//
 		catch (final Throwable e) {
@@ -189,7 +221,7 @@ public class CTestManifestManipulator extends TestCase {
 		String wMethod = getMethodName(1);
 		CCTTimer wTimer = CCTTimer.newStartedTimer();
 
-		logInfoBegin(this, wMethod);
+		logInfoBegin(this, wMethod, "test=[%d/%d)", sTestCounter.incrementAndGet(), sNbTest);
 
 		try {
 			// load the manifest "a"
@@ -209,7 +241,8 @@ public class CTestManifestManipulator extends TestCase {
 			assertEquals(1, wAttributesSize);
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d] >>> assert equals 1 OK", wAttributesSize);
 
-			logInfo(this, wMethod, "Done. duration=[%s]", wTimer.getDurationStrMicroSec());
+			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
+					wTimer.getDurationStrMicroSec());
 		}
 		//
 		catch (final Throwable e) {
@@ -230,7 +263,7 @@ public class CTestManifestManipulator extends TestCase {
 		String wMethod = getMethodName(1);
 		CCTTimer wTimer = CCTTimer.newStartedTimer();
 
-		logInfoBegin(this, wMethod);
+		logInfoBegin(this, wMethod, "test=[%d/%d)", sTestCounter.incrementAndGet(), sNbTest);
 
 		try {
 			// load the manifest "a"
@@ -247,7 +280,8 @@ public class CTestManifestManipulator extends TestCase {
 			assertTrue(wSame);
 			logInfo(this, wMethod, "isIPojoAttributeSameAsIn=[%b] >>> assert true OK", wSame);
 
-			logInfo(this, wMethod, "Done. duration=[%s]", wTimer.getDurationStrMicroSec());
+			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
+					wTimer.getDurationStrMicroSec());
 		}
 		//
 		catch (final Throwable e) {
@@ -268,7 +302,7 @@ public class CTestManifestManipulator extends TestCase {
 		String wMethod = getMethodName(1);
 		CCTTimer wTimer = CCTTimer.newStartedTimer();
 
-		logInfoBegin(this, wMethod);
+		logInfoBegin(this, wMethod, "test=[%d/%d)", sTestCounter.incrementAndGet(), sNbTest);
 
 		try {
 			// load the manifest "a"
@@ -285,7 +319,8 @@ public class CTestManifestManipulator extends TestCase {
 			assertFalse(wSame);
 			logInfo(this, wMethod, "isIPojoAttributeSameAsIn=[%b] >>> assert false OK", wSame);
 
-			logInfo(this, wMethod, "Done. duration=[%s]", wTimer.getDurationStrMicroSec());
+			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
+					wTimer.getDurationStrMicroSec());
 		}
 		//
 		catch (final Throwable e) {
@@ -306,7 +341,7 @@ public class CTestManifestManipulator extends TestCase {
 		String wMethod = getMethodName(1);
 		CCTTimer wTimer = CCTTimer.newStartedTimer();
 
-		logInfoBegin(this, wMethod);
+		logInfoBegin(this, wMethod, "test=[%d/%d)", sTestCounter.incrementAndGet(), sNbTest);
 
 		try {
 			// load the manifest "c" (without IPojo attribute)
@@ -335,7 +370,8 @@ public class CTestManifestManipulator extends TestCase {
 			// after
 			dumpAttributes(wManipulatorC);
 
-			logInfo(this, wMethod, "Done. duration=[%s]", wTimer.getDurationStrMicroSec());
+			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
+					wTimer.getDurationStrMicroSec());
 		}
 		//
 		catch (final Throwable e) {
@@ -356,7 +392,7 @@ public class CTestManifestManipulator extends TestCase {
 		String wMethod = getMethodName(1);
 		CCTTimer wTimer = CCTTimer.newStartedTimer();
 
-		logInfoBegin(this, wMethod);
+		logInfoBegin(this, wMethod, "test=[%d/%d)", sTestCounter.incrementAndGet(), sNbTest);
 
 		try {
 
@@ -399,7 +435,8 @@ public class CTestManifestManipulator extends TestCase {
 
 			}
 
-			logInfo(this, wMethod, "Done. duration=[%s]", wTimer.getDurationStrMicroSec());
+			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
+					wTimer.getDurationStrMicroSec());
 		}
 		//
 		catch (final Throwable e) {
@@ -411,4 +448,5 @@ public class CTestManifestManipulator extends TestCase {
 			logInfoEnd(this, wMethod);
 		}
 	}
+
 }
