@@ -14,11 +14,13 @@ import static tech.cohorte.pico.tooling.CCTStringUtils.truncatedToString;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
 import java.util.logging.Level;
 
 import org.junit.AfterClass;
@@ -26,7 +28,8 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.ow2.chameleon.eclipse.ipojo.core.ManifestManipulator;
+import org.ow2.chameleon.eclipse.ipojo.core.ManifestReformator;
+import org.ow2.chameleon.eclipse.ipojo.core.ManifestReformator.Attribute;
 
 import tech.cohorte.pico.tooling.CCTExceptionUtils;
 import tech.cohorte.pico.tooling.CCTJulUtils;
@@ -38,14 +41,21 @@ import tech.cohorte.pico.tooling.CCTTimer;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CTestManifestManipulator {
+public class CTestManifestReformator {
 
-	private static final int sNbTest = countNbTest(CTestManifestManipulator.class);
+	private static final String ARGUMENT_FULL_RESOURCE_PATH = "fullResourcePath";
+
+	private static final String ARGUMENT_RESOURCE_NAME = "resourceName";
+
+	private static final String ARGUMENT_RESOURCE_PATH = "resourcePath";
+
+	private static final int sNbTest = countNbTest(CTestManifestReformator.class);
 
 	private static final AtomicInteger sSuccessCounter = new AtomicInteger(0);
+
 	private static final AtomicInteger sTestCounter = new AtomicInteger(0);
 
-	private static final String TESTNAME = CTestManifestManipulator.class.getSimpleName();
+	private static final String TESTNAME = CTestManifestReformator.class.getSimpleName();
 
 	/**
 	 * @param aTestClass
@@ -70,7 +80,7 @@ public class CTestManifestManipulator {
 	public static void destroy() throws Exception {
 		String wMethod = getMethodName(1);
 
-		logBanner(CTestManifestManipulator.class, wMethod, Level.INFO, "Test of [%s] done. Success=[%d/%d]", TESTNAME,
+		logBanner(CTestManifestReformator.class, wMethod, Level.INFO, "Test of [%s] done. Success=[%d/%d]", TESTNAME,
 				sSuccessCounter.get(), sNbTest);
 	}
 
@@ -81,33 +91,101 @@ public class CTestManifestManipulator {
 	public static void initialize() throws Exception {
 		String wMethod = getMethodName(1);
 
-		logBanner(CTestManifestManipulator.class, wMethod, Level.INFO, "Tests of [%s] Begin. NbTest=[%d]", TESTNAME,
+		logBanner(CTestManifestReformator.class, wMethod, Level.INFO, "Tests of [%s] Begin. NbTest=[%d]", TESTNAME,
 				sNbTest);
 
 		// dump the current logger
-		logInfo(CTestManifestManipulator.class, wMethod, "%s",
+		logInfo(CTestManifestReformator.class, wMethod, "%s",
 				//
 				CCTJulUtils.dumpCurrentLogger(CCTLoggerUtils.getCurrentLogger()));
 
 	}
 
 	/**
+	 * @param aFullResourcePath
+	 * @return
+	 * @throws Exception
+	 */
+	private static byte[] readResourceBytes(final Path aFullResourcePath) throws Exception {
+
+		Path wFullResourcePath = (Path) validNotNull(aFullResourcePath, ARGUMENT_FULL_RESOURCE_PATH);
+
+		URL wResourceUrl = ManifestReformator.class.getResource(wFullResourcePath.toString());
+
+		Path wResourcePath = Paths.get(wResourceUrl.toURI());
+
+		return Files.readAllBytes(wResourcePath);
+	}
+
+	/**
+	 * @param aName
+	 * @param aResourcePath
+	 * @param aBuffer
+	 * @return
+	 * @throws Exception
+	 */
+	private static byte[] readResourceBytes(final String aSubPackage, final String aResourceName) throws Exception {
+
+		String wResourcePath = "/".concat(CTestManifestReformator.class.getPackage().getName().replace('.', '/'))
+				.concat(aSubPackage);
+
+		Path wFullResourcePath = Paths.get(
+				//
+				validNotNullAndNotEmpty(wResourcePath, ARGUMENT_RESOURCE_PATH),
+				//
+				validNotNullAndNotEmpty(aResourceName, ARGUMENT_RESOURCE_NAME));
+
+		return readResourceBytes(wFullResourcePath);
+	}
+
+	/**
+	 * @param aValue
+	 * @param aInfo
+	 * @return
+	 * @throws Exception
+	 */
+	private static Object validNotNull(final Object aValue, final String aInfo) throws Exception {
+		if (aValue == null) {
+			throw new IllegalArgumentException(String.format("The given [%s] is null", aInfo));
+		}
+		return aValue;
+	}
+
+	/**
+	 * @param aValue
+	 * @param aInfo
+	 * @return
+	 */
+	private static String validNotNullAndNotEmpty(final String aValue, final String aInfo) throws Exception {
+
+		String wValue = (String) validNotNull(aValue, aInfo);
+
+		if (wValue.isEmpty()) {
+			throw new IllegalArgumentException(String.format("The given [%s] is empty", aInfo));
+		}
+		if (wValue.isBlank()) {
+			throw new IllegalArgumentException(String.format("The given [%s] is blank", aInfo));
+		}
+		return wValue;
+	}
+
+	/**
 	 *
 	 */
-	public CTestManifestManipulator() {
+	public CTestManifestReformator() {
 		super();
 	}
 
 	/**
 	 * @param aMainAttributes
 	 */
-	private void dumpAttributes(final ManifestManipulator aManifestManipulator) {
+	private void dumpAttributes(final ManifestReformator aManifestReformator) {
 		String wMethod = getMethodName(1);
-		int wSize = aManifestManipulator.getMainAttributesSize();
+		int wSize = aManifestReformator.getMainAttributesSize();
 		int wIdxA = 0;
-		for (Entry<Object, Object> wEntry : aManifestManipulator.getMainAttributesEntrySet()) {
+		for (Entry<Name, Attribute> wEntry : aManifestReformator.getMainAttributesEntrySet()) {
 			wIdxA++;
-			String wValue = String.valueOf(wEntry.getValue());
+			String wValue = wEntry.getValue().getStringValue();
 			int wValueSize = wValue.length();
 			logInfo(this, wMethod, "Attribute(%2d/%2d)=[%-36s]=[%6d][%s]", wIdxA, wSize, wEntry.getKey(), wValueSize,
 					truncatedToString(wEntry.getValue(), 128));
@@ -120,7 +198,7 @@ public class CTestManifestManipulator {
 	 * @return
 	 * @throws Exception
 	 */
-	private ManifestManipulator loadManifestManipulator(final String aSubPackage, final String aResourceName)
+	private ManifestReformator loadManifestReformator(final String aSubPackage, final String aResourceName)
 			throws Exception {
 		String wMethod = getMethodName(1);
 
@@ -129,10 +207,10 @@ public class CTestManifestManipulator {
 		InputStream wManifestDataStream = new ByteArrayInputStream(wManifestBytes);
 
 		// instanciate
-		ManifestManipulator wManifestManipulator = new ManifestManipulator(wManifestDataStream);
-		logInfo(this, wMethod, "Manifest.version=[%s]", wManifestManipulator.getVersion());
+		ManifestReformator wManifestReformator = new ManifestReformator(wManifestDataStream);
+		logInfo(this, wMethod, "Manifest.version=[%s]", wManifestReformator.getVersion());
 
-		return wManifestManipulator;
+		return wManifestReformator;
 	}
 
 	/**
@@ -142,18 +220,6 @@ public class CTestManifestManipulator {
 	 */
 	private byte[] readResourceBytes(final String aResourceName) throws Exception {
 		return readResourceBytes("", aResourceName);
-	}
-
-	/**
-	 * @param aSubPackage
-	 * @param aResourceName
-	 * @return
-	 * @throws Exception
-	 */
-	private byte[] readResourceBytes(final String aSubPackage, final String aResourceName) throws Exception {
-
-		String wResourcePath = "/".concat(getClass().getPackage().getName().replace('.', '/')).concat(aSubPackage);
-		return ManifestManipulator.readResourceBytes(aResourceName, wResourcePath);
 	}
 
 	/**
@@ -169,34 +235,23 @@ public class CTestManifestManipulator {
 		try {
 
 			// load the manifest "a"
-			ManifestManipulator wManifestManipulator = loadManifestManipulator("/a", "MANIFEST.MF");
-			String wVersion = wManifestManipulator.getVersion();
+			ManifestReformator wManifestReformator = loadManifestReformator("/a", "MANIFEST.MF");
+			String wVersion = wManifestReformator.getVersion();
 			// version 1.0
-			assertEquals(ManifestManipulator.MANIFEST_VERSION_1, wVersion);
+			assertEquals(ManifestReformator.MANIFEST_VERSION_10, wVersion);
 			logInfo(this, wMethod, "Manifest.version=[%s] >>>  assert equals 1.0 OK", wVersion);
 
-			final int wAttributesSize = wManifestManipulator.getMainAttributesSize();
+			final int wAttributesSize = wManifestReformator.getMainAttributesSize();
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d]", wAttributesSize);
 
-			dumpAttributes(wManifestManipulator);
+			dumpAttributes(wManifestReformator);
 
-			final Map<String, Attributes> wEntries = wManifestManipulator.getEntries();
-			final int wEntriesSize = wEntries.size();
-			logInfo(this, wMethod, "Manifest.entries.size=[%d]", wEntriesSize);
-
-			int wIdxB = 0;
-			for (Entry<String, Attributes> wEntry : new TreeMap<>(wEntries).entrySet()) {
-				wIdxB++;
-				logInfo(this, wMethod, "Entry(%2d/%2d)=[%-40s]=[%s]", wIdxB, wEntriesSize, wEntry.getKey(),
-						truncatedToString(wEntry.getValue(), 256));
-			}
-
-			boolean wHasIPojoAttribute = wManifestManipulator.hasIPojoAttribute();
+			boolean wHasIPojoAttribute = wManifestReformator.hasIPojoAttribute();
 			// yes there is an iPojoAttribute
 			assertTrue(wHasIPojoAttribute);
 			logInfo(this, wMethod, "Manifest.hasIPojoAttribute=[%b] >>> assert true OK", wHasIPojoAttribute);
 
-			String wIPojoAttributeValue = wManifestManipulator.getIPojoAttributeValue();
+			String wIPojoAttributeValue = wManifestReformator.getIPojoAttribute().getStringValue();
 			logInfo(this, wMethod, "Manifest.IPojoAttribute=[%s]", truncatedToString(wIPojoAttributeValue, 256));
 
 			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
@@ -225,18 +280,20 @@ public class CTestManifestManipulator {
 
 		try {
 			// load the manifest "a"
-			ManifestManipulator wManipulatorA = loadManifestManipulator("/a", "MANIFEST.MF");
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.rank=[%d]", wManipulatorA.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.last=[%b]", wManipulatorA.isIPojoAttributeLastOne());
+			ManifestReformator wManifestReformatorA = loadManifestReformator("/a", "MANIFEST.MF");
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.rank=[%d]",
+					wManifestReformatorA.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.last=[%b]",
+					wManifestReformatorA.isIPojoAttributeLastOne());
 
 			// new empty manifest
-			ManifestManipulator wManifestManipulator = new ManifestManipulator();
-			String wVersion = wManifestManipulator.getVersion();
+			ManifestReformator wManifestReformator = new ManifestReformator();
+			String wVersion = wManifestReformator.getVersion();
 			// versin 1.0 in the epty manifest
-			assertEquals(ManifestManipulator.MANIFEST_VERSION_1, wVersion);
+			assertEquals(ManifestReformator.MANIFEST_VERSION_10, wVersion);
 			logInfo(this, wMethod, "Manifest.version=[%s]", wVersion);
 
-			final int wAttributesSize = wManifestManipulator.getMainAttributesSize();
+			final int wAttributesSize = wManifestReformator.getMainAttributesSize();
 			// only one attribute in the empty manifest
 			assertEquals(1, wAttributesSize);
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d] >>> assert equals 1 OK", wAttributesSize);
@@ -267,15 +324,19 @@ public class CTestManifestManipulator {
 
 		try {
 			// load the manifest "a"
-			ManifestManipulator wManipulatorA = loadManifestManipulator("/a", "MANIFEST.MF");
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.rank=[%d]", wManipulatorA.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.last=[%b]", wManipulatorA.isIPojoAttributeLastOne());
+			ManifestReformator wManifestReformatorA = loadManifestReformator("/a", "MANIFEST.MF");
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.rank=[%d]",
+					wManifestReformatorA.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.last=[%b]",
+					wManifestReformatorA.isIPojoAttributeLastOne());
 			// load the manifest "b"(with the same IPojo attribute)
-			ManifestManipulator wManipulatorB = loadManifestManipulator("/b", "MANIFEST.MF");
-			logInfo(this, wMethod, "ManipulatorB.IPojoAttribute.rank=[%d]", wManipulatorB.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorB.IPojoAttribute.last=[%b]", wManipulatorB.isIPojoAttributeLastOne());
+			ManifestReformator wManifestReformatorB = loadManifestReformator("/b", "MANIFEST.MF");
+			logInfo(this, wMethod, "ReformatorB.IPojoAttribute.rank=[%d]",
+					wManifestReformatorB.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorB.IPojoAttribute.last=[%b]",
+					wManifestReformatorB.isIPojoAttributeLastOne());
 
-			boolean wSame = wManipulatorA.isIPojoAttributeSameAsIn(wManipulatorB);
+			boolean wSame = wManifestReformatorA.isIPojoAttributeSameAsIn(wManifestReformatorB);
 			// they are equal
 			assertTrue(wSame);
 			logInfo(this, wMethod, "isIPojoAttributeSameAsIn=[%b] >>> assert true OK", wSame);
@@ -306,15 +367,19 @@ public class CTestManifestManipulator {
 
 		try {
 			// load the manifest "a"
-			ManifestManipulator wManipulatorA = loadManifestManipulator("/a", "MANIFEST.MF");
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.rank=[%d]", wManipulatorA.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.last=[%b]", wManipulatorA.isIPojoAttributeLastOne());
+			ManifestReformator wManifestReformatorA = loadManifestReformator("/a", "MANIFEST.MF");
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.rank=[%d]",
+					wManifestReformatorA.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.last=[%b]",
+					wManifestReformatorA.isIPojoAttributeLastOne());
 			// load the manifest "c" (without IPojo attribute)
-			ManifestManipulator wManipulatorC = loadManifestManipulator("/c", "MANIFEST.MF");
-			logInfo(this, wMethod, "ManipulatorC.IPojoAttribute.rank=[%d]", wManipulatorC.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorC.IPojoAttribute.last=[%b]", wManipulatorC.isIPojoAttributeLastOne());
+			ManifestReformator wManifestReformatorC = loadManifestReformator("/c", "MANIFEST.MF");
+			logInfo(this, wMethod, "ReformatorC.IPojoAttribute.rank=[%d]",
+					wManifestReformatorC.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorC.IPojoAttribute.last=[%b]",
+					wManifestReformatorC.isIPojoAttributeLastOne());
 
-			boolean wSame = wManipulatorA.isIPojoAttributeSameAsIn(wManipulatorC);
+			boolean wSame = wManifestReformatorA.isIPojoAttributeSameAsIn(wManifestReformatorC);
 			// they are different
 			assertFalse(wSame);
 			logInfo(this, wMethod, "isIPojoAttributeSameAsIn=[%b] >>> assert false OK", wSame);
@@ -345,30 +410,34 @@ public class CTestManifestManipulator {
 
 		try {
 			// load the manifest "c" (without IPojo attribute)
-			ManifestManipulator wManipulatorC = loadManifestManipulator("/c", "MANIFEST.MF");
-			logInfo(this, wMethod, "ManipulatorC.IPojoAttribute.rank=[%d]", wManipulatorC.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorC.IPojoAttribute.last=[%b]", wManipulatorC.isIPojoAttributeLastOne());
+			ManifestReformator wManifestReformatorC = loadManifestReformator("/c", "MANIFEST.MF");
+			logInfo(this, wMethod, "ReformatorC.IPojoAttribute.rank=[%d]",
+					wManifestReformatorC.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorC.IPojoAttribute.last=[%b]",
+					wManifestReformatorC.isIPojoAttributeLastOne());
 
-			final int wAttributesSize = wManipulatorC.getMainAttributesSize();
+			final int wAttributesSize = wManifestReformatorC.getMainAttributesSize();
 			//
 			assertEquals(13, wAttributesSize);
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d] >>> assert equals 13 OK ", wAttributesSize);
 
 			// before
-			dumpAttributes(wManipulatorC);
+			dumpAttributes(wManifestReformatorC);
 
-			wManipulatorC.appendIPojoAttribute("jhflqsjdfqlsdfjqlsdjfhlsjfdhj");
+			wManifestReformatorC.appendIPojoAttribute("jhflqsjdfqlsdfjqlsdjfhlsjfdhj");
 
-			final int wAttributesSizeAfter = wManipulatorC.getMainAttributesSize();
+			final int wAttributesSizeAfter = wManifestReformatorC.getMainAttributesSize();
 			//
 			assertEquals(14, wAttributesSizeAfter);
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d] >>> assert equals 14 OK ", wAttributesSizeAfter);
 
-			logInfo(this, wMethod, "ManipulatorC.IPojoAttribute.rank=[%d]", wManipulatorC.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorC.IPojoAttribute.last=[%b]", wManipulatorC.isIPojoAttributeLastOne());
+			logInfo(this, wMethod, "ReformatorC.IPojoAttribute.rank=[%d]",
+					wManifestReformatorC.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorC.IPojoAttribute.last=[%b]",
+					wManifestReformatorC.isIPojoAttributeLastOne());
 
 			// after
-			dumpAttributes(wManipulatorC);
+			dumpAttributes(wManifestReformatorC);
 
 			logInfo(this, wMethod, "Done. Success=[%d/%d] duration=[%s]", sSuccessCounter.incrementAndGet(), sNbTest,
 					wTimer.getDurationStrMicroSec());
@@ -397,41 +466,45 @@ public class CTestManifestManipulator {
 		try {
 
 			// load the manifest "a"
-			ManifestManipulator wManipulatorA = loadManifestManipulator("/a", "MANIFEST.MF");
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.rank=[%d]", wManipulatorA.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.last=[%b]", wManipulatorA.isIPojoAttributeLastOne());
-			logInfo(this, wMethod, "ManipulatorA.IPojoAttribute.len =[%d]",
-					wManipulatorA.getIPojoAttributeValue().length());
+			ManifestReformator wManifestReformatorA = loadManifestReformator("/a", "MANIFEST.MF");
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.rank=[%d]",
+					wManifestReformatorA.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.last=[%b]",
+					wManifestReformatorA.isIPojoAttributeLastOne());
+			logInfo(this, wMethod, "ReformatorA.IPojoAttribute.len =[%d]",
+					wManifestReformatorA.getIPojoAttribute().getStringValue().length());
 
 			// before
-			dumpAttributes(wManipulatorA);
+			dumpAttributes(wManifestReformatorA);
 
 			// load the pojoizationStream
 			String wPojoIzationStream = new String(readResourceBytes("pojoizationStream.txt"));
 
 			logInfo(this, wMethod, "pojoizationStream.size=[%d]", wPojoIzationStream.length());
 
-			ManifestManipulator wManipulatorZ = new ManifestManipulator();
+			ManifestReformator wManifestReformatorZ = new ManifestReformator();
 
-			wManipulatorZ.appendIPojoAttribute(wPojoIzationStream);
+			wManifestReformatorZ.appendIPojoAttribute(wPojoIzationStream);
 
-			logInfo(this, wMethod, "ManipulatorZ.IPojoAttribute.rank=[%d]", wManipulatorZ.getIPojoAttributeRank());
-			logInfo(this, wMethod, "ManipulatorZ.IPojoAttribute.last=[%b]", wManipulatorZ.isIPojoAttributeLastOne());
-			logInfo(this, wMethod, "ManipulatorZ.IPojoAttribute.len =[%d]",
-					wManipulatorZ.getIPojoAttributeValue().length());
+			logInfo(this, wMethod, "ReformatorZ.IPojoAttribute.rank=[%d]",
+					wManifestReformatorZ.getIPojoAttributeRank());
+			logInfo(this, wMethod, "ReformatorZ.IPojoAttribute.last=[%b]",
+					wManifestReformatorZ.isIPojoAttributeLastOne());
+			logInfo(this, wMethod, "ReformatorZ.IPojoAttribute.len =[%d]",
+					wManifestReformatorZ.getIPojoAttribute().getStringValue().length());
 
-			boolean wSame = wManipulatorA.isIPojoAttributeSameAsIn(wManipulatorZ);
+			boolean wSame = wManifestReformatorA.isIPojoAttributeSameAsIn(wManifestReformatorZ);
 			// they are different
 			assertFalse(wSame);
 			logInfo(this, wMethod, "isIPojoAttributeSameAsIn=[%b] >>> assert false OK", wSame);
 
 			if (!wSame) {
-				wManipulatorA.replaceIPojoAttribute(wManipulatorZ);
+				wManifestReformatorA.replaceIPojoAttribute(wManifestReformatorZ);
 
 				// after
-				dumpAttributes(wManipulatorA);
+				dumpAttributes(wManifestReformatorA);
 
-				logInfo(this, wMethod, "DUMP ManipulatorA:\n%s", wManipulatorA.toString());
+				logInfo(this, wMethod, "DUMP ReformatorA:\n%s", wManifestReformatorA.toString());
 
 			}
 
