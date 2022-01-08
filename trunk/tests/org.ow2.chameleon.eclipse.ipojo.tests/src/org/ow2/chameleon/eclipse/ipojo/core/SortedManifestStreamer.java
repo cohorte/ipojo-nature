@@ -415,7 +415,7 @@ public class SortedManifestStreamer {
 		 * @return
 		 * @see https://docs.oracle.com/en/java/javase/17/docs/specs/jar/jar.html
 		 */
-		byte[] readOneLine() {
+		private byte[] readOneLine() {
 			byte wByte = 0;
 			int wPos = pPos;
 			int wPosStart = wPos;
@@ -493,17 +493,20 @@ public class SortedManifestStreamer {
 			return super.get(new Name(aKey));
 		}
 
+		/**
+		 * @return
+		 */
 		List<Attribute> getOrderedAttributes() {
 
 			List<Attribute> wList = new ArrayList<>();
 			// the firt
-			wList.add(get(ATTRIBUTE_ID_MFVERSION));
+			wList.add(get(ATTRIBUTE_MFVERSION));
 
 			// all the others "name id" sorted by the TreeMap
 			for (Entry<Name, Attribute> wEntry : this.entrySet()) {
 
 				// if the "name id" is not equal to MFVERSION
-				if (!ATTRIBUTE_ID_MFVERSION.equals(wEntry.getKey().toString())) {
+				if (!ATTRIBUTE_MFVERSION.equals(wEntry.getKey().toString())) {
 					wList.add(wEntry.getValue());
 				}
 			}
@@ -536,11 +539,14 @@ public class SortedManifestStreamer {
 
 			Attribute wExistingAttribute = get(aAttribute.getName());
 
-			if (wExistingAttribute == null) {
-				throw new IOException(String.format("Unable to replace attribute [%s], it doesn't exist in the Map",
-						aAttribute.getId()));
+			if (wExistingAttribute != null) {
+
+				wExistingAttribute.setContent(aAttribute.getContent());
 			}
-			wExistingAttribute.setContent(aAttribute.getContent());
+			//
+			else {
+				put(aAttribute.getName(), aAttribute);
+			}
 
 			return true;
 		}
@@ -564,8 +570,7 @@ public class SortedManifestStreamer {
 		}
 	}
 
-	public static final String ATTRIBUTE_ID_MFVERSION = "Manifest-Version";
-	public static final byte[] ATTRIBUTE_ID_MFVERSION_BYTES = ATTRIBUTE_ID_MFVERSION.getBytes();
+	public static final String ATTRIBUTE_CREATED_BY = "Created-By";
 
 	public static final String ATTRIBUTE_ID_SEPARATOR = ": ";
 	public static final byte[] ATTRIBUTE_ID_SEPARATOR_BYTES = ATTRIBUTE_ID_SEPARATOR.getBytes();
@@ -574,9 +579,10 @@ public class SortedManifestStreamer {
 
 	public static final String ATTRIBUTE_IPOJO_NAME = "iPOJO-Components";
 
+	public static final String ATTRIBUTE_MFVERSION = "Manifest-Version";
+
 	public static final String LINE_BREAK = "\r\n";
 	public static final String LINE_BREAK_AND_FOLLOW = "\r\n ";
-
 	public static final byte[] LINE_BREAK_AND_FOLLOW_BYTES = LINE_BREAK_AND_FOLLOW.getBytes();
 	public static final byte[] LINE_BREAK_BYTES = LINE_BREAK.getBytes();
 
@@ -610,6 +616,30 @@ public class SortedManifestStreamer {
 		aThrowable.printStackTrace(pw);
 		// stack trace as a string
 		return sw.toString();
+	}
+
+	/**
+	 * @param aBuffer
+	 * @param aPattern
+	 * @return
+	 */
+	private static int indexOfBytes(byte[] aBuffer, byte[] aPattern) {
+		int wMax = aBuffer.length - aPattern.length + 1;
+		for (int wPos = 0; wPos < wMax; ++wPos) {
+			// hypthesis
+			boolean found = true;
+			// search the stream bytes of the pattern
+			for (int wIdx = 0; wIdx < aPattern.length; ++wIdx) {
+				if (aBuffer[wPos + wIdx] != aPattern[wIdx]) {
+					found = false;
+					break;
+				}
+			}
+			if (found) {
+				return wPos;
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -711,22 +741,11 @@ public class SortedManifestStreamer {
 	}
 
 	/**
-	 * @param aIPojoAttribute
 	 * @return
 	 */
-	public boolean appendIPojoAttribute(final Attribute aIPojoAttribute) {
+	public Attribute getCreateByAttribute() {
 
-		Object wPrevious = getMainAttributes().putIfAbsent(new Attributes.Name(ATTRIBUTE_IPOJO_NAME), aIPojoAttribute);
-
-		return wPrevious == null;
-	}
-
-	/**
-	 * @param string
-	 * @throws IOException
-	 */
-	public boolean appendIPojoAttribute(final String aValue) throws IOException {
-		return appendIPojoAttribute(new Attribute(ATTRIBUTE_IPOJO_NAME, aValue));
+		return getMainAttributes().get(ATTRIBUTE_CREATED_BY);
 	}
 
 	/**
@@ -738,10 +757,6 @@ public class SortedManifestStreamer {
 	}
 
 	/**
-	 * 
-	 * 
-	 * /**
-	 * 
 	 * @return
 	 */
 	public Attribute getIPojoAttribute() {
@@ -776,14 +791,7 @@ public class SortedManifestStreamer {
 	}
 
 	/**
-	 * @return
-	 */
-	public int getMainAttributesSize() {
-		return getMainAttributes().size();
-	}
-
-	/**
-	 * @return
+	 * @return the ordered list of the attributes
 	 */
 	public List<Attribute> getOrderedMainAttributes() {
 		return getMainAttributes().getOrderedAttributes();
@@ -794,38 +802,14 @@ public class SortedManifestStreamer {
 	 */
 	public String getVersion() {
 
-		return getMainAttributes().getStringValue(ATTRIBUTE_ID_MFVERSION);
+		return getMainAttributes().getStringValue(ATTRIBUTE_MFVERSION);
 	}
 
 	/**
-	 * @return
+	 * @return true if the attribute ATTRIBUTE_IPOJO_NAME is present
 	 */
 	public boolean hasIPojoAttribute() {
-		return getMainAttributes().containsKey(new Attributes.Name(ATTRIBUTE_IPOJO_NAME));
-	}
-
-	/**
-	 * @param aBuffer
-	 * @param aPattern
-	 * @return
-	 */
-	private int indexOfBytes(byte[] aBuffer, byte[] aPattern) {
-		int wMax = aBuffer.length - aPattern.length + 1;
-		for (int wPos = 0; wPos < wMax; ++wPos) {
-			// hypthesis
-			boolean found = true;
-			// search the stream bytes of the pattern
-			for (int wIdx = 0; wIdx < aPattern.length; ++wIdx) {
-				if (aBuffer[wPos + wIdx] != aPattern[wIdx]) {
-					found = false;
-					break;
-				}
-			}
-			if (found) {
-				return wPos;
-			}
-		}
-		return -1;
+		return getMainAttributes().containsKey(ATTRIBUTE_IPOJO_NAME);
 	}
 
 	/**
@@ -835,7 +819,8 @@ public class SortedManifestStreamer {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isImportPackageAttributeSameAsIn(final SortedManifestStreamer aManifestManipulator) throws Exception {
+	public boolean isImportPackageAttributeSameAsIn(final SortedManifestStreamer aManifestManipulator)
+			throws IOException {
 
 		Attribute wImportPackageAttributeA = getImportPackageAttribute();
 
@@ -850,7 +835,6 @@ public class SortedManifestStreamer {
 		if (wImportPackageAttributeA != null && wImportPackageAttributeB == null) {
 			return false;
 		}
-
 		return wImportPackageAttributeA.equals(wImportPackageAttributeB);
 	}
 
@@ -868,7 +852,7 @@ public class SortedManifestStreamer {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isIPojoAttributeSameAsIn(final SortedManifestStreamer aManifestManipulator) throws Exception {
+	public boolean isIPojoAttributeSameAsIn(final SortedManifestStreamer aManifestManipulator) throws IOException {
 
 		Attribute wIPojoAttributeA = getIPojoAttribute();
 
@@ -883,7 +867,6 @@ public class SortedManifestStreamer {
 		if (wIPojoAttributeA != null && wIPojoAttributeB == null) {
 			return false;
 		}
-
 		return wIPojoAttributeA.equals(wIPojoAttributeB);
 	}
 
@@ -892,9 +875,8 @@ public class SortedManifestStreamer {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isIPojoAttributesSameAsIn(final Manifest aManifest) throws Exception {
+	public boolean isIPojoAttributesSameAsIn(final Manifest aManifest) throws IOException {
 		return isIPojoAttributesSameAsIn(new SortedManifestStreamer(aManifest));
-
 	}
 
 	/**
@@ -902,7 +884,7 @@ public class SortedManifestStreamer {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isIPojoAttributesSameAsIn(final SortedManifestStreamer aManipulator) throws Exception {
+	public boolean isIPojoAttributesSameAsIn(final SortedManifestStreamer aManipulator) throws IOException {
 
 		return isIPojoAttributeSameAsIn(aManipulator) && isImportPackageAttributeSameAsIn(aManipulator);
 	}
@@ -915,31 +897,157 @@ public class SortedManifestStreamer {
 		return getMainAttributes().remove(ATTRIBUTE_IPOJO_NAME);
 	}
 
-	/**
-	 * @param aIPojoAttribute
-	 * @return
-	 */
-	public boolean replaceIPojoAttribute(final Attribute aIPojoAttribute) throws IOException {
+	// -------------
 
-		return getMainAttributes().replace(aIPojoAttribute);
+	/**
+	 * @param aManifest
+	 * @return true if done
+	 * @throws IOException
+	 */
+	public boolean replaceAllIPojoAttributes(final Manifest aManifest) throws IOException {
+
+		return replaceAllIPojoAttributes(new SortedManifestStreamer(aManifest));
+	}
+
+	// -------------
+
+	/**
+	 * @param aSortedManifestStreamer
+	 * @return true if done
+	 * @throws IOException
+	 */
+	public boolean replaceAllIPojoAttributes(final SortedManifestStreamer aSortedManifestStreamer) throws IOException {
+
+		replaceIPojoAttribute(aSortedManifestStreamer);
+		replaceImportPackageAttribute(aSortedManifestStreamer);
+		replaceCreateByAttribute(aSortedManifestStreamer);
+
+		return true;
+	}
+
+	// ------------- ATTRIBUTE_CREATED_BY
+
+	/**
+	 * @param aAttribute the replacement ATTRIBUTE_CREATED_BY attibute instance
+	 * @return true if done
+	 * @throws IOException
+	 */
+	public boolean replaceCreateByAttribute(final Attribute aAttribute) throws IOException {
+
+		if (!ATTRIBUTE_CREATED_BY.equals(aAttribute.getId())) {
+			throw new IOException(String.format("Unable to replace the attibute [%s] using an attribute [%s]",
+					ATTRIBUTE_CREATED_BY, aAttribute.getId()));
+		}
+		return getMainAttributes().replace(aAttribute);
 	}
 
 	/**
-	 * @param aManifestManipulator
-	 * @return
+	 * @param aSortedManifestStreamer the instance of SortedManifestStreamer
+	 *                                containing the replacement
+	 *                                ATTRIBUTE_CREATED_BY attibute instance
+	 * @return true if done
+	 * @throws IOException
 	 */
-	public boolean replaceIPojoAttribute(final SortedManifestStreamer aManifestReformator) throws IOException {
+	public boolean replaceCreateByAttribute(final SortedManifestStreamer aSortedManifestStreamer) throws IOException {
 
-		return replaceIPojoAttribute(aManifestReformator.getIPojoAttribute());
+		return replaceCreateByAttribute(aSortedManifestStreamer.getCreateByAttribute());
 	}
 
 	/**
+	 * @param aValue the value to set in the replacement ATTRIBUTE_CREATED_BY
+	 *               attibute instance
+	 * @throws IOException
+	 */
+	public boolean replaceCreateByAttribute(final String aValue) throws IOException {
+		return replaceCreateByAttribute(new Attribute(ATTRIBUTE_CREATED_BY, aValue));
+	}
+
+	// ------------- ATTRIBUTE_IMPORT_PACKAGE
+
+	/**
+	 * @param aAttribute an ATTRIBUTE_IMPORT_PACKAGE attibute instance
+	 * @return true if done
+	 * @throws IOException
+	 */
+	public boolean replaceImportPackageAttribute(final Attribute aAttribute) throws IOException {
+
+		if (!ATTRIBUTE_IMPORT_PACKAGE.equals(aAttribute.getId())) {
+			throw new IOException(String.format("Unable to replace the attibute [%s] using an attribute [%s]",
+					ATTRIBUTE_IMPORT_PACKAGE, aAttribute.getId()));
+		}
+		return getMainAttributes().replace(aAttribute);
+	}
+
+	/**
+	 * @param aSortedManifestStreamer the instance of SortedManifestStreamer
+	 *                                containing the replacement
+	 *                                ATTRIBUTE_IMPORT_PACKAGE attibute instance
+	 * @return true if done
+	 * @throws IOException
+	 */
+	public boolean replaceImportPackageAttribute(final SortedManifestStreamer aSortedManifestStreamer)
+			throws IOException {
+
+		return replaceImportPackageAttribute(aSortedManifestStreamer.getImportPackageAttribute());
+	}
+
+	/**
+	 * @param aValue the value to set in the replacement ATTRIBUTE_IMPORT_PACKAGE
+	 *               attibute instance
+	 * @throws IOException
+	 */
+	public boolean replaceImportPackageAttribute(final String aValue) throws IOException {
+		return replaceImportPackageAttribute(new Attribute(ATTRIBUTE_IMPORT_PACKAGE, aValue));
+	}
+
+	// ------------- ATTRIBUTE_IPOJO_NAME
+
+	/**
+	 * @param aAttribute the replacement ATTRIBUTE_IPOJO_NAME attibute instance
+	 * @return true if done
+	 * @throws IOException
+	 */
+	public boolean replaceIPojoAttribute(final Attribute aAttribute) throws IOException {
+
+		if (!ATTRIBUTE_IPOJO_NAME.equals(aAttribute.getId())) {
+			throw new IOException(String.format("Unable to replace the attibute [%s] using an attribute [%s]",
+					ATTRIBUTE_IPOJO_NAME, aAttribute.getId()));
+		}
+		return getMainAttributes().replace(aAttribute);
+	}
+
+	/**
+	 * Replace the ATTRIBUTE_IPOJO_NAME attibute instance
+	 * 
+	 * @param aSortedManifestStreamer the instance of SortedManifestStreamer
+	 *                                containing the replacement
+	 *                                ATTRIBUTE_IPOJO_NAME attibute instance
+	 * @return true if done
+	 * @throws IOException
+	 */
+	public boolean replaceIPojoAttribute(final SortedManifestStreamer aSortedManifestStreamer) throws IOException {
+
+		return replaceIPojoAttribute(aSortedManifestStreamer.getIPojoAttribute());
+	}
+
+	/**
+	 * Replace the ATTRIBUTE_IPOJO_NAME attibute instance
+	 * 
 	 * @param string
 	 * @throws IOException
 	 */
 	public boolean replaceIPojoAttribute(final String aValue) throws IOException {
 		return replaceIPojoAttribute(new Attribute(ATTRIBUTE_IPOJO_NAME, aValue));
 	}
+
+	/**
+	 * @return the number of attributes
+	 */
+	public int size() {
+		return getMainAttributes().size();
+	}
+
+	// -------------
 
 	/**
 	 * @return

@@ -184,7 +184,7 @@ public class CTestSortedManifestStreamer {
 	 */
 	private void dumpAttributes(final SortedManifestStreamer aManifestReformator) {
 		String wMethod = getMethodName(1);
-		int wSize = aManifestReformator.getMainAttributesSize();
+		int wSize = aManifestReformator.size();
 		int wIdxA = 0;
 		for (Attribute wAttribute : aManifestReformator.getOrderedMainAttributes()) {
 			wIdxA++;
@@ -244,7 +244,7 @@ public class CTestSortedManifestStreamer {
 			assertEquals(SortedManifestStreamer.MANIFEST_VERSION_10, wVersion);
 			logInfo(this, wMethod, "Manifest.version=[%s] >>>  assert equals 1.0 OK", wVersion);
 
-			final int wAttributesSize = wSortedManifestStreamer.getMainAttributesSize();
+			final int wAttributesSize = wSortedManifestStreamer.size();
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d]", wAttributesSize);
 
 			dumpAttributes(wSortedManifestStreamer);
@@ -296,7 +296,7 @@ public class CTestSortedManifestStreamer {
 			assertEquals(SortedManifestStreamer.MANIFEST_VERSION_10, wVersion);
 			logInfo(this, wMethod, "Manifest.version=[%s]", wVersion);
 
-			final int wAttributesSize = wSortedManifestStreamer.getMainAttributesSize();
+			final int wAttributesSize = wSortedManifestStreamer.size();
 			// only one attribute in the empty manifest
 			assertEquals(1, wAttributesSize);
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d] >>> assert equals 1 OK", wAttributesSize);
@@ -419,7 +419,7 @@ public class CTestSortedManifestStreamer {
 			logInfo(this, wMethod, "ReformatorC.IPojoAttribute.last=[%b]",
 					wSortedManifestStreamerC.isIPojoAttributeLastOne());
 
-			final int wAttributesSize = wSortedManifestStreamerC.getMainAttributesSize();
+			final int wAttributesSize = wSortedManifestStreamerC.size();
 			//
 			assertEquals(13, wAttributesSize);
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d] >>> assert equals 13 OK ", wAttributesSize);
@@ -427,9 +427,9 @@ public class CTestSortedManifestStreamer {
 			// before
 			dumpAttributes(wSortedManifestStreamerC);
 
-			wSortedManifestStreamerC.appendIPojoAttribute("jhflqsjdfqlsdfjqlsdjfhlsjfdhj");
+			wSortedManifestStreamerC.replaceIPojoAttribute("jhflqsjdfqlsdfjqlsdjfhlsjfdhj");
 
-			final int wAttributesSizeAfter = wSortedManifestStreamerC.getMainAttributesSize();
+			final int wAttributesSizeAfter = wSortedManifestStreamerC.size();
 			//
 			assertEquals(14, wAttributesSizeAfter);
 			logInfo(this, wMethod, "Manifest.MainAttributes.size=[%d] >>> assert equals 14 OK ", wAttributesSizeAfter);
@@ -487,7 +487,7 @@ public class CTestSortedManifestStreamer {
 
 			SortedManifestStreamer wSortedManifestStreamerZ = new SortedManifestStreamer();
 
-			wSortedManifestStreamerZ.appendIPojoAttribute(wPojoIzationStream);
+			wSortedManifestStreamerZ.replaceIPojoAttribute(wPojoIzationStream);
 
 			logInfo(this, wMethod, "ReformatorZ.IPojoAttribute.rank=[%d]",
 					wSortedManifestStreamerZ.getIPojoAttributeRank());
