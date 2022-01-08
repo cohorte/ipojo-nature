@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -62,8 +61,8 @@ public final class Utilities {
 	public static final String METADATA_FILE = "metadata.xml";
 
 	/** Metadata file path property */
-	public static final QualifiedName METADATA_FILE_PROPERTY = new QualifiedName(
-			Activator.PLUGIN_ID, "ipojo.metadata.path");
+	public static final QualifiedName METADATA_FILE_PROPERTY = new QualifiedName(Activator.PLUGIN_ID,
+			"ipojo.metadata.path");
 
 	/** Manifest.attr field */
 	private static Field sAttrField;
@@ -82,15 +81,12 @@ public final class Utilities {
 	/**
 	 * Creates an empty manifest file, to allow manifest result output
 	 * 
-	 * @param aProject
-	 *            Current manipulated project
+	 * @param aProject Current manipulated project
 	 * @return A valid manifest IFile reference
-	 * @throws CoreException
-	 *             An error occurred while creating the manifest file or parent
-	 *             folder
+	 * @throws CoreException An error occurred while creating the manifest file or
+	 *                       parent folder
 	 */
-	protected IFile createDefaultManifest(final IProject aProject)
-			throws CoreException {
+	protected IFile createDefaultManifest(final IProject aProject) throws CoreException {
 
 		// Create the folder
 		final IFolder metaInf = aProject.getFolder(META_INF_FOLDER);
@@ -103,23 +99,19 @@ public final class Utilities {
 		final Manifest emptyManifest = new Manifest();
 
 		// To be valid, a manifest must contain a Manifest-Version attribute
-		emptyManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
-				"1.0");
+		emptyManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
 		try {
 			emptyManifest.write(manifestOutstream);
 
 		} catch (final IOException ex) {
 			// Ignore, this may never happen
-			Activator.logWarning(aProject,
-					"Unable to prepare the new Manifest content", ex);
+			Activator.logWarning(aProject, "Unable to prepare the new Manifest content", ex);
 		}
 
 		// Create the file
 		final IFile manifestIFile = metaInf.getFile(MANIFEST_NAME);
-		manifestIFile.create(
-				new ByteArrayInputStream(manifestOutstream.toByteArray()),
-				true, null);
+		manifestIFile.create(new ByteArrayInputStream(manifestOutstream.toByteArray()), true, null);
 
 		return manifestIFile;
 	}
@@ -127,14 +119,11 @@ public final class Utilities {
 	/**
 	 * Search for the given file
 	 * 
-	 * @param aRoot
-	 *            Root container to look in
-	 * @param aFileName
-	 *            File to look for
+	 * @param aRoot     Root container to look in
+	 * @param aFileName File to look for
 	 * @return The File, or null if not found
-	 * @throws CoreException
-	 *             An error occurred while reading members list (mainly on
-	 *             remote files)
+	 * @throws CoreException An error occurred while reading members list (mainly on
+	 *                       remote files)
 	 */
 	protected IFile findFile(final IContainer aRoot, final String aFileName) {
 
@@ -147,8 +136,7 @@ public final class Utilities {
 			members = aRoot.members();
 
 		} catch (final CoreException ex) {
-			Activator.logError(aRoot.getProject(), "Error searching for file '"
-					+ aFileName + "'", ex);
+			Activator.logError(aRoot.getProject(), "Error searching for file '" + aFileName + "'", ex);
 			return null;
 		}
 
@@ -178,8 +166,7 @@ public final class Utilities {
 	 * Returns the Java nature of the given project, null if it is not a java
 	 * project
 	 * 
-	 * @param aProject
-	 *            An Eclipse project
+	 * @param aProject An Eclipse project
 	 * @return The {@link IJavaProject} nature of the project or null
 	 */
 	public IJavaProject getJavaProject(final IProject aProject) {
@@ -196,14 +183,11 @@ public final class Utilities {
 	/**
 	 * Reads the manifest file content and retrieves it as a Manifest object
 	 * 
-	 * @param aProject
-	 *            Current manipulated project
+	 * @param aProject Current manipulated project
 	 * @return The manifest object
-	 * @throws CoreException
-	 *             An error occurred while reading the file
+	 * @throws CoreException An error occurred while reading the file
 	 */
-	public Manifest getManifestContent(final IProject aProject)
-			throws CoreException {
+	public Manifest getManifestContent(final IProject aProject) throws CoreException {
 
 		final IFile manifestFile = getManifestFile(aProject, true);
 
@@ -212,9 +196,8 @@ public final class Utilities {
 
 		} catch (final IOException e) {
 			// Propagate the error
-			final IStatus exceptionStatus = new Status(IStatus.WARNING,
-					Activator.PLUGIN_ID, "Couldn't read the manifest content",
-					e);
+			final IStatus exceptionStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+					"Couldn't read the manifest content", e);
 			throw new CoreException(exceptionStatus);
 		}
 	}
@@ -222,21 +205,17 @@ public final class Utilities {
 	/**
 	 * Retrieves a reference to the manifest file. Try to create if needed.
 	 * 
-	 * @param aProject
-	 *            Current manipulated project
-	 * @param aForce
-	 *            Creates the Manifest file if it doesn't exist yet
-	 * @return A reference to the manifest file, null if the file doesn't exist
-	 *         and aForce is false
+	 * @param aProject Current manipulated project
+	 * @param aForce   Creates the Manifest file if it doesn't exist yet
+	 * @return A reference to the manifest file, null if the file doesn't exist and
+	 *         aForce is false
 	 */
-	public IFile getManifestFile(final IProject aProject, final boolean aForce)
-			throws CoreException {
+	public IFile getManifestFile(final IProject aProject, final boolean aForce) throws CoreException {
 
 		// Search for the Manifest file
 		final IFile manifestFile = findFile(aProject, MANIFEST_NAME);
 		if (manifestFile == null && aForce) {
-			Activator.logTrace(aProject,
-					"Manifest file not found. Creating one.");
+			Activator.logTrace(aProject, "Manifest file not found. Creating one.");
 
 			// Try to create a brand new one
 			return createDefaultManifest(aProject);
@@ -248,8 +227,7 @@ public final class Utilities {
 	/**
 	 * Reads the "metadata file path" property from the given resource
 	 * 
-	 * @param aResource
-	 *            Resource containing the property
+	 * @param aResource Resource containing the property
 	 * @return The property value or an empty string (never null)
 	 */
 	public String getMetadataFileProperty(final IResource aResource) {
@@ -264,8 +242,7 @@ public final class Utilities {
 			result = aResource.getPersistentProperty(METADATA_FILE_PROPERTY);
 
 		} catch (final CoreException e) {
-			Activator.logError(aResource.getProject(),
-					"Error reading a resource property", e);
+			Activator.logError(aResource.getProject(), "Error reading a resource property", e);
 		}
 
 		if (result == null) {
@@ -279,8 +256,7 @@ public final class Utilities {
 	/**
 	 * Retrieves an input stream from the metadata file, null on error
 	 * 
-	 * @param aProject
-	 *            Current manipulated project
+	 * @param aProject Current manipulated project
 	 * @return An input stream to read the metadata file, null on error
 	 */
 	protected InputStream getMetadataStream(final IProject aProject) {
@@ -305,22 +281,20 @@ public final class Utilities {
 
 		} catch (final CoreException ex) {
 			// Error opening file
-			Activator.logError(aProject,
-					"Can't read the contents of the metadata file", ex);
+			Activator.logError(aProject, "Can't read the contents of the metadata file", ex);
 		}
 
 		return null;
 	}
 
 	/**
-	 * Retrieves the File object corresponding to the specified meta data file
-	 * path. Returns null if the meta data property is empty.
+	 * Retrieves the File object corresponding to the specified meta data file path.
+	 * Returns null if the meta data property is empty.
 	 * 
-	 * The returned File is a representation of the full file path, but the file
-	 * may not exist.
+	 * The returned File is a representation of the full file path, but the file may
+	 * not exist.
 	 * 
-	 * @param aProject
-	 *            Manipulated project
+	 * @param aProject Manipulated project
 	 * @return The meta data File representation, null if not specified
 	 */
 	public File getSpecifiedMetadataFile(final IProject aProject) {
@@ -329,13 +303,11 @@ public final class Utilities {
 
 		if (!specifiedMetadataLocation.isEmpty()) {
 			// A metadata file has been specified
-			final IStringVariableManager varMan = VariablesPlugin.getDefault()
-					.getStringVariableManager();
+			final IStringVariableManager varMan = VariablesPlugin.getDefault().getStringVariableManager();
 
 			String expandedLocation;
 			try {
-				expandedLocation = varMan
-						.performStringSubstitution(specifiedMetadataLocation);
+				expandedLocation = varMan.performStringSubstitution(specifiedMetadataLocation);
 
 			} catch (final CoreException e) {
 				// Ignore error
@@ -354,8 +326,7 @@ public final class Utilities {
 	/**
 	 * Tries to get an InputStream for the specified meta data file.
 	 * 
-	 * @param aProject
-	 *            Manipulated project, containing the meta data path property
+	 * @param aProject Manipulated project, containing the meta data path property
 	 * @return The specified meta data stream, null if not available
 	 */
 	protected InputStream getSpecifiedMetadataStream(final IProject aProject) {
@@ -372,8 +343,7 @@ public final class Utilities {
 
 		} catch (final IOException e) {
 			// File is not accessible
-			Activator.logError(aProject, "Error opening metadata file : '"
-					+ metadataFile.getAbsolutePath() + "'", e);
+			Activator.logError(aProject, "Error opening metadata file : '" + metadataFile.getAbsolutePath() + "'", e);
 		}
 
 		return null;
@@ -382,13 +352,11 @@ public final class Utilities {
 	/**
 	 * Reads the given input stream and returns its content as a byte array
 	 * 
-	 * @param aInputStream
-	 *            Input stream
+	 * @param aInputStream Input stream
 	 * @return
 	 * @throws IOException
 	 */
-	public byte[] inputStreamToBytes(final InputStream aInputStream)
-			throws IOException {
+	public byte[] inputStreamToBytes(final InputStream aInputStream) throws IOException {
 
 		final List<Byte> fileBytes = new ArrayList<Byte>();
 
@@ -418,8 +386,7 @@ public final class Utilities {
 	/**
 	 * Verifies the Nature of the given project
 	 * 
-	 * @param aProject
-	 *            Project to be tested
+	 * @param aProject Project to be tested
 	 * @return True if the project is of JavaCore nature
 	 */
 	public boolean isJavaProject(final IProject aProject) {
@@ -433,67 +400,10 @@ public final class Utilities {
 	}
 
 	/**
-	 * Modifies the given Manifest object to use sorted entries and attributes.
-	 * Uses reflection to do it, so it may not work in some cases (security
-	 * accesses, ...)
-	 * 
-	 * @param aManifest
-	 *            The manifest object to be modified
-	 */
-	public void makeSortedManifest(final IProject aProject,
-			final Manifest aManifest) {
-
-		synchronized (aManifest) {
-
-			// Prepare the sorted attributes object
-			final SortedAttributes sortedAttributes = new SortedAttributes(
-					aManifest.getMainAttributes());
-
-			// Prepare the sorted entry
-			final TreeMap<String, Attributes> sortedEntries = new TreeMap<String, Attributes>(
-					aManifest.getEntries());
-
-			try {
-				// Get the map field
-				if (sEntriesField == null) {
-					sEntriesField = Manifest.class.getDeclaredField("entries");
-					sEntriesField.setAccessible(true);
-				}
-
-				// Get the attr field
-				if (sAttrField == null) {
-					sAttrField = Manifest.class.getDeclaredField("attr");
-					sAttrField.setAccessible(true);
-				}
-			} catch (final NoSuchFieldException ex) {
-				Activator.logError(aProject,
-						"Can't find the Manifest attribute", ex);
-				return;
-			}
-
-			// Change fields
-			try {
-				sEntriesField.set(aManifest, sortedEntries);
-				sAttrField.set(aManifest, sortedAttributes);
-
-			} catch (final IllegalArgumentException e) {
-				Activator.logError(aProject, "Bad type of Manifest attribute",
-						e);
-
-			} catch (final IllegalAccessException e) {
-				Activator.logError(aProject,
-						"Bad access to Manifest attribute", e);
-			}
-		}
-	}
-
-	/**
 	 * Creates the given folder and its parents in the current project
 	 * 
-	 * @param aContainer
-	 *            Folder to be created
-	 * @throws CoreException
-	 *             An error occurred during folder creation
+	 * @param aContainer Folder to be created
+	 * @throws CoreException An error occurred during folder creation
 	 */
 	public void mkdirs(final IContainer aContainer) throws CoreException {
 
@@ -508,19 +418,31 @@ public final class Utilities {
 	}
 
 	/**
-	 * Sets the project manifest file content
+	 * Sets the project manifest file content using a byte array already formated
 	 * 
-	 * @param aProject
-	 *            Project currently modified
-	 * @param aManifest
-	 *            The new manifest content
-	 * @throws CoreException
-	 *             An error occurred while writing down the file
+	 * @param aProject       Project currently modified
+	 * @param aManifestBytes The new manifest content as a well formatted byte array
+	 * @throws CoreException An error occurred while writing down the file
 	 */
-	public void setManifestContent(final IProject aProject,
-			final Manifest aManifest) throws CoreException {
+	public void setManifestContent(final IProject aProject, final byte[] aManifestBytes) throws CoreException {
 
 		final IFile manifestFile = getManifestFile(aProject, true);
+
+		// create the an input stream
+		final ByteArrayInputStream byteInStream = new ByteArrayInputStream(aManifestBytes);
+
+		// Update the file content
+		manifestFile.setContents(byteInStream, IResource.FORCE, null);
+	}
+
+	/**
+	 * Sets the project manifest file content using
+	 * 
+	 * @param aProject  Project currently modified
+	 * @param aManifest The new manifest content
+	 * @throws CoreException An error occurred while writing down the file
+	 */
+	public void setManifestContent(final IProject aProject, final Manifest aManifest) throws CoreException {
 
 		// Write the manifest in memory
 		final ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
@@ -529,32 +451,23 @@ public final class Utilities {
 
 		} catch (final IOException e) {
 			// Should never happen
-			throw new CoreException(new Status(IStatus.ERROR,
-					Activator.PLUGIN_ID, "Can't write the manifest in memory",
-					e));
+			throw new CoreException(
+					new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Can't stream the given manifest in memory", e));
 		}
 
-		// Convert to an input stream
-		final ByteArrayInputStream byteInStream = new ByteArrayInputStream(
-				byteOutStream.toByteArray());
-
-		// Update the file content
-		manifestFile.setContents(byteInStream, IResource.FORCE, null);
+		setManifestContent(aProject, byteOutStream.toByteArray());
 	}
 
 	/**
 	 * Sets the "metadata file path" property to the given resource (useful on a
 	 * project only). Removes it if the given string is null or empty.
 	 * 
-	 * @param aResource
-	 *            Resource where to apply the property.
-	 * @param aFilePath
-	 *            The metadata file path or null.
+	 * @param aResource Resource where to apply the property.
+	 * @param aFilePath The metadata file path or null.
 	 * 
 	 * @return True on success, false on error
 	 */
-	public boolean setMetadataFileProperty(final IResource aResource,
-			final String aFilePath) {
+	public boolean setMetadataFileProperty(final IResource aResource, final String aFilePath) {
 
 		if (aResource == null) {
 			return false;
@@ -572,13 +485,11 @@ public final class Utilities {
 
 		// Store it
 		try {
-			aResource.setPersistentProperty(METADATA_FILE_PROPERTY,
-					metadataPath);
+			aResource.setPersistentProperty(METADATA_FILE_PROPERTY, metadataPath);
 			return true;
 
 		} catch (final CoreException e) {
-			Activator.logError(aResource.getProject(),
-					"Error setting a resource property", e);
+			Activator.logError(aResource.getProject(), "Error setting a resource property", e);
 
 			return false;
 		}

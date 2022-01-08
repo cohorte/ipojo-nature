@@ -55,18 +55,14 @@ public class ManifestUpdater {
 	/**
 	 * Prepares an iPOJO {@link Classpath} object
 	 *
-	 * @param aProject
-	 *            An Eclipse project
+	 * @param aProject An Eclipse project
 	 * @return The iPOJO classpath, or null if the class path can't be resolved
-	 * @throws JavaModelException
-	 *             Error reading project classpath
+	 * @throws JavaModelException Error reading project classpath
 	 */
-	protected Classpath prepareClasspath(final IProject aProject)
-			throws JavaModelException {
+	protected Classpath prepareClasspath(final IProject aProject) throws JavaModelException {
 
 		// Get the Java nature of the project
-		final IJavaProject javaProject = Utilities.INSTANCE
-				.getJavaProject(aProject);
+		final IJavaProject javaProject = Utilities.INSTANCE.getJavaProject(aProject);
 
 		// Convert Eclipse classpath to iPOJO ones
 		return new Classpath(new ClasspathResolver().getClasspath(javaProject));
@@ -77,22 +73,19 @@ public class ManifestUpdater {
 	 * org.apache.felix.ipojo.manipulator.Pojoization.createDefaultVisitorChain
 	 * (ManifestProvider,ResourceStore).
 	 *
-	 * @param aReporter
-	 *            Status reporter
-	 * @param aResourceStore
-	 *            Resource store
+	 * @param aReporter      Status reporter
+	 * @param aResourceStore Resource store
 	 * @return The manipulation visitor
 	 */
-	protected ManipulationVisitor prepareManipulationVisitor(
-			final Reporter aReporter, final ResourceStore aResourceStore) {
+	protected ManipulationVisitor prepareManipulationVisitor(final Reporter aReporter,
+			final ResourceStore aResourceStore) {
 
 		final ManipulatedResourcesWriter resourcesWriter = new ManipulatedResourcesWriter();
 		resourcesWriter.setResourceStore(aResourceStore);
 		resourcesWriter.setReporter(aReporter);
 
 		// Finish with this one, as in default Pojoization implementation
-		final CheckFieldConsistencyVisitor checkConsistencyVisitor = new CheckFieldConsistencyVisitor(
-				resourcesWriter);
+		final CheckFieldConsistencyVisitor checkConsistencyVisitor = new CheckFieldConsistencyVisitor(resourcesWriter);
 		checkConsistencyVisitor.setReporter(aReporter);
 
 		return checkConsistencyVisitor;
@@ -102,25 +95,20 @@ public class ManifestUpdater {
 	 * Prepares a composite meta data provider (XML file if found, else an empty
 	 * provider). iPOJO automatically adds the annotation meta data provider.
 	 *
-	 * @param aProject
-	 *            Currently modified project
-	 * @param aReporter
-	 *            Status reporter
-	 * @param aResourceStore
-	 *            Resource store
+	 * @param aProject       Currently modified project
+	 * @param aReporter      Status reporter
+	 * @param aResourceStore Resource store
 	 * @return A composite meta data provider.
 	 */
-	protected MetadataProvider prepareMetadataProvider(final IProject aProject,
-			final Reporter aReporter, final ResourceStore aResourceStore) {
+	protected MetadataProvider prepareMetadataProvider(final IProject aProject, final Reporter aReporter,
+			final ResourceStore aResourceStore) {
 
 		// Find the metadata.xml file
-		final InputStream metadataStream = Utilities.INSTANCE
-				.getMetadataStream(aProject);
+		final InputStream metadataStream = Utilities.INSTANCE.getMetadataStream(aProject);
 		if (metadataStream != null) {
 
 			// Return the found meta data
-			final StreamMetadataProvider provider = new StreamMetadataProvider(
-					metadataStream, aReporter);
+			final StreamMetadataProvider provider = new StreamMetadataProvider(metadataStream, aReporter);
 
 			// Use local schemas, to avoid Internet connections
 			provider.setValidateUsingLocalSchemas(true);
@@ -134,14 +122,11 @@ public class ManifestUpdater {
 	/**
 	 * Prepares the resource store
 	 *
-	 * @param aProject
-	 *            Currently modified project
+	 * @param aProject Currently modified project
 	 * @return The resource store
-	 * @throws CoreException
-	 *             An error occurred while preparing the resource store
+	 * @throws CoreException An error occurred while preparing the resource store
 	 */
-	protected ResourceStore prepareResourceStore(final IProject aProject)
-			throws CoreException {
+	protected ResourceStore prepareResourceStore(final IProject aProject) throws CoreException {
 
 		// Manifest builder (default one)
 		final MetadataRenderer metadataRenderer = new MetadataRenderer();
@@ -151,29 +136,25 @@ public class ManifestUpdater {
 		manifestBuilder.setMetadataRenderer(metadataRenderer);
 
 		// Resource store
-		final EclipseResourceStore resourceStore = new EclipseResourceStore(
-				aProject);
-		resourceStore.setManifest(Utilities.INSTANCE
-				.getManifestContent(aProject));
+		final EclipseResourceStore resourceStore = new EclipseResourceStore(aProject);
+		resourceStore.setManifest(Utilities.INSTANCE.getManifestContent(aProject));
 		resourceStore.setManifestBuilder(manifestBuilder);
 
 		return resourceStore;
 	}
 
 	/**
+	 * java 17
+	 * 
 	 * Removes the iPOJO-Component entry from the manifest file
 	 *
-	 * @param aProject
-	 *            Currently modified project
-	 * @throws CoreException
-	 *             An error occurred clearing the Manifest file
+	 * @param aProject Currently modified project
+	 * @throws CoreException An error occurred clearing the Manifest file
 	 */
-	public void removeManifestEntry(final IProject aProject)
-			throws CoreException {
+	public void removeManifestEntry(final IProject aProject) throws CoreException {
 
 		// Get the file
-		final IFile manifestFile = Utilities.INSTANCE.getManifestFile(aProject,
-				false);
+		final IFile manifestFile = Utilities.INSTANCE.getManifestFile(aProject, false);
 		if (manifestFile == null || !manifestFile.exists()) {
 			// No manifest, do nothing
 			return;
@@ -185,22 +166,30 @@ public class ManifestUpdater {
 			manifestContent = new Manifest(manifestFile.getContents(true));
 
 		} catch (final IOException ex) {
-			throw new CoreException(new Status(IStatus.WARNING,
-					Activator.PLUGIN_ID, aProject.getName()
-							+ " : Can't read the project's manifest file", ex));
+			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+					aProject.getName() + " : Can't read the project's manifest file", ex));
 		}
 
 		// Remove the iPOJO-Component entry
 		final Attributes.Name entryName = new Attributes.Name(IPOJO_HEADER);
-		final Object previousValue = manifestContent.getMainAttributes()
-				.remove(entryName);
+		final Object previousValue = manifestContent.getMainAttributes().remove(entryName);
 
 		if (previousValue != null) {
-			// Use a sorted manifest object first
-			Utilities.INSTANCE.makeSortedManifest(aProject, manifestContent);
 
-			// There was something before, so write the new manifest
-			Utilities.INSTANCE.setManifestContent(aProject, manifestContent);
+			// java 17
+			try {
+				// Use a sorted manifest streamer object to control the ordering of the
+				// attribute in the stream
+				SortedManifestStreamer wSortedManifestStreamer = new SortedManifestStreamer(manifestContent);
+
+				// There was something before, so write the new manifest
+				Utilities.INSTANCE.setManifestContent(aProject, wSortedManifestStreamer.toBytes());
+
+			} catch (IOException e) {
+				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+						aProject.getName() + " : Can't store the project's manifest file", e));
+
+			}
 		}
 	}
 
@@ -208,23 +197,18 @@ public class ManifestUpdater {
 	 * Applies a full iPOJO update on the project Manifest. Returns an IStatus
 	 * representing the result.
 	 *
-	 * @param aProject
-	 *            Eclipse Java project containing the Manifest
-	 * @param aMonitor
-	 *            Progress monitor
+	 * @param aProject Eclipse Java project containing the Manifest
+	 * @param aMonitor Progress monitor
 	 *
 	 * @return Returns an Eclipse IStatus
 	 *
-	 * @throws CoreException
-	 *             An error occurred during file treatments
+	 * @throws CoreException An error occurred during file treatments
 	 */
-	public IStatus updateManifest(final IProject aProject,
-			final IProgressMonitor aMonitor) throws CoreException {
+	public IStatus updateManifest(final IProject aProject, final IProgressMonitor aMonitor) throws CoreException {
 
 		if (!Utilities.INSTANCE.isJavaProject(aProject)) {
 			Activator.logWarning(aProject, "Not a Java project");
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-					aProject.getName() + " is not a Java Project");
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, aProject.getName() + " is not a Java Project");
 		}
 
 		// Prepare a sub monitor
@@ -241,19 +225,16 @@ public class ManifestUpdater {
 		preparationMonitor.worked(1);
 
 		// Prepare the meta data provider
-		final MetadataProvider metadataProvider = prepareMetadataProvider(
-				aProject, reporter, resourceStore);
+		final MetadataProvider metadataProvider = prepareMetadataProvider(aProject, reporter, resourceStore);
 		preparationMonitor.worked(1);
 
 		// Manipulation visitor
-		final ManipulationVisitor manipulationVisitor = prepareManipulationVisitor(
-				reporter, resourceStore);
+		final ManipulationVisitor manipulationVisitor = prepareManipulationVisitor(reporter, resourceStore);
 		preparationMonitor.worked(1);
 
 		// Test cancellation
 		if (preparationMonitor.isCanceled()) {
-			return new Status(IStatus.OK, Activator.PLUGIN_ID,
-					"Manipulation cancelled");
+			return new Status(IStatus.OK, Activator.PLUGIN_ID, "Manipulation cancelled");
 		}
 
 		// New progression
@@ -261,8 +242,7 @@ public class ManifestUpdater {
 		pojoizationMonitor.setTaskName("Manipulation");
 
 		// Set the resource store progress monitor
-		((EclipseResourceStore) resourceStore)
-				.setProgressMonitor(pojoizationMonitor);
+		((EclipseResourceStore) resourceStore).setProgressMonitor(pojoizationMonitor);
 
 		// Get the project class path
 		final Classpath ipojoClasspath;
@@ -270,15 +250,14 @@ public class ManifestUpdater {
 			ipojoClasspath = prepareClasspath(aProject);
 
 		} catch (final JavaModelException ex) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-					"Project classpath can't be computed", ex);
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Project classpath can't be computed", ex);
 		}
 
 		// Pojoization API
 		final Pojoization pojoization = new Pojoization(reporter);
 		pojoization.setUseLocalXSD();
-		pojoization.pojoization(resourceStore, metadataProvider,
-				manipulationVisitor, ipojoClasspath.createClassLoader());
+		pojoization.pojoization(resourceStore, metadataProvider, manipulationVisitor,
+				ipojoClasspath.createClassLoader());
 
 		// Update progress monitor
 		if (aMonitor != null) {
