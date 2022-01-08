@@ -40,7 +40,7 @@ import java.util.jar.Manifest;
  * @author ogattaz
  *
  */
-public class ManifestReformator {
+public class SortedManifestStreamer {
 
 	/**
 	 * @author ogattaz
@@ -674,7 +674,7 @@ public class ManifestReformator {
 
 		wManifest.getMainAttributes().put(new Name(aId), aValue);
 
-		ManifestReformator wManifestReformator = new ManifestReformator(wManifest);
+		SortedManifestStreamer wManifestReformator = new SortedManifestStreamer(wManifest);
 
 		Attribute wNewAttribute = wManifestReformator.getMainAttributes().get(aId);
 
@@ -687,7 +687,7 @@ public class ManifestReformator {
 	/**
 	 * @throws Exception
 	 */
-	public ManifestReformator() throws Exception {
+	public SortedManifestStreamer() throws Exception {
 		this(manifestMinimalStream());
 	}
 
@@ -697,7 +697,7 @@ public class ManifestReformator {
 	 * @param aBuffer
 	 * @throws IOException
 	 */
-	public ManifestReformator(final InputStream aInputStream) throws IOException {
+	public SortedManifestStreamer(final InputStream aInputStream) throws IOException {
 		super();
 		pSortedAttributes = new ManifestReader(aInputStream).read();
 	}
@@ -706,7 +706,7 @@ public class ManifestReformator {
 	 * @param aManifest
 	 * @throws Exception
 	 */
-	public ManifestReformator(final Manifest aManifest) throws IOException {
+	public SortedManifestStreamer(final Manifest aManifest) throws IOException {
 		this(manifestToStream(aManifest));
 	}
 
@@ -835,7 +835,7 @@ public class ManifestReformator {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isImportPackageAttributeSameAsIn(final ManifestReformator aManifestManipulator) throws Exception {
+	public boolean isImportPackageAttributeSameAsIn(final SortedManifestStreamer aManifestManipulator) throws Exception {
 
 		Attribute wImportPackageAttributeA = getImportPackageAttribute();
 
@@ -868,7 +868,7 @@ public class ManifestReformator {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isIPojoAttributeSameAsIn(final ManifestReformator aManifestManipulator) throws Exception {
+	public boolean isIPojoAttributeSameAsIn(final SortedManifestStreamer aManifestManipulator) throws Exception {
 
 		Attribute wIPojoAttributeA = getIPojoAttribute();
 
@@ -893,7 +893,7 @@ public class ManifestReformator {
 	 * @throws Exception
 	 */
 	public boolean isIPojoAttributesSameAsIn(final Manifest aManifest) throws Exception {
-		return isIPojoAttributesSameAsIn(new ManifestReformator(aManifest));
+		return isIPojoAttributesSameAsIn(new SortedManifestStreamer(aManifest));
 
 	}
 
@@ -902,7 +902,7 @@ public class ManifestReformator {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isIPojoAttributesSameAsIn(final ManifestReformator aManipulator) throws Exception {
+	public boolean isIPojoAttributesSameAsIn(final SortedManifestStreamer aManipulator) throws Exception {
 
 		return isIPojoAttributeSameAsIn(aManipulator) && isImportPackageAttributeSameAsIn(aManipulator);
 	}
@@ -928,7 +928,7 @@ public class ManifestReformator {
 	 * @param aManifestManipulator
 	 * @return
 	 */
-	public boolean replaceIPojoAttribute(final ManifestReformator aManifestReformator) throws IOException {
+	public boolean replaceIPojoAttribute(final SortedManifestStreamer aManifestReformator) throws IOException {
 
 		return replaceIPojoAttribute(aManifestReformator.getIPojoAttribute());
 	}
