@@ -18,9 +18,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.Attributes.Name;
 import java.util.logging.Level;
 
 import org.junit.AfterClass;
@@ -55,6 +53,8 @@ public class CTestManifestReformator {
 
 	private static final AtomicInteger sTestCounter = new AtomicInteger(0);
 
+	private static CCTTimer sTimer = null;
+
 	private static final String TESTNAME = CTestManifestReformator.class.getSimpleName();
 
 	/**
@@ -80,8 +80,9 @@ public class CTestManifestReformator {
 	public static void destroy() throws Exception {
 		String wMethod = getMethodName(1);
 
-		logBanner(CTestManifestReformator.class, wMethod, Level.INFO, "Test of [%s] done. Success=[%d/%d]", TESTNAME,
-				sSuccessCounter.get(), sNbTest);
+		logBanner(CTestManifestReformator.class, wMethod, Level.INFO,
+				"Test of [%s] done. Success=[%d/%d] duration=[%s]", TESTNAME, sSuccessCounter.get(), sNbTest,
+				sTimer.getDurationStrMicroSec());
 	}
 
 	/**
@@ -90,6 +91,8 @@ public class CTestManifestReformator {
 	@BeforeClass
 	public static void initialize() throws Exception {
 		String wMethod = getMethodName(1);
+
+		sTimer = CCTTimer.newStartedTimer();
 
 		logBanner(CTestManifestReformator.class, wMethod, Level.INFO, "Tests of [%s] Begin. NbTest=[%d]", TESTNAME,
 				sNbTest);
@@ -183,12 +186,12 @@ public class CTestManifestReformator {
 		String wMethod = getMethodName(1);
 		int wSize = aManifestReformator.getMainAttributesSize();
 		int wIdxA = 0;
-		for (Entry<Name, Attribute> wEntry : aManifestReformator.getMainAttributesEntrySet()) {
+		for (Attribute wAttribute : aManifestReformator.getOrderedMainAttributes()) {
 			wIdxA++;
-			String wValue = wEntry.getValue().getStringValue();
+			String wValue = wAttribute.getStringValue();
 			int wValueSize = wValue.length();
-			logInfo(this, wMethod, "Attribute(%2d/%2d)=[%-36s]=[%6d][%s]", wIdxA, wSize, wEntry.getKey(), wValueSize,
-					truncatedToString(wEntry.getValue(), 128));
+			logInfo(this, wMethod, "Attribute(%2d/%2d)=[%-36s]=[%6d][%s]", wIdxA, wSize, wAttribute.getId(), wValueSize,
+					truncatedToString(wValue, 128));
 		}
 	}
 

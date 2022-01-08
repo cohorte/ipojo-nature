@@ -8,10 +8,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.TreeMap;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
@@ -447,7 +449,23 @@ public class ManifestReformator {
 	 * @author ogattaz
 	 *
 	 */
-	public class OrderedAttributes extends LinkedHashMap<Name, Attribute> {
+	public class NameComparator implements Comparator<Name> {
+
+		/**
+		 *
+		 */
+		@Override
+		public int compare(Name aName1, Name aName2) {
+
+			return aName1.toString().compareTo(aName2.toString());
+		}
+	}
+
+	/**
+	 * @author ogattaz
+	 *
+	 */
+	public class OrderedAttributes extends TreeMap<Name, Attribute> {
 
 		private static final long serialVersionUID = 394914480441542464L;
 
@@ -455,7 +473,8 @@ public class ManifestReformator {
 		 * 
 		 */
 		OrderedAttributes() {
-			super();
+			// to sort the names which are not comparable !
+			super(new NameComparator());
 		}
 
 		/**
@@ -474,6 +493,23 @@ public class ManifestReformator {
 			return super.get(new Name(aKey));
 		}
 
+		List<Attribute> getOrderedAttributes() {
+
+			List<Attribute> wList = new ArrayList<>();
+			// the firt
+			wList.add(get(ATTRIBUTE_ID_MFVERSION));
+
+			// all the others "name id" sorted by the TreeMap
+			for (Entry<Name, Attribute> wEntry : this.entrySet()) {
+
+				// if the "name id" is not equal to MFVERSION
+				if (!ATTRIBUTE_ID_MFVERSION.equals(wEntry.getKey().toString())) {
+					wList.add(wEntry.getValue());
+				}
+			}
+			return wList;
+		}
+
 		/**
 		 * @param aKey
 		 * @return
@@ -490,25 +526,64 @@ public class ManifestReformator {
 		Attribute remove(final String aKey) {
 			return super.remove(new Attributes.Name(ATTRIBUTE_IPOJO_NAME));
 		}
+
+		/**
+		 * @param aAttribute
+		 * @return
+		 * @throws IOException
+		 */
+		boolean replace(final Attribute aAttribute) throws IOException {
+
+			Attribute wExistingAttribute = get(aAttribute.getName());
+
+			if (wExistingAttribute == null) {
+				throw new IOException(String.format("Unable to replace attribute [%s], it doesn't exist in the Map",
+						aAttribute.getId()));
+			}
+			wExistingAttribute.setContent(aAttribute.getContent());
+
+			return true;
+		}
+
+		/**
+		 * @param aOutputStream
+		 * @return
+		 * @throws IOException
+		 */
+		int write(final OutputStream aOutputStream) throws IOException {
+			int wSize = 0;
+
+			// get the ordrer list Attribute
+
+			List<Attribute> wOrderedAttributes = getOrderedAttributes();
+
+			for (Attribute wAttribute : wOrderedAttributes) {
+				wSize += wAttribute.write(aOutputStream);
+			}
+			return wSize;
+		}
 	}
 
-	public static final String ATTRIBUTE_ID_SEPARATOR = ": ";
+	public static final String ATTRIBUTE_ID_MFVERSION = "Manifest-Version";
+	public static final byte[] ATTRIBUTE_ID_MFVERSION_BYTES = ATTRIBUTE_ID_MFVERSION.getBytes();
 
+	public static final String ATTRIBUTE_ID_SEPARATOR = ": ";
 	public static final byte[] ATTRIBUTE_ID_SEPARATOR_BYTES = ATTRIBUTE_ID_SEPARATOR.getBytes();
 
 	public static final String ATTRIBUTE_IMPORT_PACKAGE = "Import-Package";
 
 	public static final String ATTRIBUTE_IPOJO_NAME = "iPOJO-Components";
 
-	public static final String ATTRIBUTE_MF_VESRION = "Manifest-Version";
-
 	public static final String LINE_BREAK = "\r\n";
-
 	public static final String LINE_BREAK_AND_FOLLOW = "\r\n ";
+
+	public static final byte[] LINE_BREAK_AND_FOLLOW_BYTES = LINE_BREAK_AND_FOLLOW.getBytes();
+	public static final byte[] LINE_BREAK_BYTES = LINE_BREAK.getBytes();
 
 	private static final String MANIFEST_MINIMAL = "Manifest-Version: 1.0\r\n\r\n";
 
 	public static final String MANIFEST_VERSION_10 = "1.0";
+	public static final byte[] MANIFEST_VERSION_10_BYTES = MANIFEST_VERSION_10.getBytes();
 
 	/**
 	 * @param aBuffer
@@ -541,7 +616,7 @@ public class ManifestReformator {
 	 * @return
 	 * @throws Exception
 	 */
-	private static InputStream manifestMinimalStream() throws Exception {
+	private static InputStream manifestMinimalStream() throws IOException {
 
 		// create input stream from baos
 		return new ByteArrayInputStream(MANIFEST_MINIMAL.getBytes(StandardCharsets.UTF_8));
@@ -552,7 +627,7 @@ public class ManifestReformator {
 	 * @return
 	 * @throws Exception
 	 */
-	private static InputStream manifestToStream(final Manifest aManifest) throws Exception {
+	private static InputStream manifestToStream(final Manifest aManifest) throws IOException {
 
 		// create temporary bayte array output stream
 		ByteArrayOutputStream wOutputStream = new ByteArrayOutputStream();
@@ -570,11 +645,11 @@ public class ManifestReformator {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Manifest newManifest(final InputStream aInputStream) throws Exception {
+	public static Manifest newManifest(final InputStream aInputStream) throws IOException {
 		try {
 			return new Manifest(aInputStream);
 		} catch (Exception e) {
-			throw new Exception(String.format("Unable to instanciate ManifestManipulator using the InputStream: %s",
+			throw new IOException(String.format("Unable to instanciate ManifestManipulator using the InputStream: %s",
 					dumpInputStreamInfos(aInputStream)), e);
 		}
 	}
@@ -583,7 +658,7 @@ public class ManifestReformator {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Manifest newMinimalManifest() throws Exception {
+	public static Manifest newMinimalManifest() throws IOException {
 		return newManifest(manifestMinimalStream());
 	}
 
@@ -595,18 +670,18 @@ public class ManifestReformator {
 	 */
 	private static byte[] toAttributeContent(final String aId, final String aValue) throws IOException {
 
-		byte[] wId = aId.getBytes(StandardCharsets.UTF_8);
-		byte[] wContent = aValue.getBytes(StandardCharsets.UTF_8);
+		Manifest wManifest = newMinimalManifest();
 
-		// create temporary byte array output stream
-		ByteArrayOutputStream wOutputStream = new ByteArrayOutputStream();
-		wOutputStream.write(wId);
-		wOutputStream.write(ATTRIBUTE_ID_SEPARATOR_BYTES);
-		wOutputStream.write(wContent);
+		wManifest.getMainAttributes().put(new Name(aId), aValue);
 
-		return wOutputStream.toByteArray();
+		ManifestReformator wManifestReformator = new ManifestReformator(wManifest);
+
+		Attribute wNewAttribute = wManifestReformator.getMainAttributes().get(aId);
+
+		return wNewAttribute.getContent();
 	}
 
+	// The map of Arribute : private member of ManifestReformator
 	private final OrderedAttributes pSortedAttributes;
 
 	/**
@@ -622,7 +697,7 @@ public class ManifestReformator {
 	 * @param aBuffer
 	 * @throws IOException
 	 */
-	public ManifestReformator(final InputStream aInputStream) throws Exception {
+	public ManifestReformator(final InputStream aInputStream) throws IOException {
 		super();
 		pSortedAttributes = new ManifestReader(aInputStream).read();
 	}
@@ -631,7 +706,7 @@ public class ManifestReformator {
 	 * @param aManifest
 	 * @throws Exception
 	 */
-	public ManifestReformator(final Manifest aManifest) throws Exception {
+	public ManifestReformator(final Manifest aManifest) throws IOException {
 		this(manifestToStream(aManifest));
 	}
 
@@ -703,13 +778,6 @@ public class ManifestReformator {
 	/**
 	 * @return
 	 */
-	public Set<Entry<Name, Attribute>> getMainAttributesEntrySet() {
-		return getMainAttributes().entrySet();
-	}
-
-	/**
-	 * @return
-	 */
 	public int getMainAttributesSize() {
 		return getMainAttributes().size();
 	}
@@ -717,9 +785,16 @@ public class ManifestReformator {
 	/**
 	 * @return
 	 */
+	public List<Attribute> getOrderedMainAttributes() {
+		return getMainAttributes().getOrderedAttributes();
+	}
+
+	/**
+	 * @return
+	 */
 	public String getVersion() {
 
-		return getMainAttributes().getStringValue(ATTRIBUTE_MF_VESRION);
+		return getMainAttributes().getStringValue(ATTRIBUTE_ID_MFVERSION);
 	}
 
 	/**
@@ -844,19 +919,18 @@ public class ManifestReformator {
 	 * @param aIPojoAttribute
 	 * @return
 	 */
-	public boolean replaceIPojoAttribute(final Attribute aIPojoAttribute) {
+	public boolean replaceIPojoAttribute(final Attribute aIPojoAttribute) throws IOException {
 
-		removeIPojoAttribute();
-		return appendIPojoAttribute(aIPojoAttribute);
+		return getMainAttributes().replace(aIPojoAttribute);
 	}
 
 	/**
 	 * @param aManifestManipulator
 	 * @return
 	 */
-	public boolean replaceIPojoAttribute(final ManifestReformator aOrderedManifest) {
+	public boolean replaceIPojoAttribute(final ManifestReformator aManifestReformator) throws IOException {
 
-		return replaceIPojoAttribute(aOrderedManifest.getIPojoAttribute());
+		return replaceIPojoAttribute(aManifestReformator.getIPojoAttribute());
 	}
 
 	/**
@@ -891,11 +965,11 @@ public class ManifestReformator {
 	/**
 	 * @param awOutputStream
 	 * @return
+	 * @throws IOException
 	 */
-	public int write(final OutputStream awOutputStream) {
-		int wSize = 0;
+	public int write(final OutputStream aOutputStream) throws IOException {
 
-		return wSize;
+		return getMainAttributes().write(aOutputStream);
 	}
 
 }
