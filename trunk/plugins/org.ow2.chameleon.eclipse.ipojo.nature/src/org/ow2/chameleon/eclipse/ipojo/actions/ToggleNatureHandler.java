@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.ow2.chameleon.eclipse.ipojo.Activator;
 import org.ow2.chameleon.eclipse.ipojo.builder.IPojoNature;
 import org.ow2.chameleon.eclipse.ipojo.core.ManifestUpdater;
@@ -180,8 +181,7 @@ public class ToggleNatureHandler extends AbstractProjectActionHandler {
 
 		if (aSetNature) {
 			// Get the shell
-			final Shell shell = Activator.getPluginInstance().getWorkbench()
-					.getActiveWorkbenchWindow().getShell();
+			final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
 			// Open the configuration dialog
 			final NatureConfigurationDialog configDialog = new NatureConfigurationDialog(

@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -63,12 +62,6 @@ public final class Utilities {
 	/** Metadata file path property */
 	public static final QualifiedName METADATA_FILE_PROPERTY = new QualifiedName(Activator.PLUGIN_ID,
 			"ipojo.metadata.path");
-
-	/** Manifest.attr field */
-	private static Field sAttrField;
-
-	/** Manifest.map field */
-	private static Field sEntriesField;
 
 	/**
 	 * Hidden constructor
