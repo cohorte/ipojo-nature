@@ -16,9 +16,8 @@ package org.ow2.chameleon.eclipse.ipojo.m2e;
 
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.resources.IProject;
@@ -260,11 +259,10 @@ public class IPojoProjectConfigurator extends AbstractProjectConfigurator {
 	public boolean usesAnnotations(final IMavenProjectFacade aFacade,
 			final IProgressMonitor aMonitor) throws CoreException {
 
-		final Set<Artifact> dependencies = aFacade.getMavenProject(aMonitor)
-				.getDependencyArtifacts();
-		for (final Artifact artifact : dependencies) {
-			if (ANNOTATIONS_GROUP_ID.equals(artifact.getGroupId())
-					&& ANNOTATIONS_ARTIFACT_ID.equals(artifact.getArtifactId())) {
+		final List<Dependency> dependencies = aFacade.getMavenProject(aMonitor).getDependencies();
+		for (final Dependency dependency : dependencies) {
+			if (ANNOTATIONS_GROUP_ID.equals(dependency.getGroupId())
+					&& ANNOTATIONS_ARTIFACT_ID.equals(dependency.getArtifactId())) {
 				// Found artifacts
 				return true;
 			}
