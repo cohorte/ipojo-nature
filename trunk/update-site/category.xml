@@ -3,7 +3,7 @@
    <description name="iPOJO Builder for Eclipse update site" url="http://wiki.chameleon.ow2.org/">
       This update site provides the iPOJO Builder for Eclipse.
    </description>
-   <feature url="features/org.ow2.chameleon.eclipse.ipojo.nature.feature_1.2.0.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.nature.feature" version="1.2.0.qualifier">
+   <feature url="features/org.ow2.chameleon.eclipse.ipojo.nature.feature_1.2.1.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.nature.feature" version="1.2.1.qualifier">
       <category name="ipojo"/>
    </feature>
    <feature url="features/org.ow2.chameleon.eclipse.ipojo.m2e.feature_1.2.0.qualifier.jar" id="org.ow2.chameleon.eclipse.ipojo.m2e.feature" version="1.2.0.qualifier">

@@ -1,0 +1,93 @@
+Manifest-Version: 1.0
+Bundle-Activator: com.cohorte.iot.aggregator.core.Activator
+Bundle-ManifestVersion: 2
+Bundle-Name: Cohorte IotPack :: Aggregator :: Core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: com.cohorte.iot.aggregator.core
+Bundle-Vendor: COHORTE TECHNOLOGIES
+Bundle-Version: 1.13.0
+Created-By: iPOJO 1.12.1 
+Export-Package: com.cohorte.iot.aggregator.core;uses:="org.osgi.framew
+ ork",com.cohorte.iot.aggregator.core.api,com.cohorte.iot.aggregator.c
+ ore.api.reactivestreams,com.cohorte.iot.aggregator.core.api.shell,com
+ .cohorte.iot.aggregator.core.api.storage; uses:="com.cohorte.iot.api.
+ model,  org.bson,  com.mongodb.client.model,  com.mongodb.client",com
+ .cohorte.iot.aggregator.core.features; uses:="org.psem2m.isolates.bas
+ e,  com.cohorte.iot.api.security,  com.cohorte.iot.api.managers,  com
+ .cohorte.iot.api.model,  org.psem2m.utilities.logging,  com.cohorte.i
+ ot.api.features,  com.cohorte.iot.aggregator.core.internal,  com.coho
+ rte.iot.aggregator.core.api,  org.psem2m.utilities.files",com.cohorte
+ .iot.aggregator.core.internal.formatter,com.cohorte.iot.aggregator.co
+ re.internal.logger,com.cohorte.iot.aggregator.core.internal.manager; 
+ uses:="com.cohorte.iot.aggregator.core.api.storage,  org.psem2m.utili
+ ties.logging,  com.cohorte.iot.api.managers.system,  com.cohorte.iot.
+ api.security,  com.cohorte.iot.api.managers,  com.cohorte.iot.api.mod
+ el,  org.psem2m.utilities,  org.bson,  com.cohorte.iot.aggregator.cor
+ e.internal.authz,  com.cohorte.iot.api.features,  com.cohorte.iot.agg
+ regator.core.api,  org.apache.shiro.subject,  com.cohorte.iot.api.mod
+ el.references",com.cohorte.iot.aggregator.core.managers; uses:="org.p
+ sem2m.isolates.base,  org.cohorte.utilities.config,  com.cohorte.iot.
+ aggregator.core.api.storage,  com.cohorte.iot.aggregator.core.securit
+ y,  org.osgi.framework,  com.cohorte.iot.api.managers.system,  com.co
+ horte.iot.api.managers,  com.cohorte.iot.api.security,  com.cohorte.i
+ ot.api.model,  org.bson,  com.cohorte.iot.api.features,  com.cohorte.
+ iot.aggregator.core.internal,  com.cohorte.iot.aggregator.core.api,  
+ com.cohorte.iot.api.model.references,  com.cohorte.iot.aggregator.cor
+ e.internal.manager",com.cohorte.iot.aggregator.core.security; uses:="
+ com.cohorte.iot.api.security,  org.apache.shiro.authc,  org.psem2m.ut
+ ilities,  com.cohorte.iot.aggregator.core.internal,  com.cohorte.iot.
+ api.features",com.cohorte.iot.aggregator.core.tools.asciitable,com.co
+ horte.iot.aggregator.core.tools.asciitable.spec,com.cohorte.iot.aggre
+ gator.external.services
+Import-Package: com.auth0.jwt, com.auth0.jwt.algorithms, com.auth0.jwt
+ .exceptions, com.auth0.jwt.impl, com.auth0.jwt.interfaces, com.cohort
+ e.iot.aggregator.core.api.reactivestreams, com.cohorte.iot.aggregator
+ .core.api.storage, com.cohorte.iot.api, com.cohorte.iot.api.clients, 
+ com.cohorte.iot.api.exceptions, com.cohorte.iot.api.features, com.coh
+ orte.iot.api.labels, com.cohorte.iot.api.managers, com.cohorte.iot.ap
+ i.managers.system, com.cohorte.iot.api.model, com.cohorte.iot.api.mod
+ el.annotation, com.cohorte.iot.api.model.channel, com.cohorte.iot.api
+ .model.graph, com.cohorte.iot.api.model.references, com.cohorte.iot.a
+ pi.model.system, com.cohorte.iot.api.physicaldevice, com.cohorte.iot.
+ api.query, com.cohorte.iot.api.rest.beans, com.cohorte.iot.api.securi
+ ty, com.cohorte.iot.api.subsystem, com.cohorte.iot.api.tasks, com.coh
+ orte.iot.api.trigger, com.cohorte.iot.api.world, com.cohorte.iot.core
+ .api, com.jayway.jsonpath, com.mongodb.client, com.mongodb.client.mod
+ el, de.christophkraemer.rhino.javascript, de.christophkraemer.rhino.u
+ til, javax.script, javax.servlet, net.sf.ehcache;version=2.10.3, net.
+ sf.ehcache.config;version=2.10.3, org.apache.felix.ipojo, org.apache.
+ felix.ipojo.architecture, org.apache.felix.service.command;status=pro
+ visional, org.apache.http;version=4.4.4, org.apache.http.client;versi
+ on=4.5.2, org.apache.http.client.methods;version=4.5.2, org.apache.ht
+ tp.entity;version=4.4.4, org.apache.http.impl.client;version=4.5.2, o
+ rg.apache.http.message;version=4.4.4, org.apache.http.util;version=4.
+ 4.4, org.apache.shiro;version=1.3.2, org.apache.shiro.authc;version=1
+ .3.2, org.apache.shiro.authc.credential;version=1.3.2, org.apache.shi
+ ro.authc.pam;version=1.3.2, org.apache.shiro.authz;version=1.3.2, org
+ .apache.shiro.authz.annotation;version=1.3.2, org.apache.shiro.cache;
+ version=1.3.2, org.apache.shiro.cache.ehcache;version=1.3.2, org.apac
+ he.shiro.concurrent;version=1.3.2, org.apache.shiro.config;version=1.
+ 3.2, org.apache.shiro.crypto;version=1.3.2, org.apache.shiro.crypto.h
+ ash;version=1.3.2, org.apache.shiro.mgt;version=1.3.2, org.apache.shi
+ ro.realm;version=1.3.2, org.apache.shiro.session;version=1.3.2, org.a
+ pache.shiro.session.mgt;version=1.3.2, org.apache.shiro.session.mgt.e
+ is;version=1.3.2, org.apache.shiro.subject;version=1.3.2, org.apache.
+ shiro.util;version=1.3.2, org.bson;version=3.3.0, org.bson.conversion
+ s;version=3.3.0, org.bson.json;version=3.10.2, org.bson.types;version
+ =3.6.3, org.cohorte.extra.config, org.cohorte.extra.jsrhino, org.coho
+ rte.herald, org.cohorte.httpclient, org.cohorte.iot.json.validator.ap
+ i, org.cohorte.isolates.slf4j_ocil, org.cohorte.remote, org.cohorte.u
+ tilities.crypto, org.cohorte.utilities.json, org.cohorte.utilities.js
+ on.provider, org.cohorte.utilities.tests, org.javatuples, org.osgi.fr
+ amework, org.osgi.service.cm, org.osgi.service.component;version=1.2.
+ 1, org.osgi.service.device;version=1.1.0, org.osgi.service.event;vers
+ ion=1.3.0, org.osgi.service.log, org.osgi.util.tracker;version=1.5.1,
+  org.psem2m.isolates.base, org.psem2m.isolates.base.activators, org.p
+ sem2m.isolates.constants, org.psem2m.isolates.loggers, org.psem2m.iso
+ lates.services.dirs, org.psem2m.utilities, org.psem2m.utilities.files
+ , org.psem2m.utilities.json, org.psem2m.utilities.logging, org.psem2m
+ .utilities.rsrc, org.psem2m.utilities.scripting, org.reactivestreams;
+ version=1.0.2
+Provide-Package: com.cohorte.iot.aggregator.core.api
+Require-Bundle: com.cohorte.iot.api
+
