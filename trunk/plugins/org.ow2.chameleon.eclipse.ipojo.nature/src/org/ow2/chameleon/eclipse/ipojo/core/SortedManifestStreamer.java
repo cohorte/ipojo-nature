@@ -377,14 +377,42 @@ public class SortedManifestStreamer {
 		}
 
 		/**
-		 * read up to 8192 bytes in the inpustream
+		 * Emulates Java 11's InputStream.readNBytes
+		 * 
+		 * @param maxBytes Maximum number of bytes to read
+		 * @return The read data
+		 * @throws IOException Error reading data
+		 */
+		private byte[] readNBytes(final InputStream inStream, final int maxBytes) throws IOException {
+			final byte[] buffer = new byte[maxBytes];
+			int total = 0;
+			do {
+				int readCount = inStream.read(buffer, total, maxBytes - total);
+				if (readCount < 0) {
+					break;
+				}
+				total += readCount;
+			} while (true);
+
+			if (total != maxBytes) {
+				final byte[] fitArray = new byte[total];
+				System.arraycopy(buffer, 0, fitArray, 0, total);
+				return fitArray;
+			} else {
+				return buffer;
+			}
+		}
+
+		/**
+		 * read up to 8192 bytes in the input stream
 		 * 
 		 * @return the number of bytes set or added in pMf
 		 * @throws IOException
 		 */
 		private int readInStream() throws IOException {
 
-			byte[] wBuffer = pInputStream.readNBytes(8192);
+			// Read up to 8kb
+			byte[] wBuffer = readNBytes(pInputStream, 8192);
 
 			//
 			if (pMf != null && pMax < pMfLen) {
