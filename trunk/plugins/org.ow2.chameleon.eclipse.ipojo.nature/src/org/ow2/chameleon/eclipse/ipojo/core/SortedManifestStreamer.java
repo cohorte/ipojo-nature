@@ -1036,8 +1036,10 @@ public class SortedManifestStreamer {
 	 * @throws IOException
 	 */
 	public boolean replaceIPojoAttribute(final Attribute aAttribute) throws IOException {
-
-		if (!ATTRIBUTE_IPOJO_NAME.equals(aAttribute.getId())) {
+		if( aAttribute == null  ) {
+			return true;
+		}
+		if ( !ATTRIBUTE_IPOJO_NAME.equals(aAttribute.getId())) {
 			throw new IOException(String.format("Unable to replace the attibute [%s] using an attribute [%s]",
 					ATTRIBUTE_IPOJO_NAME, aAttribute.getId()));
 		}

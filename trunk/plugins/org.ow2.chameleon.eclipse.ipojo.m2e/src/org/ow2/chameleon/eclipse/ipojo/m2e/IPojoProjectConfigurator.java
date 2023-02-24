@@ -79,8 +79,8 @@ public class IPojoProjectConfigurator extends AbstractProjectConfigurator {
 	public void configure(final ProjectConfigurationRequest request,
 			final IProgressMonitor monitor) throws CoreException {
 
-		final IMavenProjectFacade facade = request.getMavenProjectFacade();
-		final IProject project = request.getProject();
+		final IMavenProjectFacade facade = request.mavenProjectFacade();
+		final IProject project = request.mavenProjectFacade().getProject();
 
 		if (isIPojoMavenProject(facade, monitor)) {
 			// iPOJO Project -> Add the iPOJO Nature
